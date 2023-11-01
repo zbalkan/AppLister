@@ -5,6 +5,8 @@ using System.Management.Instrumentation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
+[assembly: WmiConfiguration(@"root\cimv2", HostingModel = ManagementHostingModel.LocalSystem)]
+
 namespace WingetWmiProvider
 {
     [System.ComponentModel.RunInstaller(true)]
@@ -31,7 +33,7 @@ namespace WingetWmiProvider
         {
             try
             {
-                var MC = new ManagementClass(@"root\cimv2:Win32_WingetPackages");
+                var MC = new ManagementClass(@"root\cimv2:Win32_WingetPackage");
                 MC.Delete();
             }
             catch { }
