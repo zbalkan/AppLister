@@ -5,7 +5,7 @@ using System.Management.Instrumentation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace WingetShared
+namespace WingetWmiProvider
 {
     [System.ComponentModel.RunInstaller(true)]
     public class WMIProviderInstaller : DefaultManagementInstaller

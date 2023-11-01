@@ -1,6 +1,6 @@
 ﻿using System.Management.Instrumentation;
 
-namespace WingetShared
+namespace WingetWmiProvider
 {
     [ManagementEntity(Name = "Win32_WingetPackages")]
     public class WingetPackages
