@@ -4,4 +4,5 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>", Scope = "member", Target = "~M:WingetService.WingetService.FetchWingetPackages~System.Collections.Generic.List{WingetShared.WingetPackages}")]
+[assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>", Scope = "member", Target = "~M:WingetService.WingetService.FetchWingetPackages~System.Collections.Generic.List{WingetWmiProvider.WingetPackages}")]
+[assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "<Pending>", Scope = "member", Target = "~M:WingetService.WingetService.FetchWingetPackages~System.Collections.Generic.List{WingetService.WingetPackages}")]

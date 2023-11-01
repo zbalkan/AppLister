@@ -10,10 +10,9 @@ namespace WingetService
     public class WindowsBackgroundService : BackgroundService
     {
         private readonly ILogger<WindowsBackgroundService> _logger;
-
         private readonly WingetService _wingetService;
+        private readonly int _queryPeriodInMilliseconds;
 
-        private readonly int _queryPeriodInMinutes;
         private const int DefaultQueryPeriodInMinutes = 600;  // Default period constant
         private const string QueryPeriodKey = "QueryPeriodInMinutes";
         private const string ServiceKeyPath = @"SOFTWARE\zb\WingetService";
@@ -23,19 +22,10 @@ namespace WingetService
             _logger = logger;
             _wingetService = wingetService;
 
-            // Read query period and memory-mapped file path from registry
-            using (var key = Registry.LocalMachine.OpenSubKey(ServiceKeyPath))
+            using var key = Registry.LocalMachine.OpenSubKey(ServiceKeyPath) ?? throw new TaskCanceledException("Registry keys not found.");
+            if (key.GetValue(QueryPeriodKey, DefaultQueryPeriodInMinutes) is int period)
             {
-                if (key?.GetValue(QueryPeriodKey) is string period)
-                {
-                    _queryPeriodInMinutes = Convert.ToInt32(period);
-                }
-            }
-
-            // Set default period if not found in registry
-            if (_queryPeriodInMinutes <= 0)
-            {
-                _queryPeriodInMinutes = DefaultQueryPeriodInMinutes;
+                _queryPeriodInMilliseconds = period * 60 * 1000;
             }
         }
 
@@ -45,7 +35,7 @@ namespace WingetService
             {
                 _wingetService.FetchAndSaveWingetPackages();
                 _logger.LogInformation("WindowsBackgroundService running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(_queryPeriodInMinutes, stoppingToken);
+                await Task.Delay(_queryPeriodInMilliseconds, stoppingToken);
             }
         }
     }

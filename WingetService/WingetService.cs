@@ -1,37 +1,67 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.Win32;
-using WingetShared;
 using System.Management.Automation;
-using System.Linq;
+using Namotion.Reflection;
+using System;
+using Microsoft.Extensions.Logging;
 
 namespace WingetService
 {
     public sealed class WingetService
     {
+        private readonly ILogger<WingetService> _logger;
+
         private const string ServiceKeyPath = @"SOFTWARE\zb\WingetService";
         private const string PackageDataKey = "Packages";
+
+        public WingetService(ILogger<WingetService> logger)
+        {
+            _logger = logger;
+        }
 
         private List<WingetPackages> FetchWingetPackages()
         {
             var packages = new List<WingetPackages>();
 
-            using (var ps = PowerShell.Create())
+            using var ps = PowerShell.Create();
+            ps.AddCommand("Get-WinGetPackage");
+            var commandResult = ps.Invoke();
+
+            if (commandResult == null)
             {
-                ps.AddCommand("Get-WinGetPackage");
+                return packages;
+            }
+            foreach (var item in commandResult)
+            {
+                var id = item.Properties["Id"].Value.ToString();
+                var installedVersion = item.Properties["InstalledVersion"].Value.ToString();
+                var name = item.Properties["Name"].Value.ToString();
+                var isUpdateAvailable = (bool)item.Properties["IsUpdateAvailable"].Value;
 
-                foreach (var result in ps.Invoke())
+                var source = string.Empty;
+                if (item.HasProperty("Source"))
                 {
-                    var id = result.Properties["Id"].Value.ToString();
-                    var installedVersion = result.Properties["InstalledVersion"].Value.ToString();
-                    var name = result.Properties["ServiceKeyPath"].Value.ToString();
-                    var isUpdateAvailable = bool.Parse(result!.Properties["IsUpdateAvailable"].Value.ToString()!);
-                    var source = result.Properties["Source"].Value.ToString();
-                    var availableVersions = ((object[])result.Properties["AvailableVersions"].Value).Select(o => o.ToString()).ToArray();
-
-                    var package = new WingetPackages(id, installedVersion, name, isUpdateAvailable, source, availableVersions);
-                    packages.Add(package);
+                    source = item.Properties["Source"].Value.ToString();
                 }
+
+                var availableVersions = Array.Empty<string>();
+                if (item.HasProperty("AvailableVersions"))
+                {
+                    availableVersions = item.Properties["AvailableVersions"].Value as string[];
+                }
+
+                var package = new WingetPackages()
+                {
+                    Id = id!,
+                    InstalledVersion = installedVersion!,
+                    Name = name!,
+                    IsUpdateAvailable = isUpdateAvailable,
+                    Source = source!,
+                    AvailableVersions = availableVersions!
+                };
+
+                packages.Add(package);
             }
 
             return packages;
@@ -39,12 +69,14 @@ namespace WingetService
 
         public void FetchAndSaveWingetPackages()
         {
+            _logger.LogInformation("Fetching packages");
             var packages = FetchWingetPackages();
 
             var serialized = JsonSerializer.Serialize(packages);
 
+            _logger.LogInformation("Saving packages to registry");
             using var key = Registry.LocalMachine.OpenSubKey(ServiceKeyPath, true);
-            key?.SetValue(PackageDataKey, serialized);
+            key?.SetValue(PackageDataKey, serialized, RegistryValueKind.String);
         }
     }
 }
