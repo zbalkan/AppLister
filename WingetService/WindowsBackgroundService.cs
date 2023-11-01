@@ -14,7 +14,7 @@ namespace WingetService
         private readonly WingetService _wingetService;
 
         private readonly int _queryPeriodInMinutes;
-        private const int DefaultQueryPeriodInSeconds = 600;  // Default period constant
+        private const int DefaultQueryPeriodInMinutes = 600;  // Default period constant
         private const string QueryPeriodKey = "QueryPeriodInMinutes";
         private const string ServiceKeyPath = @"SOFTWARE\zb\WingetService";
 
@@ -35,7 +35,7 @@ namespace WingetService
             // Set default period if not found in registry
             if (_queryPeriodInMinutes <= 0)
             {
-                _queryPeriodInMinutes = DefaultQueryPeriodInSeconds * 60;
+                _queryPeriodInMinutes = DefaultQueryPeriodInMinutes;
             }
         }
 
@@ -45,7 +45,7 @@ namespace WingetService
             {
                 _wingetService.FetchAndSaveWingetPackages();
                 _logger.LogInformation("WindowsBackgroundService running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(DefaultQueryPeriodInSeconds, stoppingToken);
+                await Task.Delay(_queryPeriodInMinutes, stoppingToken);
             }
         }
     }
