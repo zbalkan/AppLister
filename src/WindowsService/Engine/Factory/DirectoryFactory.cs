@@ -55,7 +55,7 @@ namespace WindowsService.Engine.Factory
         }
 
         /// <summary>
-        /// Get directories to scan for applications
+        ///     Get directories to scan for applications
         /// </summary>
         private static IEnumerable<DirectoryInfo> GetDirectoriesToScan(IEnumerable<ApplicationUninstallerEntry> existingUninstallers,
             IEnumerable<DirectoryInfo> pfDirs, IEnumerable<string> dirsToSkip)
@@ -141,7 +141,7 @@ namespace WindowsService.Engine.Factory
         }
 
         /// <summary>
-        /// Get directories which are already used and should be skipped
+        ///     Get directories which are already used and should be skipped
         /// </summary>
         private static IEnumerable<string> GetDirectoriesToSkip(IEnumerable<ApplicationUninstallerEntry> existingUninstallers,
             IEnumerable<DirectoryInfo> pfDirectories)
@@ -191,7 +191,6 @@ namespace WindowsService.Engine.Factory
                 }
             }).Where(x => x != null);
         }
-
 
         private static void CreateFromDirectoryHelper(ICollection<ApplicationUninstallerEntry> results,
             DirectoryInfo directory, int level, ICollection<string> dirsToSkip)
@@ -260,7 +259,8 @@ namespace WindowsService.Engine.Factory
         }
 
         /// <summary>
-        /// Try to get the main executable from the filtered folders. If no executables are present check subfolders.
+        ///     Try to get the main executable from the filtered folders. If no executables are
+        ///     present check subfolders.
         /// </summary>
         public static IEnumerable<ApplicationUninstallerEntry> TryCreateFromDirectory(
             DirectoryInfo directory, ICollection<string> dirsToSkip)

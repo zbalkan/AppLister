@@ -46,7 +46,8 @@ namespace WindowsService.Engine.Startup
         }.AsEnumerable();
 
         /// <summary>
-        ///     Look for and return all of the startup entries stored in Startup folders and Run/RunOnce registry keys.
+        ///     Look for and return all of the startup entries stored in Startup folders and
+        ///     Run/RunOnce registry keys.
         /// </summary>
         public static IEnumerable<StartupEntry> GetStartupItems()
         {

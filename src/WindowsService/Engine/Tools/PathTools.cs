@@ -1,11 +1,11 @@
-﻿using Microsoft.Win32;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System;
-using WindowsService.Extensions;
 using System.Management;
+using System.Text.RegularExpressions;
+using Microsoft.Win32;
+using WindowsService.Extensions;
 
 namespace WindowsService.Engine.Tools
 {
@@ -17,58 +17,58 @@ namespace WindowsService.Engine.Tools
             '\\',
             '/',
             '"',
-            // SPACE 
+            // SPACE
             '\u0020',
-            // NO-BREAK SPACE 
+            // NO-BREAK SPACE
             '\u00A0',
-            // OGHAM SPACE MARK 
+            // OGHAM SPACE MARK
             '\u1680',
-            // EN QUAD 
+            // EN QUAD
             '\u2000',
-            // EM QUAD 
+            // EM QUAD
             '\u2001',
-            // EN SPACE 
+            // EN SPACE
             '\u2002',
-            // EM SPACE 
+            // EM SPACE
             '\u2003',
-            // THREE-PER-EM SPACE 
+            // THREE-PER-EM SPACE
             '\u2004',
-            // FOUR-PER-EM SPACE 
+            // FOUR-PER-EM SPACE
             '\u2005',
-            // SIX-PER-EM SPACE 
+            // SIX-PER-EM SPACE
             '\u2006',
-            // FIGURE SPACE 
+            // FIGURE SPACE
             '\u2007',
-            // PUNCTUATION SPACE 
+            // PUNCTUATION SPACE
             '\u2008',
-            // THIN SPACE 
+            // THIN SPACE
             '\u2009',
-            // HAIR SPACE 
+            // HAIR SPACE
             '\u200A',
-            // NARROW NO-BREAK SPACE 
+            // NARROW NO-BREAK SPACE
             '\u202F',
-            // MEDIUM MATHEMATICAL SPACE 
+            // MEDIUM MATHEMATICAL SPACE
             '\u205F',
-            // and IDEOGRAPHIC SPACE 
+            // and IDEOGRAPHIC SPACE
             '\u3000',
 
-            // LINE SEPARATOR 
+            // LINE SEPARATOR
             '\u2028',
 
-            // PARAGRAPH SEPARATOR  
+            // PARAGRAPH SEPARATOR
             '\u2029',
 
-            // CHARACTER TABULATION 
+            // CHARACTER TABULATION
             '\u0009',
-            // LINE FEED 
+            // LINE FEED
             '\u000A',
-            // LINE TABULATION 
+            // LINE TABULATION
             '\u000B',
-            // FORM FEED 
+            // FORM FEED
             '\u000C',
-            // CARRIAGE RETURN 
+            // CARRIAGE RETURN
             '\u000D',
-            // NEXT LINE 
+            // NEXT LINE
             '\u0085'
         };
 
@@ -98,10 +98,12 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        /// Convert path from the \\?\Volume{} form to the drive letter form.
-        /// Only works for volumes with assigned drive letters.
+        ///     Convert path from the \\?\Volume{} form to the drive letter form. Only works for
+        ///     volumes with assigned drive letters.
         /// </summary>
-        /// <param name="volumePath">Path to any element with volume in \\?\Volume{} form.</param>
+        /// <param name="volumePath">
+        ///     Path to any element with volume in \\?\Volume{} form.
+        /// </param>
         public static string ResolveVolumeIdToPath(string volumePath)
         {
             if (_volumeIdLookup == null)
@@ -116,10 +118,14 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        /// Get full path of an application available in current environment. Same as writing it's name in CMD.
+        ///     Get full path of an application available in current environment. Same as writing
+        ///     it's name in CMD.
         /// </summary>
-        /// <param name="filename">Name of the exectuable, including the extension</param>
-        /// <returns></returns>
+        /// <param name="filename">
+        ///     Name of the exectuable, including the extension
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static string GetFullPathOfExecutable(string filename)
         {
             IEnumerable<string> paths = new[] { Environment.CurrentDirectory };
@@ -129,7 +135,9 @@ namespace WindowsService.Engine.Tools
             return combinations.FirstOrDefault(File.Exists) ?? GetExecutablePathFromAppPaths(filename);
         }
 
-        /// <param name="exename">name of the exectuable, including .exe</param>
+        /// <param name="exename">
+        ///     name of the exectuable, including .exe
+        /// </param>
         private static string GetExecutablePathFromAppPaths(string exename)
         {
             const string appPaths = @"Software\Microsoft\Windows\CurrentVersion\App Paths";
@@ -177,9 +185,15 @@ namespace WindowsService.Engine.Tools
         /// <summary>
         ///     Trim supplied path to the required depth.
         /// </summary>
-        /// <param name="path">Path to be trimmed</param>
-        /// <param name="maxLevel">Maximal depth of the path, 0 will show only the root node</param>
-        /// <returns>Trimmed path</returns>
+        /// <param name="path">
+        ///     Path to be trimmed
+        /// </param>
+        /// <param name="maxLevel">
+        ///     Maximal depth of the path, 0 will show only the root node
+        /// </param>
+        /// <returns>
+        ///     Trimmed path
+        /// </returns>
         public static string GetPathUpToLevel(string path, int maxLevel)
         {
             return GetPathUpToLevel(path, maxLevel, false);
@@ -188,10 +202,18 @@ namespace WindowsService.Engine.Tools
         /// <summary>
         ///     Trim supplied path or full filename to the required depth.
         /// </summary>
-        /// <param name="path">Path to be trimmed</param>
-        /// <param name="maxLevel">Maximal depth of the path, 0 will show only the root node</param>
-        /// <param name="containsFilename">If true, the last part of the path will be ignored, since it is a filename</param>
-        /// <returns>Trimmed path</returns>
+        /// <param name="path">
+        ///     Path to be trimmed
+        /// </param>
+        /// <param name="maxLevel">
+        ///     Maximal depth of the path, 0 will show only the root node
+        /// </param>
+        /// <param name="containsFilename">
+        ///     If true, the last part of the path will be ignored, since it is a filename
+        /// </param>
+        /// <returns>
+        ///     Trimmed path
+        /// </returns>
         public static string GetPathUpToLevel(string path, int maxLevel, bool containsFilename)
         {
             if (string.IsNullOrEmpty(path))
@@ -250,7 +272,7 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        ///     Change path to normal case. Example: C:\PROGRAM FILES => C:\Program files
+        ///     Change path to normal case. Example: C:\PROGRAM FILES =&gt; C:\Program files
         /// </summary>
         public static string PathToNormalCase(string path)
         {
@@ -288,8 +310,8 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        /// Remove unnecessary spaces, quotes and path separators from start and end of the path.
-        /// Might produce different path than intended in case it contains invalid unicode characters.
+        ///     Remove unnecessary spaces, quotes and path separators from start and end of the
+        ///     path. Might produce different path than intended in case it contains invalid unicode characters.
         /// </summary>
         public static string NormalizePath(string path1)
         {
@@ -306,7 +328,8 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        /// Replace all invalid file name characters from a string with _ so that it can be used as a file name.
+        ///     Replace all invalid file name characters from a string with _ so that it can be used
+        ///     as a file name.
         /// </summary>
         public static string SanitizeFileName(string name)
         {
@@ -317,7 +340,7 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        /// Version of Path.Combine with much less restrictive input checks, and additional path cleanup.
+        ///     Version of Path.Combine with much less restrictive input checks, and additional path cleanup.
         /// </summary>
         public static string GenerousCombine(string path1, string path2)
         {
@@ -334,7 +357,8 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        /// Get a cleaned up list of all paths in the PATH variables of both current user and the machine. Duplicates are removed.
+        ///     Get a cleaned up list of all paths in the PATH variables of both current user and
+        ///     the machine. Duplicates are removed.
         /// </summary>
         public static IEnumerable<string> GetAllEnvironmentPaths()
         {
@@ -345,8 +369,9 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        /// Check if subPath is a sub path inside basePath.
-        /// If isFilesystemPath is true then attempt to normalize the path to its absolute form on the filesystem. Set to false for registry and other paths.
+        ///     Check if subPath is a sub path inside basePath. If isFilesystemPath is true then
+        ///     attempt to normalize the path to its absolute form on the filesystem. Set to false
+        ///     for registry and other paths.
         /// </summary>
         public static bool SubPathIsInsideBasePath(string basePath, string subPath, bool normalizeFilesystemPath)
         {

@@ -7,7 +7,6 @@ namespace WindowsService.Engine.Factory
 {
     internal sealed class ConcurrentApplicationFactory : IDisposable
     {
-
         private bool _cancelled;
 
         private readonly Thread _thread;

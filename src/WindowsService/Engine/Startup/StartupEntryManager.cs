@@ -3,11 +3,11 @@
     Apache License Version 2.0
 */
 
-using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.Win32;
 using WindowsService.Engine.Tools;
 
 namespace WindowsService.Engine.Startup
@@ -33,12 +33,14 @@ namespace WindowsService.Engine.Startup
         }
 
         /// <summary>
-        ///     Delete startup entry data from registry and file system.
-        ///     Only needed items are removed, for example if entry is disabled the entry from "Run" key is
-        ///     not removed if it exists, same for the "Startup" folder. To remove them change the Disabled
+        ///     Delete startup entry data from registry and file system. Only needed items are
+        ///     removed, for example if entry is disabled the entry from "Run" key is not removed if
+        ///     it exists, same for the "Startup" folder. To remove them change the Disabled
         ///     property and run this command again.
         /// </summary>
-        /// <param name="startupEntry">Entry to delete</param>
+        /// <param name="startupEntry">
+        ///     Entry to delete
+        /// </param>
         public static void Delete(StartupEntry startupEntry)
         {
             if (startupEntry.Disabled)
@@ -82,9 +84,11 @@ namespace WindowsService.Engine.Startup
         }
 
         /// <summary>
-        ///     Disable startup entry to stop it from being processed at startup. It is stored in the backup store.
+        ///     Disable startup entry to stop it from being processed at startup. It is stored in
+        ///     the backup store.
         /// </summary>
-        /// <param name="startupEntry"></param>
+        /// <param name="startupEntry">
+        /// </param>
         public static void Disable(StartupEntry startupEntry)
         {
             if (startupEntry.DisabledStore)
@@ -96,7 +100,8 @@ namespace WindowsService.Engine.Startup
         /// <summary>
         ///     Restore the entry from the backup store, so that it can be executed again.
         /// </summary>
-        /// <param name="startupEntry"></param>
+        /// <param name="startupEntry">
+        /// </param>
         public static void Enable(StartupEntry startupEntry)
         {
             if (!startupEntry.DisabledStore)
@@ -159,7 +164,8 @@ namespace WindowsService.Engine.Startup
         /// <summary>
         ///     Create a registry value for the specified entry. Works for drive links as well.
         /// </summary>
-        /// <param name="startupEntry"></param>
+        /// <param name="startupEntry">
+        /// </param>
         internal static void CreateRegValue(StartupEntry startupEntry)
         {
             if (string.IsNullOrEmpty(startupEntry.Command))
@@ -172,7 +178,8 @@ namespace WindowsService.Engine.Startup
         }
 
         /// <summary>
-        ///     Crate backup of the entry in the specified directory. If backup file already exists, it is overwritten.
+        ///     Crate backup of the entry in the specified directory. If backup file already exists,
+        ///     it is overwritten.
         /// </summary>
         public static void CreateBackup(StartupEntry startupEntry, string backupPath)
         {

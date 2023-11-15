@@ -27,10 +27,13 @@ namespace WindowsService.Engine.Junk.Containers
         public ApplicationUninstallerEntry Application { get; }
 
         public abstract void Backup(string backupDirectory);
+
         public abstract void Delete();
+
         public abstract void Open();
 
         public abstract string GetDisplayName();
+
         public virtual string ToLongString()
         {
             return
@@ -38,7 +41,7 @@ namespace WindowsService.Engine.Junk.Containers
         }
 
         /// <summary>
-        /// Prepare a backup directory in the specified parent folder, and return it.
+        ///     Prepare a backup directory in the specified parent folder, and return it.
         /// </summary>
         protected string CreateBackupDirectory(string parent)
         {

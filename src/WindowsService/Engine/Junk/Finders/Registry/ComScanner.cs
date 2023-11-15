@@ -3,12 +3,12 @@
     Apache License Version 2.0
 */
 
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Microsoft.Win32;
 using WindowsService.Engine.Junk.Confidence;
 using WindowsService.Engine.Junk.Containers;
 using WindowsService.Engine.Tools;
@@ -76,7 +76,8 @@ namespace WindowsService.Engine.Junk.Finders.Registry
                             {
                                 if (extensionKey == null) continue;
 
-                                // Contains subkeys with default values containing class guids of the extensions
+                                // Contains subkeys with default values containing class guids of
+                                // the extensions
                                 using (var shellExKey = extensionKey.OpenSubKey("ShellEx"))
                                 {
                                     if (shellExKey != null)
@@ -150,8 +151,7 @@ namespace WindowsService.Engine.Junk.Finders.Registry
                 }
             }
 
-            // Gather com interface info
-            // https://docs.microsoft.com/en-us/windows/desktop/com/interface-key
+            // Gather com interface info https://docs.microsoft.com/en-us/windows/desktop/com/interface-key
             foreach (var classesKeyPath in _classesKeys)
             {
                 using (var interfacesKey = RegistryTools.OpenRegistryKey(Path.Combine(classesKeyPath, "Interface"), false, true))
@@ -307,8 +307,10 @@ namespace WindowsService.Engine.Junk.Finders.Registry
             public readonly List<string> InterfaceNames = new List<string>();
 
             public string FullFilename;
+
             //https://docs.microsoft.com/en-us/windows/desktop/com/-progid--key
             public string ProgId;
+
             public string VersionIndependentProgId;
 
             public ComEntry(string guid)

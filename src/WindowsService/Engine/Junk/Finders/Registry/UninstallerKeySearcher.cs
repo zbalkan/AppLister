@@ -20,7 +20,7 @@ namespace WindowsService.Engine.Junk.Finders.Registry
         private static readonly IEnumerable<string> InstallerSubkeyPaths;
 
         /// <summary>
-        /// parent key path, upgrade code(key name)
+        ///     parent key path, upgrade code(key name)
         /// </summary>
         private IEnumerable<KeyValuePair<string, string>> _targetKeys;
 

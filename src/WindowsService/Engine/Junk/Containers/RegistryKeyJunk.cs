@@ -3,9 +3,9 @@
     Apache License Version 2.0
 */
 
-using Microsoft.Win32;
 using System;
 using System.IO;
+using Microsoft.Win32;
 using WindowsService.Engine.Tools;
 
 namespace WindowsService.Engine.Junk.Containers

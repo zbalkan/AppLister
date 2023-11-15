@@ -9,7 +9,6 @@ using WindowsService.Engine.Factory;
 using WindowsService.Engine.Startup;
 using WindowsService.Engine.Tools;
 
-
 namespace WindowsService.Engine
 {
     public sealed class ServiceEntry : StartupEntryBase

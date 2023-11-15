@@ -1,10 +1,10 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Microsoft.Win32;
 using WindowsService.Engine.InfoAdders;
 using WindowsService.Engine.Startup;
 using WindowsService.Engine.Tools;
@@ -15,8 +15,8 @@ namespace WindowsService.Engine
     public class ApplicationUninstallerEntry
     {
         /// <summary>
-        /// List of properties that migh have changed by updating the key property
-        /// IMPORTANT: Keep up to date!
+        ///     List of properties that migh have changed by updating the key property
+        ///     IMPORTANT: Keep up to date!
         /// </summary>
         internal static readonly ILookup<string, string> PropertyRelationships = new Dictionary<string, List<string>>
         {
@@ -56,7 +56,8 @@ namespace WindowsService.Engine
         private string _uninstallerFullFilename;
 
         /// <summary>
-        /// Junk specified during creation of the entry that would not be detected afterwards. It's added to the results during junk scan.
+        ///     Junk specified during creation of the entry that would not be detected afterwards.
+        ///     It's added to the results during junk scan.
         /// </summary>
         internal readonly List<Junk.Containers.IJunkResult> AdditionalJunk = new List<Junk.Containers.IJunkResult>();
 
@@ -112,7 +113,8 @@ namespace WindowsService.Engine
         public bool IsProtected { get; set; }
 
         /// <summary>
-        ///     The application's uniunstaller is mentioned in the registry (if it's not normal uninstallers will not see it)
+        ///     The application's uniunstaller is mentioned in the registry (if it's not normal
+        ///     uninstallers will not see it)
         /// </summary>
         public bool IsRegistered { get; set; }
 
@@ -127,7 +129,8 @@ namespace WindowsService.Engine
         public bool IsUpdate { get; set; }
 
         /// <summary>
-        ///     True if the application can be uninstalled. False if the uninstaller is missing or is otherwise invalid.
+        ///     True if the application can be uninstalled. False if the uninstaller is missing or
+        ///     is otherwise invalid.
         /// </summary>
         public bool IsValid { get; set; }
 
@@ -144,14 +147,13 @@ namespace WindowsService.Engine
 
         public string ParentKeyName { get; set; }
 
-
         public string Publisher { get; set; }
 
         public string QuietUninstallString { get; set; }
 
         /// <summary>
-        /// Get a unique cache ID of this item. 
-        /// Returns null if there isn't enough information to get a reasonably unique key.
+        ///     Get a unique cache ID of this item. Returns null if there isn't enough information
+        ///     to get a reasonably unique key.
         /// </summary>
         public string GetCacheId()
         {
@@ -216,7 +218,6 @@ namespace WindowsService.Engine
 
         public string UninstallerLocation { get; set; }
 
-
         public string UninstallString
         {
             get { return _uninstallString; }
@@ -242,9 +243,8 @@ namespace WindowsService.Engine
         }
 
         /*/// <summary>
-        ///     Get the certificate associated to the uninstaller or application.
-        /// </summary>
-        /// <param name="onlyStored">If true only return the stored value, otherwise generate it if needed.</param>
+        /// Get the certificate associated to the uninstaller or application. </summary> <param
+        /// name="onlyStored">If true only return the stored value, otherwise generate it if needed.</param>
         public X509Certificate2 GetCertificate(bool onlyStored)
         {
             return onlyStored ? _certificate : GetCertificate();
@@ -283,8 +283,8 @@ namespace WindowsService.Engine
         }
 
         /// <summary>
-        ///     Ordered collection of filenames that could be the main executable of the application.
-        ///     The most likely files are first, the least likely are last.
+        ///     Ordered collection of filenames that could be the main executable of the
+        ///     application. The most likely files are first, the least likely are last.
         /// </summary>
         internal string[] SortedExecutables { get; set; }
 
@@ -317,8 +317,8 @@ namespace WindowsService.Engine
         }
 
         /// <summary>
-        ///     Check if certificate is valid. It returns null if the certificate is missing or GetCertificate has not
-        ///     been ran yet and onlyStored is set to true.
+        ///     Check if certificate is valid. It returns null if the certificate is missing or
+        ///     GetCertificate has not been ran yet and onlyStored is set to true.
         /// </summary>
         public bool? IsCertificateValid(bool onlyStored)
         {
@@ -329,7 +329,8 @@ namespace WindowsService.Engine
         }
 
         /// <summary>
-        ///     Opens a new read-only instance of registry key used by this uninstaller. Remember to close it!
+        ///     Opens a new read-only instance of registry key used by this uninstaller. Remember to
+        ///     close it!
         /// </summary>
         public RegistryKey OpenRegKey()
         {
@@ -339,7 +340,8 @@ namespace WindowsService.Engine
         /// <summary>
         ///     Check if entry has not been uninstalled already (check registry key)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// </returns>
         public bool RegKeyStillExists()
         {
             if (string.IsNullOrEmpty(RegistryPath))

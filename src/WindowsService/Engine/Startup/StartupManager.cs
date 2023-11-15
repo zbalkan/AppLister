@@ -1,7 +1,7 @@
-﻿using Microsoft.Win32.TaskScheduler;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Win32.TaskScheduler;
 using WindowsService.Engine.Factory;
 using WindowsService.Engine.Tools;
 
@@ -23,11 +23,15 @@ namespace WindowsService.Engine.Startup
         public static Dictionary<string, Func<IEnumerable<StartupEntryBase>>> Factories { get; }
 
         /// <summary>
-        /// Fill in the ApplicationUninstallerEntry.StartupEntries property with a list of related StartupEntry objects.
-        /// Old data is not cleared, only overwritten if necessary.
+        ///     Fill in the ApplicationUninstallerEntry.StartupEntries property with a list of
+        ///     related StartupEntry objects. Old data is not cleared, only overwritten if necessary.
         /// </summary>
-        /// <param name="allUninstallerEntries">Uninstaller entries to assign to</param>
-        /// <param name="allStartupEntries">Startup entries to assign</param>
+        /// <param name="allUninstallerEntries">
+        ///     Uninstaller entries to assign to
+        /// </param>
+        /// <param name="allStartupEntries">
+        ///     Startup entries to assign
+        /// </param>
         public static void AssignStartupEntries(IEnumerable<ApplicationUninstallerEntry> allUninstallerEntries,
             IEnumerable<StartupEntryBase> allStartupEntries)
         {
@@ -53,7 +57,8 @@ namespace WindowsService.Engine.Startup
                     var instLoc = uninstaller.InstallLocation;
                     if (uninstaller.IsInstallLocationValid() && startup.CommandFilePath.StartsWith(instLoc, StringComparison.OrdinalIgnoreCase))
                     {
-                        // Don't assign if there are any applications with more specific/deep install locations (same depth is fine)
+                        // Don't assign if there are any applications with more specific/deep
+                        // install locations (same depth is fine)
                         var instLocations = uninstallers
                             .Where(e => e.IsInstallLocationValid())
                             .Select(e => e.InstallLocation)
@@ -66,7 +71,8 @@ namespace WindowsService.Engine.Startup
                     var uninLoc = uninstaller.UninstallerLocation;
                     if (!string.IsNullOrEmpty(uninLoc) && startup.CommandFilePath.StartsWith(uninLoc, StringComparison.OrdinalIgnoreCase))
                     {
-                        // Don't assign if there are any applications with more specific/deep install locations (same depth is fine)
+                        // Don't assign if there are any applications with more specific/deep
+                        // install locations (same depth is fine)
                         var uninLocations = uninstallers
                             .Where(e => !string.IsNullOrEmpty(e.UninstallerLocation))
                             .Select(e => e.UninstallerLocation)
@@ -85,7 +91,7 @@ namespace WindowsService.Engine.Startup
         }
 
         /// <summary>
-        /// Look for and return all of the startup items present on this computer.
+        ///     Look for and return all of the startup items present on this computer.
         /// </summary>
         public static IEnumerable<StartupEntryBase> GetAllStartupItems()
         {
@@ -94,7 +100,8 @@ namespace WindowsService.Engine.Startup
         }
 
         /// <summary>
-        /// Open locations of the startup entries in respective applications. (regedit, win explorer, task scheduler)
+        ///     Open locations of the startup entries in respective applications. (regedit, win
+        ///     explorer, task scheduler)
         /// </summary>
         public static void OpenStartupEntryLocations(IEnumerable<StartupEntryBase> selection)
         {

@@ -37,7 +37,7 @@ namespace WindowsService.Engine.Junk.Finders
         public abstract string CategoryName { get; }
 
         /// <summary>
-        /// Returns true if the dir is still used by other apps and can't be safely deleted.
+        ///     Returns true if the dir is still used by other apps and can't be safely deleted.
         /// </summary>
         public static bool CheckIfDirIsStillUsed(string location, IEnumerable<string> otherInstallLocations)
         {

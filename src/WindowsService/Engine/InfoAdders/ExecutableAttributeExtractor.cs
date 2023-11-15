@@ -23,6 +23,7 @@ namespace WindowsService.Engine.InfoAdders
         public string[] RequiredValueNames { get; } = {
             nameof(ApplicationUninstallerEntry.SortedExecutables)
         };
+
         public bool RequiresAllValues { get; } = true;
         public bool AlwaysRun { get; } = false;
 
@@ -32,15 +33,21 @@ namespace WindowsService.Engine.InfoAdders
             nameof(ApplicationUninstallerEntry.Publisher)
             //nameof(ApplicationUninstallerEntry.Comment)
         };
+
         public InfoAdderPriority Priority { get; } = InfoAdderPriority.RunLast;
 
-
         /// <summary>
-        /// Add information from FileVersionInfo of specified file to the targetEntry
+        ///     Add information from FileVersionInfo of specified file to the targetEntry
         /// </summary>
-        /// <param name="targetEntry">Entry to update</param>
-        /// <param name="infoSourceFilename">Binary file to get the information from</param>
-        /// <param name="onlyUnpopulated">Only update unpopulated fields of the targetEntry</param>
+        /// <param name="targetEntry">
+        ///     Entry to update
+        /// </param>
+        /// <param name="infoSourceFilename">
+        ///     Binary file to get the information from
+        /// </param>
+        /// <param name="onlyUnpopulated">
+        ///     Only update unpopulated fields of the targetEntry
+        /// </param>
         internal static void FillInformationFromFileAttribs(ApplicationUninstallerEntry targetEntry, string infoSourceFilename, bool onlyUnpopulated)
         {
             FileVersionInfo verInfo;

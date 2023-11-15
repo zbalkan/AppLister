@@ -31,7 +31,8 @@ namespace WindowsService.Engine.InfoAdders
             }
             else if (!string.IsNullOrEmpty(target.InstallLocation))
             {
-                // We don't have a valid uninstaller, so tell simple delete adder to do its job and make our own
+                // We don't have a valid uninstaller, so tell simple delete adder to do its job and
+                // make our own
                 target.UninstallerKind = UninstallerType.SimpleDelete;
             }
         }
@@ -41,6 +42,7 @@ namespace WindowsService.Engine.InfoAdders
             nameof(ApplicationUninstallerEntry.QuietUninstallString),
             nameof(ApplicationUninstallerEntry.InstallLocation)
         };
+
         public bool RequiresAllValues { get; } = false;
         public bool AlwaysRun { get; } = false;
 
@@ -53,8 +55,9 @@ namespace WindowsService.Engine.InfoAdders
 
         public static UninstallerType GetUninstallerType(string uninstallString)
         {
-            // Detect MSI / Windows installer based on the uninstall string
-            // e.g. "C:\ProgramData\Package Cache\{33d1fd90-4274-48a1-9bc1-97e33d9c2d6f}\vcredist_x86.exe"  /uninstall
+            // Detect MSI / Windows installer based on the uninstall string e.g.
+            // "C:\ProgramData\Package
+            // Cache\{33d1fd90-4274-48a1-9bc1-97e33d9c2d6f}\vcredist_x86.exe" /uninstall
             if (ApplicationEntryTools.PathPointsToMsiExec(uninstallString) || uninstallString.ContainsAll(
                 new[] { @"\Package Cache\{", @"}\", ".exe" }, StringComparison.OrdinalIgnoreCase))
                 return UninstallerType.Msiexec;

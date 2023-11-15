@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Management;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System;
-using System.Management;
 using WindowsService.Extensions;
 
 namespace WindowsService.Engine.Tools
@@ -19,7 +19,9 @@ namespace WindowsService.Engine.Tools
         /// <summary>
         ///     Kill all of process's children, grandchildren, etc.
         /// </summary>
-        /// <param name="pid">Process ID.</param>
+        /// <param name="pid">
+        ///     Process ID.
+        /// </param>
         public static void KillChildProcesses(int pid)
         {
             foreach (var id in GetChildProcesses(pid))
@@ -61,7 +63,9 @@ namespace WindowsService.Engine.Tools
         /// <summary>
         ///     Kill a process, and all of its children, grandchildren, etc.
         /// </summary>
-        /// <param name="pid">Process ID.</param>
+        /// <param name="pid">
+        ///     Process ID.
+        /// </param>
         public static void KillProcessAndChildProcesses(int pid)
         {
             KillChildProcesses(pid);
@@ -77,10 +81,12 @@ namespace WindowsService.Engine.Tools
             }
         }
 
-        /// <exception cref="ArgumentException">processName</exception>
+        /// <exception cref="ArgumentException">
+        ///     processName
+        /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     There are problems accessing the performance counter API's used to get
-        ///     process information. This exception is specific to Windows NT, Windows 2000, and Windows XP.
+        ///     There are problems accessing the performance counter API's used to get process
+        ///     information. This exception is specific to Windows NT, Windows 2000, and Windows XP.
         /// </exception>
         public static bool SafeKillProcess(string processName)
         {
@@ -120,11 +126,19 @@ namespace WindowsService.Engine.Tools
         /// <summary>
         ///     Attempts to separate filename (or filename with path) from the supplied arguments.
         /// </summary>
-        /// <param name="fullCommand"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">The value of 'fullCommand' cannot be null. </exception>
-        /// <exception cref="ArgumentException">fullCommand can't be empty</exception>
-        /// <exception cref="FormatException">Filename is in invalid format</exception>
+        /// <param name="fullCommand">
+        /// </param>
+        /// <returns>
+        /// </returns>
+        /// <exception cref="ArgumentNullException">
+        ///     The value of 'fullCommand' cannot be null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        ///     fullCommand can't be empty
+        /// </exception>
+        /// <exception cref="FormatException">
+        ///     Filename is in invalid format
+        /// </exception>
         public static ProcessStartCommand SeparateArgsFromCommand(string fullCommand)
         {
             if (fullCommand == null)
@@ -160,8 +174,8 @@ namespace WindowsService.Engine.Tools
                 }
             }
 
-            // Check if the path is contained inside of quotation marks.
-            // Assume that the quotation mark must come before the dot. Otherwise, it is likely that the arguments use quotations.
+            // Check if the path is contained inside of quotation marks. Assume that the quotation
+            // mark must come before the dot. Otherwise, it is likely that the arguments use quotations.
             var pathEnd = fullCommand.IndexOf('"', 0, firstDot);
             if (pathEnd >= 0)
             {
@@ -176,8 +190,8 @@ namespace WindowsService.Engine.Tools
                 pathEnd += 1; //?
             }
 
-            // If quotation marks were missing, check for any invalid characters after last dot
-            // in case of eg: c:\test.dir thing\filename.exe?0 used to get icons
+            // If quotation marks were missing, check for any invalid characters after last dot in
+            // case of eg: c:\test.dir thing\filename.exe?0 used to get icons
             if (pathEnd < 0)
             {
                 var endIndex = 0;
@@ -255,7 +269,8 @@ namespace WindowsService.Engine.Tools
 
             var breakChars = SeparateArgsFromCommandInvalidChars.Except(new[] { '\\' }).ToArray();
 
-            // Check if there are any invalid path chars before the start we found. If yes, our path is most likely an argument.
+            // Check if there are any invalid path chars before the start we found. If yes, our path
+            // is most likely an argument.
             if (pathRootEnd > 0 && fullCommand.IndexOfAny(breakChars, 0, pathRootEnd - 2) >= 0)
                 pathRootEnd = 0;
             var breakIndex = fullCommand.IndexOfAny(breakChars, pathRootEnd);
@@ -264,7 +279,8 @@ namespace WindowsService.Engine.Tools
             if (breakIndex < 0)
                 return new ProcessStartCommand(fullCommand.Trim('"'));
 
-            // The invalid char has to have at least 1 space before it to count as an argument. Otherwise the input is likely garbage.
+            // The invalid char has to have at least 1 space before it to count as an argument.
+            // Otherwise the input is likely garbage.
             if (breakIndex > 0 && fullCommand[breakIndex - 1] == ' ')
                 return new ProcessStartCommand(fullCommand.Substring(0, breakIndex - 1).TrimEnd(),
                     fullCommand.Substring(breakIndex));
@@ -275,7 +291,8 @@ namespace WindowsService.Engine.Tools
         /// <summary>
         ///     Change default culture info for new threads
         /// </summary>
-        /// <param name="culture"></param>
+        /// <param name="culture">
+        /// </param>
         public static void SetDefaultCulture(CultureInfo culture)
         {
             var type = typeof(CultureInfo);
@@ -336,7 +353,9 @@ namespace WindowsService.Engine.Tools
         /// <summary>
         ///     Bring to foreground main window of all processes with supplied name
         /// </summary>
-        /// <param name="processName">Name of the processes to bring to foreground</param>
+        /// <param name="processName">
+        ///     Name of the processes to bring to foreground
+        /// </param>
         public static void ShowMainWindow(string processName)
         {
             foreach (var p in Process.GetProcessesByName(processName))
@@ -353,7 +372,7 @@ namespace WindowsService.Engine.Tools
         private static extern bool ShowWindow(IntPtr hwnd, int nCmdShow);
 
         /// <summary>
-        /// Process.GetProcessById but doesn't throw on issues and instead returns null
+        ///     Process.GetProcessById but doesn't throw on issues and instead returns null
         /// </summary>
         public static Process GetProcessByIdSafe(int processId)
         {

@@ -67,8 +67,7 @@ namespace WindowsService.Engine.Junk
 
                     if (immediateFiles.Any())
                     {
-                        // No executables, MAYBE safe to remove
-                        // Executables present, bad idea to remove
+                        // No executables, MAYBE safe to remove Executables present, bad idea to remove
                         resultRecord = allFilesContainExe ? ConfidenceRecords.ExecutablesArePresent : ConfidenceRecords.FilesArePresent;
                     }
                     else if (!allFiles.Any())

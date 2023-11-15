@@ -3,12 +3,12 @@
     Apache License Version 2.0
 */
 
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Microsoft.Win32;
 using WindowsService.Engine.Tools;
 using WindowsService.Extensions;
 
@@ -17,8 +17,8 @@ namespace WindowsService.Engine.Startup
     internal sealed class OldStartupDisable : IStartupDisable
     {
         /// <summary>
-        ///     Extension used for link backup of the disabled entry
-        ///     (it is appended to the end of the filename, after the original extension).
+        ///     Extension used for link backup of the disabled entry (it is appended to the end of
+        ///     the filename, after the original extension).
         /// </summary>
         private static readonly string BackupExtension = ".Startup";
 
@@ -257,10 +257,15 @@ namespace WindowsService.Engine.Startup
         }
 
         /// <summary>
-        ///     Create a new record in the appropriate disabled entry store. If the entry already exists it is overwritten.
+        ///     Create a new record in the appropriate disabled entry store. If the entry already
+        ///     exists it is overwritten.
         /// </summary>
-        /// <param name="startupEntry">Startup entry to create the record for</param>
-        /// <param name="newEntryPath">Full path to the new backup file</param>
+        /// <param name="startupEntry">
+        ///     Startup entry to create the record for
+        /// </param>
+        /// <param name="newEntryPath">
+        ///     Full path to the new backup file
+        /// </param>
         private static void CreateDisabledEntry(StartupEntry startupEntry, string newEntryPath)
         {
             using (var disabledStartupEntryStore = RegistryTools.CreateSubKeyRecursively(

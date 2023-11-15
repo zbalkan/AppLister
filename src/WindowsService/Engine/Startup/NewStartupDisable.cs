@@ -3,11 +3,11 @@
     Apache License Version 2.0
 */
 
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Microsoft.Win32;
 using WindowsService.Engine.Tools;
 using WindowsService.Extensions;
 
@@ -16,8 +16,8 @@ namespace WindowsService.Engine.Startup
     internal sealed class NewStartupDisable : IStartupDisable
     {
         /// <summary>
-        ///     Only the first byte matters, following bytes contain data that there is no documentation for (at least I didn't
-        ///     find any)
+        ///     Only the first byte matters, following bytes contain data that there is no
+        ///     documentation for (at least I didn't find any)
         /// </summary>
         private static readonly byte[] DisabledBytes =
         {

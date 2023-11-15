@@ -15,7 +15,7 @@ namespace WindowsService.Engine.Junk.Containers
         ConfidenceCollection Confidence { get; }
 
         /// <summary>
-        /// Create this item's backup inside of the supplied directory
+        ///     Create this item's backup inside of the supplied directory
         /// </summary>
         void Backup(string backupDirectory);
 

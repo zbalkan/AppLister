@@ -181,12 +181,15 @@
     <PackageReference Include="System.Memory">
       <Version>4.5.5</Version>
     </PackageReference>
+    <PackageReference Include="System.Text.Json">
+      <Version>7.0.3</Version>
+    </PackageReference>
     <PackageReference Include="TaskScheduler">
       <Version>2.10.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WingetWmiProvider\WmiProvider.csproj">
+    <ProjectReference Include="..\WmiProvider\WmiProvider.csproj">
       <Project>{3a57e8b9-e7af-4fc9-bdd6-0eb83822deee}</Project>
       <Name>WmiProvider</Name>
     </ProjectReference>

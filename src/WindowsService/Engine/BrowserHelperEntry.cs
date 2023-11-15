@@ -25,10 +25,10 @@ namespace WindowsService.Engine
             EntryLongName = className;
             _disabled = disabled;
             IsWow = isWow;
-            
+
             CommandFilePath = ProcessCommandString(Command);
 
-            if(CommandFilePath != null)
+            if (CommandFilePath != null)
                 FillInformationFromFile(CommandFilePath);
         }
 

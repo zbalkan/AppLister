@@ -62,7 +62,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\..\..\..\..\..\..\..\Windows\Microsoft.NET\Framework\v4.0.30319\System.Management.Instrumentation.dll" />
+    <Analyzer Include="C:\Windows\Microsoft.NET\Framework64\v4.0.30319\System.Management.Instrumentation.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

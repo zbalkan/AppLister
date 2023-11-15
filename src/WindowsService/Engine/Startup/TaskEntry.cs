@@ -3,9 +3,9 @@
     Apache License Version 2.0
 */
 
-using Microsoft.Win32.TaskScheduler;
 using System;
 using System.IO;
+using Microsoft.Win32.TaskScheduler;
 
 namespace WindowsService.Engine.Startup
 {

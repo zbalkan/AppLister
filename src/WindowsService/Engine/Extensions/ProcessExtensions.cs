@@ -85,7 +85,8 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        ///     Stop the proces and optionally all of its child processes immidiately. Only the main process can throw exceptions.
+        ///     Stop the proces and optionally all of its child processes immidiately. Only the main
+        ///     process can throw exceptions.
         /// </summary>
         public static void Kill(this Process pr, bool killChildren)
         {
@@ -112,10 +113,12 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        ///     Start a new process using Process.Start,
-        ///     but don't return until this process and all of its child processes end.
+        ///     Start a new process using Process.Start, but don't return until this process and all
+        ///     of its child processes end.
         /// </summary>
-        /// <returns>Exit code returned by the main process</returns>
+        /// <returns>
+        ///     Exit code returned by the main process
+        /// </returns>
         public static int StartAndWait(this ProcessStartInfo startInfo)
         {
             var uninstaller = Process.Start(startInfo);

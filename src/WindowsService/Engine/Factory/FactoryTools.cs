@@ -16,7 +16,7 @@ namespace WindowsService.Engine.Factory
     internal static class FactoryTools
     {
         /// <summary>
-        /// Warning: only use with helpers that output unicode and use 0 as success return code.
+        ///     Warning: only use with helpers that output unicode and use 0 as success return code.
         /// </summary>
         internal static string StartHelperAndReadOutput(string filename, string args)
         {

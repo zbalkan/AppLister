@@ -7,8 +7,10 @@ namespace WindowsService.Extensions
         /// <summary>
         ///     Check if this struct is equal to the default value for this type.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="value"></param>
+        /// <typeparam name="T">
+        /// </typeparam>
+        /// <param name="value">
+        /// </param>
         public static bool IsDefault<T>(this T value)
             where T : struct
         {

@@ -5,8 +5,7 @@ using System.Linq;
 namespace WindowsService.Engine
 {
     /// <summary>
-    /// Algorithm by Siderite
-    /// https://siderite.blogspot.com/2014/11/super-fast-and-accurate-string-distance.html#at2217133354
+    ///     Algorithm by Siderite https://siderite.blogspot.com/2014/11/super-fast-and-accurate-string-distance.html#at2217133354
     /// </summary>
     public class Sift4
     {
@@ -27,7 +26,7 @@ namespace WindowsService.Engine
             }
             if (options.MatchingEvaluator == null)
             {
-                options.MatchingEvaluator = (t1, t2) => 1;
+                options.MatchingEvaluator = (_, __) => 1;
             }
             if (options.LocalLengthEvaluator == null)
             {
@@ -35,7 +34,7 @@ namespace WindowsService.Engine
             }
             if (options.TranspositionCostEvaluator == null)
             {
-                options.TranspositionCostEvaluator = (c1, c2) => 1;
+                options.TranspositionCostEvaluator = (_, __) => 1;
             }
             if (options.TranspositionsEvaluator == null)
             {
@@ -45,12 +44,17 @@ namespace WindowsService.Engine
         }
 
         /// <summary>
-        /// General distance algorithm uses all the parameters in the options object and works on tokens
+        ///     General distance algorithm uses all the parameters in the options object and works
+        ///     on tokens
         /// </summary>
-        /// <param name="s1"></param>
-        /// <param name="s2"></param>
-        /// <param name="maxOffset"></param>
-        /// <returns></returns>
+        /// <param name="s1">
+        /// </param>
+        /// <param name="s2">
+        /// </param>
+        /// <param name="maxOffset">
+        /// </param>
+        /// <returns>
+        /// </returns>
         public double GeneralDistance(string s1, string s2, int maxOffset)
         {
             var t1 = _options.Tokenizer(s1);
@@ -81,7 +85,8 @@ namespace WindowsService.Engine
                         var ofs = op.Value;
                         if (c1 <= ofs.C1 || c2 <= ofs.C2)
                         {
-                            // when two matches cross, the one considered a transposition is the one with the largest difference in offsets
+                            // when two matches cross, the one considered a transposition is the one
+                            // with the largest difference in offsets
                             isTransposition = Math.Abs(c2 - c1) >= Math.Abs(ofs.C2 - ofs.C1);
                             if (isTransposition)
                             {
@@ -118,7 +123,7 @@ namespace WindowsService.Engine
                         c1 = c2 = Math.Min(c1, c2);  //using min allows the computation of transpositions
                     }
                     //if matching tokens are found, remove 1 from both cursors (they get incremented at the end of the loop)
-                    //so that we can have only one code block handling matches 
+                    //so that we can have only one code block handling matches
                     for (var i = 0; i < maxOffset && (c1 + i < l1 || c2 + i < l2); i++)
                     {
                         if ((c1 + i < l1) && _options.TokenMatcher(t1[c1 + i], t2[c2]))
@@ -142,7 +147,8 @@ namespace WindowsService.Engine
                     var temporaryDistance = _options.LocalLengthEvaluator(Math.Max(c1, c2)) - _options.TranspositionsEvaluator(lcss, trans);
                     if (temporaryDistance >= _options.MaxDistance) return Math.Round(temporaryDistance, MidpointRounding.AwayFromZero);
                 }
-                // this covers the case where the last match is on the last token in list, so that it can compute transpositions correctly
+                // this covers the case where the last match is on the last token in list, so that
+                // it can compute transpositions correctly
                 if ((c1 >= l1) || (c2 >= l2))
                 {
                     lcss += _options.LocalLengthEvaluator(localCs);
@@ -155,17 +161,23 @@ namespace WindowsService.Engine
         }
 
         /// <summary>
-        /// Static distance algorithm working on strings, computing transpositions as well as stopping when maxDistance was reached.
+        ///     Static distance algorithm working on strings, computing transpositions as well as
+        ///     stopping when maxDistance was reached.
         /// </summary>
-        /// <param name="s1"></param>
-        /// <param name="s2"></param>
-        /// <param name="maxOffset"></param>
-        /// <param name="maxDistance"></param>
-        /// <returns></returns>
+        /// <param name="s1">
+        /// </param>
+        /// <param name="s2">
+        /// </param>
+        /// <param name="maxOffset">
+        /// </param>
+        /// <param name="maxDistance">
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static double CommonDistance(string s1, string s2, int maxOffset, int maxDistance = 0)
         {
-            var l1 = s1 == null ? 0 : s1.Length;
-            var l2 = s2 == null ? 0 : s2.Length;
+            var l1 = (s1?.Length) ?? 0;
+            var l2 = (s2?.Length) ?? 0;
 
             if (l1 == 0) return l2;
             if (l2 == 0) return l1;
@@ -189,7 +201,8 @@ namespace WindowsService.Engine
                         var ofs = op.Value;
                         if (c1 <= ofs.C1 || c2 <= ofs.C2)
                         {
-                            // when two matches cross, the one considered a transposition is the one with the largest difference in offsets
+                            // when two matches cross, the one considered a transposition is the one
+                            // with the largest difference in offsets
                             isTransposition = Math.Abs(c2 - c1) >= Math.Abs(ofs.C2 - ofs.C1);
                             if (isTransposition)
                             {
@@ -226,7 +239,7 @@ namespace WindowsService.Engine
                         c1 = c2 = Math.Min(c1, c2);  //using min allows the computation of transpositions
                     }
                     //if matching tokens are found, remove 1 from both cursors (they get incremented at the end of the loop)
-                    //so that we can have only one code block handling matches 
+                    //so that we can have only one code block handling matches
                     for (var i = 0; i < maxOffset && (c1 + i < l1 || c2 + i < l2); i++)
                     {
                         if ((c1 + i < l1) && s1[c1 + i] == s2[c2])
@@ -250,7 +263,8 @@ namespace WindowsService.Engine
                     var temporaryDistance = Math.Max(c1, c2) - (lcss - trans);
                     if (temporaryDistance >= maxDistance) return temporaryDistance;
                 }
-                // this covers the case where the last match is on the last token in list, so that it can compute transpositions correctly
+                // this covers the case where the last match is on the last token in list, so that
+                // it can compute transpositions correctly
                 if ((c1 >= l1) || (c2 >= l2))
                 {
                     lcss += localCs;
@@ -263,16 +277,20 @@ namespace WindowsService.Engine
         }
 
         /// <summary>
-        /// Standard Sift algorithm, using strings and taking only maxOffset as a parameter
+        ///     Standard Sift algorithm, using strings and taking only maxOffset as a parameter
         /// </summary>
-        /// <param name="s1"></param>
-        /// <param name="s2"></param>
-        /// <param name="maxOffset"></param>
-        /// <returns></returns>
+        /// <param name="s1">
+        /// </param>
+        /// <param name="s2">
+        /// </param>
+        /// <param name="maxOffset">
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static int SimplestDistance(string s1, string s2, int maxOffset)
         {
-            var l1 = s1 == null ? 0 : s1.Length;
-            var l2 = s2 == null ? 0 : s2.Length;
+            var l1 = (s1?.Length) ?? 0;
+            var l2 = (s2?.Length) ?? 0;
 
             if (l1 == 0) return l2;
             if (l2 == 0) return l1;
@@ -297,7 +315,7 @@ namespace WindowsService.Engine
                         c1 = c2 = Math.Max(c1, c2);
                     }
                     //if matching tokens are found, remove 1 from both cursors (they get incremented at the end of the loop)
-                    //so that we can have only one code block handling matches 
+                    //so that we can have only one code block handling matches
                     for (var i = 0; i < maxOffset && (c1 + i < l1 && c2 + i < l2); i++)
                     {
                         if ((c1 + i < l1) && s1[c1 + i] == s2[c2])
@@ -338,41 +356,46 @@ namespace WindowsService.Engine
         public class Options
         {
             /// <summary>
-            /// If set, the algorithm will stop if the distance reaches this value
+            ///     If set, the algorithm will stop if the distance reaches this value
             /// </summary>
             public int? MaxDistance { get; set; }
 
             /// <summary>
-            /// The function that turns strings into a list of tokens (also strings)
+            ///     The function that turns strings into a list of tokens (also strings)
             /// </summary>
             public Func<string, string[]> Tokenizer { get; set; }
 
             /// <summary>
-            /// The function that determines if two tokens are matching (similar to characters being the same in the simple algorithm)
+            ///     The function that determines if two tokens are matching (similar to characters
+            ///     being the same in the simple algorithm)
             /// </summary>
             public Func<string, string, bool> TokenMatcher { get; set; }
 
             /// <summary>
-            /// The function that determines the value of a match of two tokens (the equivalent of adding 1 to the lcss when two characters match)
-            /// This assumes that the TokenMatcher function is a lot less expensive than this evaluator. If that is not the case, 
-            /// you can optimize the speed of the algorithm by using only the matching evaluator and then calculating if two tokens match on the returned value.
+            ///     The function that determines the value of a match of two tokens (the equivalent
+            ///     of adding 1 to the lcss when two characters match) This assumes that the
+            ///     TokenMatcher function is a lot less expensive than this evaluator. If that is
+            ///     not the case you can optimize the speed of the algorithm by using only the
+            ///     matching evaluator and then calculating if two tokens match on the returned value.
             /// </summary>
             public Func<string, string, double> MatchingEvaluator { get; set; }
 
             /// <summary>
-            /// Determines if the local value (computed on subsequent matched tokens) must be modified.
-            /// In case one wants to reward longer matched substrings, for example, this is what you need to change.
+            ///     Determines if the local value (computed on subsequent matched tokens) must be
+            ///     modified. In case one wants to reward longer matched substrings, for example,
+            ///     this is what you need to change.
             /// </summary>
             public Func<double, double> LocalLengthEvaluator { get; set; }
 
             /// <summary>
-            /// The function determining the cost of an individual transposition, based on its counter positions.
+            ///     The function determining the cost of an individual transposition, based on its
+            ///     counter positions.
             /// </summary>
             public Func<int, int, double> TranspositionCostEvaluator { get; set; }
 
             /// <summary>
-            /// The function determining how the cost of transpositions affects the final result
-            /// Change it if it doesn't suit you.
+            ///     The function determining how the cost of transpositions affects the final result
+            ///     Change it if it doesn't suit you.
             /// </summary>
             public Func<double, double, double> TranspositionsEvaluator { get; set; }
         }

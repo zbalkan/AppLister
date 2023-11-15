@@ -1,18 +1,17 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
-using System;
-using WindowsService.Extensions;
 using WindowsService.Engine.Tools;
+using WindowsService.Extensions;
 
 namespace WindowsService.Engine
 {
-
     public static class ApplicationEntryTools
     {
         /// <summary>
-        /// Try to figure out if base uninstaller entry and other entry are pointing to the same application.
-        /// Minimum score changes how similar the applications have to be (best use small values, higher is harder)
-        /// Suggested min score is 1
+        ///     Try to figure out if base uninstaller entry and other entry are pointing to the same
+        ///     application. Minimum score changes how similar the applications have to be (best use
+        ///     small values, higher is harder) Suggested min score is 1
         /// </summary>
         public static bool AreEntriesRelated(ApplicationUninstallerEntry baseEntry,
             ApplicationUninstallerEntry otherEntry, int minimumScore)
@@ -22,8 +21,7 @@ namespace WindowsService.Engine
         }
 
         /// <summary>
-        /// Check how related are the two entries.
-        /// Values above 0 mean there is good confidence
+        ///     Check how related are the two entries. Values above 0 mean there is good confidence
         /// </summary>
         public static int AreEntriesRelated(ApplicationUninstallerEntry baseEntry, ApplicationUninstallerEntry otherEntry)
         {
@@ -100,8 +98,8 @@ namespace WindowsService.Engine
         }
 
         /// <summary>
-        /// Check if dates are very close together, or if they differ by a few hours.
-        /// Result is null if the length of the difference can't be compared confidently.
+        ///     Check if dates are very close together, or if they differ by a few hours. Result is
+        ///     null if the length of the difference can't be compared confidently.
         /// </summary>
         private static bool? CompareDates(DateTime a, DateTime b)
         {
@@ -147,8 +145,10 @@ namespace WindowsService.Engine
         /// <summary>
         ///     Check if path points to the windows installer program or to a .msi package
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        /// <param name="path">
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static bool PathPointsToMsiExec(string path)
         {
             if (string.IsNullOrEmpty(path))

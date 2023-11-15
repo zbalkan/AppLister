@@ -6,7 +6,7 @@
 namespace WindowsService.Engine.Junk.Confidence
 {
     /// <summary>
-    /// Universal confidence pieces
+    ///     Universal confidence pieces
     /// </summary>
     public static class ConfidenceRecords
     {

@@ -3,9 +3,9 @@
     Apache License Version 2.0
 */
 
-using Microsoft.Win32.TaskScheduler;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using Microsoft.Win32.TaskScheduler;
 
 namespace WindowsService.Engine.Startup
 {

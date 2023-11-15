@@ -10,6 +10,7 @@ namespace WindowsService.Engine.Factory
     public interface IIndependantUninstallerFactory : IUninstallerFactory
     {
         bool IsEnabled();
+
         string DisplayName { get; }
     }
 

@@ -124,7 +124,8 @@ namespace UninstallTools.Junk.Finders.Misc
         }
 
         /// <summary>
-        /// Avoids marking all steam application shortcuts as junk (they use same exe path as uninstall commands)
+        ///     Avoids marking all steam application shortcuts as junk (they use same exe path as
+        ///     uninstall commands)
         /// </summary>
         private IEnumerable<FileSystemJunk> GetLinksPointingToSteamApp(ApplicationUninstallerEntry target)
         {

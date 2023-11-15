@@ -23,8 +23,8 @@ namespace WindowsService.Engine.Startup
         public virtual string Company { get; protected set; }
 
         /// <summary>
-        ///     True if the entry is not processed during startup.
-        ///     It is stored in the backup reg key and optionally backup directory if it's a link file.
+        ///     True if the entry is not processed during startup. It is stored in the backup reg
+        ///     key and optionally backup directory if it's a link file.
         /// </summary>
         public abstract bool Disabled { get; set; }
 
@@ -84,7 +84,8 @@ namespace WindowsService.Engine.Startup
         public abstract void CreateBackup(string backupPath);
 
         /// <summary>
-        ///     Returns FullLongName, unless it's empty. In that case returns ProgramName, or Command if that is empty too.
+        ///     Returns FullLongName, unless it's empty. In that case returns ProgramName, or
+        ///     Command if that is empty too.
         /// </summary>
         public override string ToString()
         {

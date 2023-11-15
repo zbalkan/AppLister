@@ -23,7 +23,8 @@ namespace WindowsService.Engine.InfoAdders
                 if (entry.SortedExecutables != null)
                     result = TryExtractCertificateHelper(entry.SortedExecutables);
 
-                // Check executables before this because signatures in MSI store are modified and won't verify
+                // Check executables before this because signatures in MSI store are modified and
+                // won't verify
                 if (result == null && entry.UninstallerKind == UninstallerType.Msiexec)
                     result = MsiTools.GetCertificate(entry.BundleProviderKey);
 

@@ -49,8 +49,8 @@ namespace WindowsService.Engine.Startup
         }
 
         /// <summary>
-        ///     True if the entry is not processed during startup.
-        ///     It is stored in the backup reg key and optionally backup directory if it's a link file.
+        ///     True if the entry is not processed during startup. It is stored in the backup reg
+        ///     key and optionally backup directory if it's a link file.
         /// </summary>
         public override bool Disabled
         {
@@ -74,7 +74,8 @@ namespace WindowsService.Engine.Startup
         }
 
         /// <summary>
-        ///     True if this entry is executed during logon of all users, false if it is only for the current user.
+        ///     True if this entry is executed during logon of all users, false if it is only for
+        ///     the current user.
         /// </summary>
         public bool AllUsers
         {
@@ -117,8 +118,8 @@ namespace WindowsService.Engine.Startup
         }
 
         /// <summary>
-        ///     Check if the startup entry still exists in registry or on disk.
-        ///     If the entry is disabled, but it exists in the backup store, this method will return true.
+        ///     Check if the startup entry still exists in registry or on disk. If the entry is
+        ///     disabled, but it exists in the backup store, this method will return true.
         /// </summary>
         public override bool StillExists()
         {

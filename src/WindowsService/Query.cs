@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using WindowsService.Engine;
 using WindowsService.Engine.Factory;
-using System.Linq;
 using WmiProvider;
 
 namespace WindowsService
@@ -11,14 +11,14 @@ namespace WindowsService
     {
         public static IEnumerable<Package> GetAll()
         {
-            var packages = new List<Package>();
+            var apps = QueryApps();
 
-            var serializer = QueryApps();
-            packages.AddRange(from app in serializer
+            var packages = new List<Package>();
+            packages.AddRange(from app in apps
                               select new Package
                               {
                                   Id = $"{app.DisplayNameTrimmed}_{app.DisplayVersion}",
-                                  Name = app.DisplayName,
+                                  Name = app.DisplayNameTrimmed,
                                   Version = app.DisplayVersion,
                                   Publisher = app.Publisher
                               });

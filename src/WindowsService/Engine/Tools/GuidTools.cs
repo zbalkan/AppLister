@@ -16,10 +16,14 @@ namespace WindowsService.Engine.Tools
         private static readonly Regex GuidMatchRegex = new Regex(GuidMatchPattern, RegexOptions.Compiled);
 
         /// <summary>
-        /// Extract and parse a guid from the supplied string. Throws if no guid is found.
+        ///     Extract and parse a guid from the supplied string. Throws if no guid is found.
         /// </summary>
-        /// <exception cref="ArgumentNullException">The value of 'source' cannot be null. </exception>
-        /// <exception cref="ArgumentException">Failed to parse the input</exception>
+        /// <exception cref="ArgumentNullException">
+        ///     The value of 'source' cannot be null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        ///     Failed to parse the input
+        /// </exception>
         public static Guid ExtractGuidFromString(string source)
         {
             if (source == null)
@@ -46,7 +50,7 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        /// Try to parse the supplied string into a guid. Faster than catching exceptions.
+        ///     Try to parse the supplied string into a guid. Faster than catching exceptions.
         /// </summary>
         public static bool GuidTryParse(string s, out Guid result)
         {
@@ -60,8 +64,8 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        /// Try to extract and parse a guid from the supplied string.
-        /// result = Guid.Empty if operation fails.
+        ///     Try to extract and parse a guid from the supplied string. result = Guid.Empty if
+        ///     operation fails.
         /// </summary>
         public static bool TryExtractGuid(string source, out Guid result)
         {

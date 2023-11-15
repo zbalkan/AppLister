@@ -51,7 +51,7 @@ namespace WindowsService.Engine.Junk.Finders.Registry
         }
 
         private const string RegAppsSubKeyPath = @"Software\RegisteredApplications";
-        List<RegAppEntry> _regAppsValueCache;
+        private List<RegAppEntry> _regAppsValueCache;
 
         public override void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
         {

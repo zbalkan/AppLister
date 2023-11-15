@@ -1,11 +1,11 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.Win32;
 using WindowsService.Extensions;
 
 namespace WindowsService.Engine.Tools
@@ -95,9 +95,13 @@ namespace WindowsService.Engine.Tools
         /// <summary>
         ///     Export all of the supplied keys to a .reg file using Regedit
         /// </summary>
-        /// <param name="outputFileName"></param>
-        /// <param name="registryPaths"></param>
-        /// <returns>False if nothing was written, else true</returns>
+        /// <param name="outputFileName">
+        /// </param>
+        /// <param name="registryPaths">
+        /// </param>
+        /// <returns>
+        ///     False if nothing was written, else true
+        /// </returns>
         public static bool ExportRegistry(string outputFileName, IEnumerable<string> registryPaths)
         {
             var result = new List<string>();
@@ -127,11 +131,17 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        /// Write specified unescaped values to a .reg file
+        ///     Write specified unescaped values to a .reg file
         /// </summary>
-        /// <param name="outputFileName">Filename with extension to save as</param>
-        /// <param name="containingKeyPath">Full, rooted registry path of the key containing the values</param>
-        /// <param name="values">Value names and their string values</param>
+        /// <param name="outputFileName">
+        ///     Filename with extension to save as
+        /// </param>
+        /// <param name="containingKeyPath">
+        ///     Full, rooted registry path of the key containing the values
+        /// </param>
+        /// <param name="values">
+        ///     Value names and their string values
+        /// </param>
         public static void ExportRegistryStringValues(string outputFileName, string containingKeyPath,
             params KeyValuePair<string, string>[] values)
         {
@@ -149,29 +159,40 @@ namespace WindowsService.Engine.Tools
             File.WriteAllText(outputFileName, builder.ToString());
         }
 
-        /// <exception cref="IOException">Registry export failed because of filesystem or permission error. </exception>
+        /// <exception cref="IOException">
+        ///     Registry export failed because of filesystem or permission error.
+        /// </exception>
         public static void ExportRegistry(string outputFileName, string registryPath)
         {
             RunRegeditCommand($"/e \"{outputFileName}\" \"{registryPath}\"");
         }
 
         /// <summary>
-        ///     Open registry key using its fully qualified path. The key is opened read-only.
-        ///     Root key can be named by either its long or short name. (long: "HKEY_LOCAL_MACHINE", short: "HKLM")
+        ///     Open registry key using its fully qualified path. The key is opened read-only. Root
+        ///     key can be named by either its long or short name. (long: "HKEY_LOCAL_MACHINE",
+        ///     short: "HKLM")
         /// </summary>
-        /// <param name="fullPath">Full path of the requested registry key</param>
+        /// <param name="fullPath">
+        ///     Full path of the requested registry key
+        /// </param>
         public static RegistryKey OpenRegistryKey(string fullPath)
         {
             return OpenRegistryKey(fullPath, false);
         }
 
         /// <summary>
-        ///     Open registry key using its fully qualified path.
-        ///     Root key can be named by either its long or short name. (long: "HKEY_LOCAL_MACHINE", short: "HKLM")
+        ///     Open registry key using its fully qualified path. Root key can be named by either
+        ///     its long or short name. (long: "HKEY_LOCAL_MACHINE", short: "HKLM")
         /// </summary>
-        /// <param name="fullPath">Full path of the requested registry key</param>
-        /// <param name="writable">If false, key is opened read-only</param>
-        /// <param name="ignoreAccessExceptions">If true, return null instead of throwin an exception if the key is inaccessible</param>
+        /// <param name="fullPath">
+        ///     Full path of the requested registry key
+        /// </param>
+        /// <param name="writable">
+        ///     If false, key is opened read-only
+        /// </param>
+        /// <param name="ignoreAccessExceptions">
+        ///     If true, return null instead of throwin an exception if the key is inaccessible
+        /// </param>
         public static RegistryKey OpenRegistryKey(string fullPath, bool writable, bool ignoreAccessExceptions)
         {
             if (!ignoreAccessExceptions)
@@ -194,11 +215,15 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        ///     Open registry key using its fully qualified path.
-        ///     Root key can be named by either its long or short name. (long: "HKEY_LOCAL_MACHINE", short: "HKLM")
+        ///     Open registry key using its fully qualified path. Root key can be named by either
+        ///     its long or short name. (long: "HKEY_LOCAL_MACHINE", short: "HKLM")
         /// </summary>
-        /// <param name="fullPath">Full path of the requested registry key</param>
-        /// <param name="writable">If false, key is opened read-only</param>
+        /// <param name="fullPath">
+        ///     Full path of the requested registry key
+        /// </param>
+        /// <param name="writable">
+        ///     If false, key is opened read-only
+        /// </param>
         public static RegistryKey OpenRegistryKey(string fullPath, bool writable)
         {
             if (fullPath == null)
@@ -223,16 +248,20 @@ namespace WindowsService.Engine.Tools
                 case HklmShortRootName:
                     rootKey = Registry.LocalMachine;
                     break;
+
                 case HkcrShortRootName:
                     rootKey = Registry.ClassesRoot;
                     break;
+
                 case HkcuShortRootName:
                     rootKey = Registry.CurrentUser;
                     break;
+
                 case HkuShortRootName:
                 case HkuShortRootName2:
                     rootKey = Registry.Users;
                     break;
+
                 case HkccShortRootName:
                     rootKey = Registry.CurrentConfig;
                     break;
@@ -245,10 +274,12 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        ///     Return registry key at supplied path. If the key or its parents don't exist, create them before returning.
-        ///     The returned RegistryKey is writable.
+        ///     Return registry key at supplied path. If the key or its parents don't exist, create
+        ///     them before returning. The returned RegistryKey is writable.
         /// </summary>
-        /// <param name="fullPath">Path of the key to open or create. Not case-sensitive.</param>
+        /// <param name="fullPath">
+        ///     Path of the key to open or create. Not case-sensitive.
+        /// </param>
         public static RegistryKey CreateSubKeyRecursively(string fullPath)
         {
             if (fullPath == null)
@@ -290,16 +321,20 @@ namespace WindowsService.Engine.Tools
                 case HklmRootName:
                 case HklmShortRootName:
                     return shortStyle ? HklmShortRootName : HklmRootName;
+
                 case HkcrRootName:
                 case HkcrShortRootName:
                     return shortStyle ? HkcrShortRootName : HkcrRootName;
+
                 case HkcuRootName:
                 case HkcuShortRootName:
                     return shortStyle ? HkcuShortRootName : HkcuRootName;
+
                 case HkuRootName:
                 case HkuShortRootName:
                 case HkuShortRootName2:
                     return shortStyle ? HkuShortRootName : HkuRootName;
+
                 case HkccRootName:
                 case HkccShortRootName:
                     return shortStyle ? HkccShortRootName : HkccRootName;
@@ -427,7 +462,9 @@ namespace WindowsService.Engine.Tools
             }
         }
 
-        /// <exception cref="IOException">Could not complete this operation. </exception>
+        /// <exception cref="IOException">
+        ///     Could not complete this operation.
+        /// </exception>
         public static void OpenRegKeyInRegedit(string registryPath)
         {
             try

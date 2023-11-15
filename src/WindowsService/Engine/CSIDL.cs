@@ -155,5 +155,4 @@
         //C:\WINDOWS
         CSIDL_WINDOWS = 0x24
     }
-
 }

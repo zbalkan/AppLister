@@ -49,8 +49,7 @@ namespace WindowsService.Engine
             //{
             //    var cacheEntry = group.Single();
 
-            //    if (SerializeIcons && cacheEntry.Icon != null)
-            //        cacheEntry.Entry.IconBitmap = DeserializeIcon(cacheEntry.Icon);
+            // if (SerializeIcons && cacheEntry.Icon != null) cacheEntry.Entry.IconBitmap = DeserializeIcon(cacheEntry.Icon);
 
             //    Cache.Add(group.Key, cacheEntry.Entry);
             //}

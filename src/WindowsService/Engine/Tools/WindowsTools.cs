@@ -11,8 +11,8 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
-using System.Text.RegularExpressions;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using WindowsService.Extensions;
 
@@ -25,7 +25,7 @@ namespace WindowsService.Engine.Tools
         public static Version WindowsServer2012R2 => new Version(6, 3);
         public static Version Windows8 => new Version(6, 2);
         public static Version WindowsServer2012 => new Version(6, 2);
-        public static Version Windows7 => new Version(6, 1);    
+        public static Version Windows7 => new Version(6, 1);
         public static Version WindowsServer2008R2 => new Version(6, 1);
         public static Version WindowsServer2008 => new Version(6, 0);
         public static Version WindowsVista => new Version(6, 0);
@@ -36,9 +36,12 @@ namespace WindowsService.Engine.Tools
         public static Version Windows2000 => new Version(5, 0);
 
         /// <summary>
-        /// Check if .NET Framework v4 is available. Returns null if not installed, or highest installed version.
+        ///     Check if .NET Framework v4 is available. Returns null if not installed, or highest
+        ///     installed version.
         /// </summary>
-        /// <param name="full">If true, check for full version, otherwise check for client version.</param>
+        /// <param name="full">
+        ///     If true, check for full version, otherwise check for client version.
+        /// </param>
         public static Version CheckNetFramework4Installed(bool full)
         {
             using (var ndpKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\"))
@@ -68,7 +71,7 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        /// Check if .NET Framework v3.5 is available.
+        ///     Check if .NET Framework v3.5 is available.
         /// </summary>
         public static bool CheckNetFramework35Installed()
         {
@@ -311,7 +314,7 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        /// Returns executable paths of all installed web browsers
+        ///     Returns executable paths of all installed web browsers
         /// </summary>
         public static string[] GetInstalledWebBrowsers()
         {
@@ -350,23 +353,35 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        ///     Check if the file can be executed.
-        ///     Only the string is compared, the path or file doesn't have to exist.
+        ///     Check if the file can be executed. Only the string is compared, the path or file
+        ///     doesn't have to exist.
         /// </summary>
-        /// <param name="filename">Path containing the file name, it must contain the extension. The file doesn't have to exist.</param>
-        /// <param name="onlySystemTypes">Should file types executed by third party applications be included?</param>
+        /// <param name="filename">
+        ///     Path containing the file name, it must contain the extension. The file doesn't have
+        ///     to exist.
+        /// </param>
+        /// <param name="onlySystemTypes">
+        ///     Should file types executed by third party applications be included?
+        /// </param>
         public static bool IsExectuable(string filename, bool onlySystemTypes)
         {
             return IsExectuable(filename, onlySystemTypes, false);
         }
 
         /// <summary>
-        ///     Check if the file can be executed and optionally if it's a library.
-        ///     Only the string is compared, the path or file doesn't have to exist.
+        ///     Check if the file can be executed and optionally if it's a library. Only the string
+        ///     is compared, the path or file doesn't have to exist.
         /// </summary>
-        /// <param name="filename">Path containing the file name, it must contain the extension. The file doesn't have to exist.</param>
-        /// <param name="onlySystemTypes">Should file types executed by third party applications be included?</param>
-        /// <param name="includeLibraries">Should library file types be included in the comparison?</param>
+        /// <param name="filename">
+        ///     Path containing the file name, it must contain the extension. The file doesn't have
+        ///     to exist.
+        /// </param>
+        /// <param name="onlySystemTypes">
+        ///     Should file types executed by third party applications be included?
+        /// </param>
+        /// <param name="includeLibraries">
+        ///     Should library file types be included in the comparison?
+        /// </param>
         public static bool IsExectuable(string filename, bool onlySystemTypes, bool includeLibraries)
         {
             filename = filename.ExtendedTrimEndAny(new[] { "'", "\"" }, StringComparison.CurrentCultureIgnoreCase);
@@ -386,11 +401,11 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        ///     Indicates whether any network connection is available
-        ///     Filter connections below a specified speed, as well as virtual network cards.
+        ///     Indicates whether any network connection is available Filter connections below a
+        ///     specified speed, as well as virtual network cards.
         /// </summary>
         /// <returns>
-        ///     <c>true</c> if a network connection is available; otherwise, <c>false</c>.
+        ///     <c> true </c> if a network connection is available; otherwise, <c> false </c>.
         /// </returns>
         public static bool IsNetworkAvailable()
         {
@@ -398,12 +413,14 @@ namespace WindowsService.Engine.Tools
         }
 
         /// <summary>
-        ///     Indicates whether any network connection is available.
-        ///     Filter connections below a specified speed, as well as virtual network cards.
+        ///     Indicates whether any network connection is available. Filter connections below a
+        ///     specified speed, as well as virtual network cards.
         /// </summary>
-        /// <param name="minimumSpeed">The minimum speed required. Passing 0 will not filter connection using speed.</param>
+        /// <param name="minimumSpeed">
+        ///     The minimum speed required. Passing 0 will not filter connection using speed.
+        /// </param>
         /// <returns>
-        ///     <c>true</c> if a network connection is available; otherwise, <c>false</c>.
+        ///     <c> true </c> if a network connection is available; otherwise, <c> false </c>.
         /// </returns>
         public static bool IsNetworkAvailable(long minimumSpeed)
         {
@@ -427,7 +444,8 @@ namespace WindowsService.Engine.Tools
                     ni.Name.Contains("virtual", StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                // discard "Microsoft Loopback Adapter", it will not show as NetworkInterfaceType.Loopback but as Ethernet Card.
+                // discard "Microsoft Loopback Adapter", it will not show as
+                // NetworkInterfaceType.Loopback but as Ethernet Card.
                 if (ni.Description.Equals("Microsoft Loopback Adapter", StringComparison.OrdinalIgnoreCase))
                     continue;
 
@@ -436,8 +454,12 @@ namespace WindowsService.Engine.Tools
             return false;
         }
 
-        /// <exception cref="ArgumentNullException">The value of 'objectPath' cannot be null. </exception>
-        /// <exception cref="IOException">Failed to start explorer. </exception>
+        /// <exception cref="ArgumentNullException">
+        ///     The value of 'objectPath' cannot be null.
+        /// </exception>
+        /// <exception cref="IOException">
+        ///     Failed to start explorer.
+        /// </exception>
         public static void OpenExplorerFocusedOnObject(string objectPath)
         {
             if (objectPath == null)
@@ -480,60 +502,66 @@ namespace WindowsService.Engine.Tools
             internal struct FLASHWINFO
             {
                 /// <summary>
-                /// The size of the structure in bytes.
+                ///     The size of the structure in bytes.
                 /// </summary>
                 public uint cbSize;
+
                 /// <summary>
-                /// A Handle to the Window to be Flashed. The window can be either opened or minimized.
+                ///     A Handle to the Window to be Flashed. The window can be either opened or minimized.
                 /// </summary>
                 public IntPtr hwnd;
+
                 /// <summary>
-                /// The Flash Status.
+                ///     The Flash Status.
                 /// </summary>
                 public uint dwFlags;
+
                 /// <summary>
-                /// The number of times to Flash the window.
+                ///     The number of times to Flash the window.
                 /// </summary>
                 public uint uCount;
+
                 /// <summary>
-                /// The rate at which the Window is to be flashed, in milliseconds. If Zero, the function uses the default cursor blink rate.
+                ///     The rate at which the Window is to be flashed, in milliseconds. If Zero, the
+                ///     function uses the default cursor blink rate.
                 /// </summary>
                 public uint dwTimeout;
             }
 
             /// <summary>
-            /// Stop flashing. The system restores the window to its original stae.
+            ///     Stop flashing. The system restores the window to its original stae.
             /// </summary>
             internal const uint FLASHW_STOP = 0;
 
             /// <summary>
-            /// Flash the window caption.
+            ///     Flash the window caption.
             /// </summary>
             internal const uint FLASHW_CAPTION = 1;
 
             /// <summary>
-            /// Flash the taskbar button.
+            ///     Flash the taskbar button.
             /// </summary>
             internal const uint FLASHW_TRAY = 2;
 
             /// <summary>
-            /// Flash both the window caption and taskbar button.
-            /// This is equivalent to setting the FLASHW_CAPTION | FLASHW_TRAY flags.
+            ///     Flash both the window caption and taskbar button. This is equivalent to setting
+            ///     the FLASHW_CAPTION | FLASHW_TRAY flags.
             /// </summary>
             internal const uint FLASHW_ALL = 3;
 
             /// <summary>
-            /// Flash continuously, until the FLASHW_STOP flag is set.
+            ///     Flash continuously, until the FLASHW_STOP flag is set.
             /// </summary>
             internal const uint FLASHW_TIMER = 4;
 
             /// <summary>
-            /// Flash continuously until the window comes to the foreground.
+            ///     Flash continuously until the window comes to the foreground.
             /// </summary>
             internal const uint FLASHW_TIMERNOFG = 12;
 
             internal const uint STGM_READ = 0;
             internal const int MAX_PATH = 260;
+
             //public const int CSIDL_COMMON_STARTMENU = 0x16; // All Users\Start Menu
             [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
             internal static extern bool SHGetSpecialFolderPath(IntPtr hwndOwner, [Out] StringBuilder lpszPath,
@@ -548,15 +576,19 @@ namespace WindowsService.Engine.Tools
             [Flags]
             internal enum SLGP_FLAGS
             {
-                /// <summary>Retrieves the standard short (8.3 format) file name</summary>
+                /// <summary>
+                ///     Retrieves the standard short (8.3 format) file name
+                /// </summary>
                 SLGP_SHORTPATH = 0x1,
 
-                /// <summary>Retrieves the Universal Naming Convention (UNC) path name of the file</summary>
+                /// <summary>
+                ///     Retrieves the Universal Naming Convention (UNC) path name of the file
+                /// </summary>
                 SLGP_UNCPRIORITY = 0x2,
 
                 /// <summary>
-                ///     Retrieves the raw path name. A raw path is something that might not exist and may include environment
-                ///     variables that need to be expanded
+                ///     Retrieves the raw path name. A raw path is something that might not exist
+                ///     and may include environment variables that need to be expanded
                 /// </summary>
                 SLGP_RAWPATH = 0x4
             }
@@ -572,8 +604,10 @@ namespace WindowsService.Engine.Tools
                 public readonly uint nFileSizeLow;
                 public readonly uint dwReserved0;
                 public readonly uint dwReserved1;
+
                 [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
                 public readonly string cFileName;
+
                 [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 14)]
                 public readonly string cAlternateFileName;
             }
@@ -582,106 +616,157 @@ namespace WindowsService.Engine.Tools
             internal enum SLR_FLAGS
             {
                 /// <summary>
-                ///     Do not display a dialog box if the link cannot be resolved. When SLR_NO_UI is set,
-                ///     the high-order word of fFlags can be set to a time-out value that specifies the
-                ///     maximum amount of time to be spent resolving the link. The function returns if the
-                ///     link cannot be resolved within the time-out duration. If the high-order word is set
-                ///     to zero, the time-out duration will be set to the default value of 3,000 milliseconds
-                ///     (3 seconds). To specify a value, set the high word of fFlags to the desired time-out
-                ///     duration, in milliseconds.
+                ///     Do not display a dialog box if the link cannot be resolved. When SLR_NO_UI
+                ///     is set, the high-order word of fFlags can be set to a time-out value that
+                ///     specifies the maximum amount of time to be spent resolving the link. The
+                ///     function returns if the link cannot be resolved within the time-out
+                ///     duration. If the high-order word is set to zero, the time-out duration will
+                ///     be set to the default value of 3,000 milliseconds (3 seconds). To specify a
+                ///     value, set the high word of fFlags to the desired time-out duration, in milliseconds.
                 /// </summary>
                 SLR_NO_UI = 0x1,
 
-                /// <summary>Obsolete and no longer used</summary>
+                /// <summary>
+                ///     Obsolete and no longer used
+                /// </summary>
                 SLR_ANY_MATCH = 0x2,
 
                 /// <summary>
-                ///     If the link object has changed, update its path and list of identifiers.
-                ///     If SLR_UPDATE is set, you do not need to call IPersistFile::IsDirty to determine
-                ///     whether or not the link object has changed.
+                ///     If the link object has changed, update its path and list of identifiers. If
+                ///     SLR_UPDATE is set, you do not need to call IPersistFile::IsDirty to
+                ///     determine whether or not the link object has changed.
                 /// </summary>
                 SLR_UPDATE = 0x4,
 
-                /// <summary>Do not update the link information</summary>
+                /// <summary>
+                ///     Do not update the link information
+                /// </summary>
                 SLR_NOUPDATE = 0x8,
 
-                /// <summary>Do not execute the search heuristics</summary>
+                /// <summary>
+                ///     Do not execute the search heuristics
+                /// </summary>
                 SLR_NOSEARCH = 0x10,
 
-                /// <summary>Do not use distributed link tracking</summary>
+                /// <summary>
+                ///     Do not use distributed link tracking
+                /// </summary>
                 SLR_NOTRACK = 0x20,
 
                 /// <summary>
-                ///     Disable distributed link tracking. By default, distributed link tracking tracks
-                ///     removable media across multiple devices based on the volume name. It also uses the
-                ///     Universal Naming Convention (UNC) path to track remote file systems whose drive letter
-                ///     has changed. Setting SLR_NOLINKINFO disables both types of tracking.
+                ///     Disable distributed link tracking. By default, distributed link tracking
+                ///     tracks removable media across multiple devices based on the volume name. It
+                ///     also uses the Universal Naming Convention (UNC) path to track remote file
+                ///     systems whose drive letter has changed. Setting SLR_NOLINKINFO disables both
+                ///     types of tracking.
                 /// </summary>
                 SLR_NOLINKINFO = 0x40,
 
-                /// <summary>Call the Microsoft Windows Installer</summary>
+                /// <summary>
+                ///     Call the Microsoft Windows Installer
+                /// </summary>
                 SLR_INVOKE_MSI = 0x80
             }
 
-            /// <summary>The IShellLink interface allows Shell links to be created, modified, and resolved</summary>
+            /// <summary>
+            ///     The IShellLink interface allows Shell links to be created, modified, and resolved
+            /// </summary>
             [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
              Guid("000214F9-0000-0000-C000-000000000046")]
             internal interface IShellLinkW
             {
-                /// <summary>Retrieves the path and file name of a Shell link object</summary>
+                /// <summary>
+                ///     Retrieves the path and file name of a Shell link object
+                /// </summary>
                 void GetPath([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszFile, int cchMaxPath,
                     ref WIN32_FIND_DATAW pfd, SLGP_FLAGS fFlags);
 
-                /// <summary>Retrieves the list of item identifiers for a Shell link object</summary>
+                /// <summary>
+                ///     Retrieves the list of item identifiers for a Shell link object
+                /// </summary>
                 void GetIDList(out IntPtr ppidl);
 
-                /// <summary>Sets the pointer to an item identifier list (PIDL) for a Shell link object.</summary>
+                /// <summary>
+                ///     Sets the pointer to an item identifier list (PIDL) for a Shell link object.
+                /// </summary>
                 void SetIDList(IntPtr pidl);
 
-                /// <summary>Retrieves the description string for a Shell link object</summary>
+                /// <summary>
+                ///     Retrieves the description string for a Shell link object
+                /// </summary>
                 void GetDescription([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszName, int cchMaxName);
 
-                /// <summary>Sets the description for a Shell link object. The description can be any application-defined string</summary>
+                /// <summary>
+                ///     Sets the description for a Shell link object. The description can be any
+                ///     application-defined string
+                /// </summary>
                 void SetDescription([MarshalAs(UnmanagedType.LPWStr)] string pszName);
 
-                /// <summary>Retrieves the name of the working directory for a Shell link object</summary>
+                /// <summary>
+                ///     Retrieves the name of the working directory for a Shell link object
+                /// </summary>
                 void GetWorkingDirectory([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszDir, int cchMaxPath);
 
-                /// <summary>Sets the name of the working directory for a Shell link object</summary>
+                /// <summary>
+                ///     Sets the name of the working directory for a Shell link object
+                /// </summary>
                 void SetWorkingDirectory([MarshalAs(UnmanagedType.LPWStr)] string pszDir);
 
-                /// <summary>Retrieves the command-line arguments associated with a Shell link object</summary>
+                /// <summary>
+                ///     Retrieves the command-line arguments associated with a Shell link object
+                /// </summary>
                 void GetArguments([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszArgs, int cchMaxPath);
 
-                /// <summary>Sets the command-line arguments for a Shell link object</summary>
+                /// <summary>
+                ///     Sets the command-line arguments for a Shell link object
+                /// </summary>
                 void SetArguments([MarshalAs(UnmanagedType.LPWStr)] string pszArgs);
 
-                /// <summary>Retrieves the hot key for a Shell link object</summary>
+                /// <summary>
+                ///     Retrieves the hot key for a Shell link object
+                /// </summary>
                 void GetHotkey(out short pwHotkey);
 
-                /// <summary>Sets a hot key for a Shell link object</summary>
+                /// <summary>
+                ///     Sets a hot key for a Shell link object
+                /// </summary>
                 void SetHotkey(short wHotkey);
 
-                /// <summary>Retrieves the show command for a Shell link object</summary>
+                /// <summary>
+                ///     Retrieves the show command for a Shell link object
+                /// </summary>
                 void GetShowCmd(out int piShowCmd);
 
-                /// <summary>Sets the show command for a Shell link object. The show command sets the initial show state of the window.</summary>
+                /// <summary>
+                ///     Sets the show command for a Shell link object. The show command sets the
+                ///     initial show state of the window.
+                /// </summary>
                 void SetShowCmd(int iShowCmd);
 
-                /// <summary>Retrieves the location (path and index) of the icon for a Shell link object</summary>
+                /// <summary>
+                ///     Retrieves the location (path and index) of the icon for a Shell link object
+                /// </summary>
                 void GetIconLocation([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszIconPath,
                     int cchIconPath, out int piIcon);
 
-                /// <summary>Sets the location (path and index) of the icon for a Shell link object</summary>
+                /// <summary>
+                ///     Sets the location (path and index) of the icon for a Shell link object
+                /// </summary>
                 void SetIconLocation([MarshalAs(UnmanagedType.LPWStr)] string pszIconPath, int iIcon);
 
-                /// <summary>Sets the relative path to the Shell link object</summary>
+                /// <summary>
+                ///     Sets the relative path to the Shell link object
+                /// </summary>
                 void SetRelativePath([MarshalAs(UnmanagedType.LPWStr)] string pszPathRel, int dwReserved);
 
-                /// <summary>Attempts to find the target of a Shell link, even if it has been moved or renamed</summary>
+                /// <summary>
+                ///     Attempts to find the target of a Shell link, even if it has been moved or renamed
+                /// </summary>
                 void Resolve(IntPtr hwnd, SLR_FLAGS fFlags);
 
-                /// <summary>Sets the path and file name of a Shell link object</summary>
+                /// <summary>
+                ///     Sets the path and file name of a Shell link object
+                /// </summary>
                 void SetPath([MarshalAs(UnmanagedType.LPWStr)] string pszFile);
             }
 
@@ -716,7 +801,7 @@ namespace WindowsService.Engine.Tools
                 void GetCurFile([In, MarshalAs(UnmanagedType.LPWStr)] string ppszFileName);
             }
 
-            // CLSID_ShellLink from ShlGuid.h 
+            // CLSID_ShellLink from ShlGuid.h
             [
                 ComImport,
                 Guid("00021401-0000-0000-C000-000000000046")

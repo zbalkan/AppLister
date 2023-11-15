@@ -118,6 +118,7 @@ namespace WindowsService.Engine
         ///     Path to directory this assembly sits in.
         /// </summary>
         internal static string AssemblyLocation { get; }
+
         internal static string AppLocation { get; }
 
         public static bool AutoDetectCustomProgramFiles { get; set; }
@@ -125,7 +126,8 @@ namespace WindowsService.Engine
         public static bool AutoDetectScanRemovable { get; set; }
 
         /// <summary>
-        ///     Custom "Program Files" directories. Use with dirs that get used to install applications to.
+        ///     Custom "Program Files" directories. Use with dirs that get used to install
+        ///     applications to.
         /// </summary>
         public static string[] CustomProgramFiles { get; set; }
 
@@ -176,7 +178,8 @@ namespace WindowsService.Engine
         public static bool UseQuietUninstallDaemon { get; set; }
 
         /// <summary>
-        ///     Directiories containing programs, both built in "Program Files" and user-defined ones. Fast.
+        ///     Directiories containing programs, both built in "Program Files" and user-defined
+        ///     ones. Fast.
         /// </summary>
         internal static IEnumerable<string> GetAllProgramFiles()
         {
@@ -190,10 +193,13 @@ namespace WindowsService.Engine
         private static readonly string _pf64, _pf32;
 
         /// <summary>
-        ///     Get a list of directiories containing programs. Optionally user-defined directories are added.
-        ///     The boolean value is true if the directory is confirmed to contain 64bit applications, false if 32bit.
+        ///     Get a list of directiories containing programs. Optionally user-defined directories
+        ///     are added. The boolean value is true if the directory is confirmed to contain 64bit
+        ///     applications, false if 32bit.
         /// </summary>
-        /// <param name="includeUserDirectories">Add user-defined directories.</param>
+        /// <param name="includeUserDirectories">
+        ///     Add user-defined directories.
+        /// </param>
         internal static List<DirectoryInfo> GetProgramFilesDirectories(bool includeUserDirectories)
         {
             var pfDirectories = new List<string>(2)
@@ -229,7 +235,7 @@ namespace WindowsService.Engine
         }
 
         /// <summary>
-        /// Check if the path is inside of 64 or 32 bit program files
+        ///     Check if the path is inside of 64 or 32 bit program files
         /// </summary>
         public static MachineType IsPathInsideProgramFiles(string fullPath)
         {

@@ -5,7 +5,7 @@ using System.Reflection;
 namespace WindowsService.Engine
 {
     /// <summary>
-    /// Compiled get and set methods with drastically improved performance.
+    ///     Compiled get and set methods with drastically improved performance.
     /// </summary>
     public class CompiledPropertyInfo<TInstance>
     {
@@ -46,14 +46,14 @@ namespace WindowsService.Engine
         }
 
         /// <summary>
-        /// Takes instance containing this property, and returns a boxed property's value.
-        /// Null if property doesn't have a getter.
+        ///     Takes instance containing this property, and returns a boxed property's value. Null
+        ///     if property doesn't have a getter.
         /// </summary>
         public Func<TInstance, object> CompiledGet { get; private set; }
 
         /// <summary>
-        /// Takes instance containing this property and a boxed new value to set.
-        /// Null if property doesn't have a setter.
+        ///     Takes instance containing this property and a boxed new value to set. Null if
+        ///     property doesn't have a setter.
         /// </summary>
         public Action<TInstance, object> CompiledSet { get; private set; }
 

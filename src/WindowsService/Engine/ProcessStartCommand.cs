@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using System;
+﻿using System;
+using System.Diagnostics;
 using WindowsService.Engine.Tools;
 
 namespace WindowsService.Engine
@@ -11,7 +11,9 @@ namespace WindowsService.Engine
         {
         }
 
-        /// <exception cref="ArgumentNullException">The values of 'filename' and 'args' cannot be null. </exception>
+        /// <exception cref="ArgumentNullException">
+        ///     The values of 'filename' and 'args' cannot be null.
+        /// </exception>
         public ProcessStartCommand(string filename, string args)
         {
             if (filename == null)

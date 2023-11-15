@@ -9,7 +9,7 @@ namespace WindowsService.Extensions
         private static readonly Random R = new Random();
 
         /// <summary>
-        /// Wrap this object in an enumerable that returns this object once and finishes.
+        ///     Wrap this object in an enumerable that returns this object once and finishes.
         /// </summary>
         public static IEnumerable<T> ToEnumerable<T>(this T obj)
         {
@@ -17,7 +17,7 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        /// Recursively select all subitems based on the selector.
+        ///     Recursively select all subitems based on the selector.
         /// </summary>
         public static IEnumerable<T> SelectManyResursively<T>(this IEnumerable<T> enumerable, Func<T, IEnumerable<T>> subitemSelector)
         {
@@ -27,7 +27,7 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        /// Move item at specified index to a new index
+        ///     Move item at specified index to a new index
         /// </summary>
         public static void Move<T>(this IList<T> list, int oldIndex, int newIndex)
         {
@@ -37,7 +37,7 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        /// Move item at specified index to index + 1. Does nothing if item is already last.
+        ///     Move item at specified index to index + 1. Does nothing if item is already last.
         /// </summary>
         public static void MoveUp<T>(this IList<T> list, int oldIndex)
         {
@@ -46,7 +46,7 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        /// Move item at specified index to index - 1. Does nothing if item is already first.
+        ///     Move item at specified index to index - 1. Does nothing if item is already first.
         /// </summary>
         public static void MoveDown<T>(this IList<T> list, int oldIndex)
         {
@@ -55,8 +55,8 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        /// Returns a read-only wrapper of this dictionary. 
-        /// Attempts to modify this collection will throw InvalidOperationException.
+        ///     Returns a read-only wrapper of this dictionary. Attempts to modify this collection
+        ///     will throw InvalidOperationException.
         /// </summary>
         //public static IDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this IDictionary<TKey, TValue> obj)
         //{
@@ -64,11 +64,15 @@ namespace WindowsService.Extensions
         //}
 
         /// <summary>
-        ///     Usually faster than calling Count() and comparing, at worst it's about the same.
-        ///     It enumerates at most (count + 1) elements from the collection.
+        ///     Usually faster than calling Count() and comparing, at worst it's about the same. It
+        ///     enumerates at most (count + 1) elements from the collection.
         /// </summary>
-        /// <param name="collection">Collection to count against</param>
-        /// <param name="count">Count to compare to.</param>
+        /// <param name="collection">
+        ///     Collection to count against
+        /// </param>
+        /// <param name="count">
+        ///     Count to compare to.
+        /// </param>
         public static bool CountEquals<T>(this IEnumerable<T> collection, int count)
         {
             if (collection is ICollection<T> col)
@@ -88,7 +92,7 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        /// Run distinct using the specified equality comparator
+        ///     Run distinct using the specified equality comparator
         /// </summary>
         public static IEnumerable<TSource> Distinct<TSource>(this IEnumerable<TSource> source,
             Func<TSource, TSource, bool> equalityComparator)
@@ -107,10 +111,18 @@ namespace WindowsService.Extensions
         ///     Run the specified action on all members of the collection as they are enumerated.
         ///     Action will be executed for each enumeration over the element (lazy evaluation).
         /// </summary>
-        /// <typeparam name="T">Type that is being iterated over</typeparam>
-        /// <param name="collection">Base enumerable</param>
-        /// <param name="action">Action to run on all of the enumerated members</param>
-        /// <returns>Enumerator</returns>
+        /// <typeparam name="T">
+        ///     Type that is being iterated over
+        /// </typeparam>
+        /// <param name="collection">
+        ///     Base enumerable
+        /// </param>
+        /// <param name="action">
+        ///     Action to run on all of the enumerated members
+        /// </param>
+        /// <returns>
+        ///     Enumerator
+        /// </returns>
         public static IEnumerable<T> DoForEach<T>(this IEnumerable<T> collection, Action<T> action)
         {
             foreach (var item in collection)
@@ -121,11 +133,18 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        ///     Run the specified action on all members of the collection. The collection is enumerated in process.
+        ///     Run the specified action on all members of the collection. The collection is
+        ///     enumerated in process.
         /// </summary>
-        /// <typeparam name="T">Type that is being iterated over</typeparam>
-        /// <param name="collection">Base enumerable</param>
-        /// <param name="action">Action to run on all of the members</param>
+        /// <typeparam name="T">
+        ///     Type that is being iterated over
+        /// </typeparam>
+        /// <param name="collection">
+        ///     Base enumerable
+        /// </param>
+        /// <param name="action">
+        ///     Action to run on all of the members
+        /// </param>
         public static void ForEach<T>(this IEnumerable<T> collection, Action<T> action)
         {
             foreach (var item in collection)
@@ -133,7 +152,8 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        ///     Get ID of the element. If the element is not in the array, returns -1 (indexof is not available)
+        ///     Get ID of the element. If the element is not in the array, returns -1 (indexof is
+        ///     not available)
         /// </summary>
         public static int GetPositionOfElement<T>(this T[] array, T element)
         {
@@ -146,7 +166,8 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        ///     Returns random element from this sequence. If it is empty, returns default value of the type.
+        ///     Returns random element from this sequence. If it is empty, returns default value of
+        ///     the type.
         /// </summary>
         public static T GetRandomElement<T>(this IEnumerable<T> items)
         {
@@ -155,8 +176,10 @@ namespace WindowsService.Extensions
             {
                 case 0:
                     return default(T);
+
                 case 1:
                     return list[0];
+
                 default:
                     return list[R.Next(0, list.Count)];
             }
@@ -165,8 +188,12 @@ namespace WindowsService.Extensions
         /// <summary>
         ///     Remove all items that are contained in the supplied collection.
         /// </summary>
-        /// <param name="collection">Collection to remove items from</param>
-        /// <param name="items">Collection with items to remove.</param>
+        /// <param name="collection">
+        ///     Collection to remove items from
+        /// </param>
+        /// <param name="items">
+        ///     Collection with items to remove.
+        /// </param>
         public static void RemoveAll<T>(this IList<T> collection, IEnumerable<T> items)
         {
             foreach (var item in items)
@@ -179,8 +206,12 @@ namespace WindowsService.Extensions
         /// <summary>
         ///     Remove all items for which the predicate returns true.
         /// </summary>
-        /// <param name="collection">Collection to remove items from</param>
-        /// <param name="predicate">Predicate used to choose items to remove.</param>
+        /// <param name="collection">
+        ///     Collection to remove items from
+        /// </param>
+        /// <param name="predicate">
+        ///     Predicate used to choose items to remove.
+        /// </param>
         public static void RemoveAll<T>(this IList<T> collection, Func<T, bool> predicate)
         {
             foreach (var item in collection.Where(predicate).ToArray())
@@ -190,9 +221,15 @@ namespace WindowsService.Extensions
         /// <summary>
         ///     Create a new sub array starting at specified index and spanning a number of positions.
         /// </summary>
-        /// <param name="data">Publisher array</param>
-        /// <param name="index">Starting index.</param>
-        /// <param name="length">How many items to take after the index (including the item at index).</param>
+        /// <param name="data">
+        ///     Publisher array
+        /// </param>
+        /// <param name="index">
+        ///     Starting index.
+        /// </param>
+        /// <param name="length">
+        ///     How many items to take after the index (including the item at index).
+        /// </param>
         public static T[] SubArray<T>(this T[] data, int index, int length)
         {
             var result = new T[length];
@@ -201,7 +238,7 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        /// Check if any element of the collection equals to the supplied string value.
+        ///     Check if any element of the collection equals to the supplied string value.
         /// </summary>
         public static bool Contains(this IEnumerable<string> data, string value, StringComparison options)
         {
@@ -209,8 +246,8 @@ namespace WindowsService.Extensions
         }
 
         /// <summary>
-        /// Rotate the collection to the left so that the item at startIndex becomes index 0. 
-        /// Elements rotated to the left wrap around, so the number of elements stays the same. 
+        ///     Rotate the collection to the left so that the item at startIndex becomes index 0.
+        ///     Elements rotated to the left wrap around, so the number of elements stays the same.
         /// </summary>
         public static IEnumerable<T> Rotate<T>(this ICollection<T> targets, int startIndex)
         {

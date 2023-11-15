@@ -25,7 +25,7 @@ namespace WindowsService.Engine.Junk
         }
 
         /// <summary>
-        /// Make sure that the junk result doesn't point to this application.
+        ///     Make sure that the junk result doesn't point to this application.
         /// </summary>
         private static bool JunkDoesNotPointToSelf(IJunkResult x)
         {
@@ -45,7 +45,7 @@ namespace WindowsService.Engine.Junk
         }
 
         /// <summary>
-        /// Merge duplicate junk entries and their confidence parts
+        ///     Merge duplicate junk entries and their confidence parts
         /// </summary>
         private static IEnumerable<IJunkResult> RemoveDuplicates(IEnumerable<IJunkResult> input)
         {
@@ -77,7 +77,8 @@ namespace WindowsService.Engine.Junk
         }
 
         /// <summary>
-        /// Prevent suggesting removing special directories if the app for some reason was installed into them or otherwise used them
+        ///     Prevent suggesting removing special directories if the app for some reason was
+        ///     installed into them or otherwise used them
         /// </summary>
         private static HashSet<string> GetProhibitedLocations()
         {
@@ -118,7 +119,6 @@ namespace WindowsService.Engine.Junk
         public static IEnumerable<IJunkResult> FindJunk(IEnumerable<ApplicationUninstallerEntry> targets,
             ICollection<ApplicationUninstallerEntry> allUninstallers)
         {
-
             var scanners = ReflectionTools.GetTypesImplementingBase<IJunkCreator>()
                 .Attempt(Activator.CreateInstance)
                 .Cast<IJunkCreator>()
@@ -133,7 +133,6 @@ namespace WindowsService.Engine.Junk
             var targetEntries = targets as IList<ApplicationUninstallerEntry> ?? targets.ToList();
             foreach (var junkCreator in scanners)
             {
-
                 foreach (var target in targetEntries)
                 {
                     try { results.AddRange(junkCreator.FindJunk(target)); }

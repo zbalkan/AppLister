@@ -54,11 +54,10 @@ namespace WindowsService.Engine.Tools
             INSTALLLOGMODE_SHOWDIALOG = (1 << (0x0E >> 24)) // external handler only
         }
 
-        // Install message type for callback is a combination of the following:
-        //  A message box style:      MB_*, where MB_OK is the default
-        //  A message box icon type:  MB_ICON*, where no icon is the default
-        //  A default button:         MB_DEFBUTTON?, where MB_DEFBUTTON1 is the default
-        //  One of the following install message types, no default
+        // Install message type for callback is a combination of the following: A message box style:
+        // MB_*, where MB_OK is the default A message box icon type: MB_ICON*, where no icon is the
+        // default A default button: MB_DEFBUTTON?, where MB_DEFBUTTON1 is the default One of the
+        // following install message types, no default
         public enum INSTALLMESSAGE : long
         {
             INSTALLMESSAGE_FATALEXIT = 0x00000000L, // premature termination, possibly fatal OOM
@@ -144,9 +143,8 @@ namespace WindowsService.Engine.Tools
             MSICOSTTREE_RESERVED = 3 // Reserved for future use
         }
 
-        // -------------------------------------------------------------------------
-        // Functions to query and configure a product as a whole.
-        // -------------------------------------------------------------------------
+        // ------------------------------------------------------------------------- Functions to
+        // query and configure a product as a whole. -------------------------------------------------------------------------
 
         public enum MSIDBSTATE
         {
@@ -197,28 +195,27 @@ namespace WindowsService.Engine.Tools
         }
 
         public const int MAX_FEATURE_CHARS = 38; // maximum chars in feature name (same as string GUID)
+
         // MsiOpenDatabase persist predefine values, otherwise output database path is used
         public const string MSIDBOPEN_READONLY = "0"; // database open read-only, no persistent changes
+
         public const string MSIDBOPEN_TRANSACT = "1"; // database read/write in transaction mode
         public const string MSIDBOPEN_DIRECT = "2"; // database direct read/write without transaction
         public const string MSIDBOPEN_CREATE = "3"; // create new database, transact mode read/write
         public const string MSIDBOPEN_CREATEDIRECT = "4"; // create new database, direct mode read/write
         // -------------------------------------------------------------------------
 
-        // Functions to set the UI handling and logging. The UI will be used for error,
-        // progress, and log messages for all subsequent calls to Installer Service
-        // API functions that require UI.
-        // -------------------------------------------------------------------------
-
+        // Functions to set the UI handling and logging. The UI will be used for error, progress,
+        // and log messages for all subsequent calls to Installer Service API functions that require
+        // UI. -------------------------------------------------------------------------
 
         // Enable internal UI
         [DllImport("msi", CharSet = CharSet.Auto)] // UI level
-        // handle of owner window
         public static extern INSTALLUILEVEL MsiSetInternalUI(INSTALLUILEVEL dwUILevel, ref IntPtr winhandle);
 
-        // Enable logging to a file for all install sessions for the client process,
-        // with control over which log messages are passed to the specified log file.
-        // Messages are designated with a combination of bits from INSTALLLOGMODE enum.
+        // Enable logging to a file for all install sessions for the client process, with control
+        // over which log messages are passed to the specified log file. Messages are designated
+        // with a combination of bits from INSTALLLOGMODE enum.
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiEnableLog(
             int dwLogMode, // bit flags designating operations to report
@@ -237,29 +234,33 @@ namespace WindowsService.Engine.Tools
             string szAttribute, // attribute name, case-sensitive
             string lpValueBuf, // returned value, NULL if not desired ref?
             ref int len); // in/out buffer character count
-        // Install a new product.
-        // Either may be NULL, but the DATABASE property must be specfied
+
+        // Install a new product. Either may be NULL, but the DATABASE property must be specfied
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiInstallProduct(
             string szPackagePath, // location of package to install
             string szCommandLine); // command line <property settings>
-        // Install/uninstall an advertised or installed product
-        // No action if installed and INSTALLSTATE_DEFAULT specified
+
+        // Install/uninstall an advertised or installed product No action if installed and
+        // INSTALLSTATE_DEFAULT specified
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiConfigureProduct(
             string szProduct, // product code
             int iInstallLevel, // how much of the product to install
             INSTALLSTATE eInstallState); // local/source/default/absent/lock/uncache
+
         // Reinstall product, used to validate or correct problems
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiReinstallProduct(
             string szProduct, // product code
             int szReinstallMode); // one or more REINSTALLMODE modes
+
         // Return the product code for a registered component, called once by apps
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiGetProductCode(
             string szComponent, // component Id registered for this product
             string lpBuf39); // returned string GUID, sized for 39 characters
+
         // Return the registered user information for an installed product
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern USERINFOSTATE MsiGetUserInfo(
@@ -270,16 +271,16 @@ namespace WindowsService.Engine.Tools
             ref int OrgNameBufLen, // in/out buffer character count
             string SerialBuf, // return product serial number
             ref int SerialBufLen); // in/out buffer character count
+
         // Obtain and store user info and PID from installation wizard (first run)
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiCollectUserInfo(
             string szProduct); // product code, string GUID
+
         //msiQuery.h
 
-
-        // -------------------------------------------------------------------------
-        // Installer database management functions - not used by custom actions
-        // -------------------------------------------------------------------------
+        // ------------------------------------------------------------------------- Installer
+        // database management functions - not used by custom actions -------------------------------------------------------------------------
 
         // Open an installer database, specifying the persistance mode, which is a pointer.
         // Predefined persist values are reserved pointer values, requiring pointer arithmetic.
@@ -289,30 +290,33 @@ namespace WindowsService.Engine.Tools
         public static extern int MsiOpenDatabase(string dbpath, string persist,
             ref IntPtr msihandle);
 
-        // Import an MSI text archive table into an open database
-        // Execution of this function sets the error record, accessible via MsiGetLastErrorRecord
+        // Import an MSI text archive table into an open database Execution of this function sets
+        // the error record, accessible via MsiGetLastErrorRecord
 
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiDatabaseImport(IntPtr msihandle,
             string FolderPath, // folder containing archive files
             string FileName); // table archive file to be imported
-        // Export an MSI table from an open database to a text archive file
-        // Execution of this function sets the error record, accessible via MsiGetLastErrorRecord
+
+        // Export an MSI table from an open database to a text archive file Execution of this
+        // function sets the error record, accessible via MsiGetLastErrorRecord
 
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiDatabaseExport(IntPtr msihandle,
             string TableName, // name of table in database <case-sensitive>
             string FolderPath, // folder containing archive files
             string FileName); // name of exported table archive file
-        // Merge two database together, allowing duplicate rows
-        // Execution of this function sets the error record, accessible via MsiGetLastErrorRecord
+
+        // Merge two database together, allowing duplicate rows Execution of this function sets the
+        // error record, accessible via MsiGetLastErrorRecord
 
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiDatabaseMerge(IntPtr msihandle,
             IntPtr msihandle2, // database to be merged into hDatabase
             string TableName); // name of non-persistent table to receive errors
-        // Write out all persistent table data, ignored if database opened read-only
-        // Execution of this function sets the error record, accessible via MsiGetLastErrorRecord
+
+        // Write out all persistent table data, ignored if database opened read-only Execution of
+        // this function sets the error record, accessible via MsiGetLastErrorRecord
 
         [DllImport("msi")]
         public static extern int MsiDatabaseCommit(IntPtr msihandle);
@@ -322,45 +326,45 @@ namespace WindowsService.Engine.Tools
         [DllImport("msi")]
         public static extern MSIDBSTATE MsiGetDatabaseState(IntPtr msihandle);
 
-        // -------------------------------------------------------------------------
-        // Installer database access functions
-        // -------------------------------------------------------------------------
+        // ------------------------------------------------------------------------- Installer
+        // database access functions -------------------------------------------------------------------------
 
-        // Prepare a database query, creating a view object
-        // Returns ERROR_SUCCESS if successful, and the view handle is returned,
-        // else ERROR_INVALID_HANDLE, ERROR_INVALID_HANDLE_STATE, ERROR_BAD_QUERY_SYNTAX, ERROR_GEN_FAILURE
-        // Execution of this function sets the error record, accessible via MsiGetLastErrorRecord
+        // Prepare a database query, creating a view object Returns ERROR_SUCCESS if successful, and
+        // the view handle is returned, else ERROR_INVALID_HANDLE, ERROR_INVALID_HANDLE_STATE,
+        // ERROR_BAD_QUERY_SYNTAX, ERROR_GEN_FAILURE Execution of this function sets the error
+        // record, accessible via MsiGetLastErrorRecord
 
         [DllImport("msi")]
         public static extern int MsiDatabaseOpenView(IntPtr handle, string query,
             ref IntPtr viewhandle);
 
-        // Exectute the view query, supplying parameters as required
-        // Returns ERROR_SUCCESS, ERROR_INVALID_HANDLE, ERROR_INVALID_HANDLE_STATE, ERROR_GEN_FAILURE
-        // Execution of this function sets the error record, accessible via MsiGetLastErrorRecord
+        // Exectute the view query, supplying parameters as required Returns ERROR_SUCCESS,
+        // ERROR_INVALID_HANDLE, ERROR_INVALID_HANDLE_STATE, ERROR_GEN_FAILURE Execution of this
+        // function sets the error record, accessible via MsiGetLastErrorRecord
 
         [DllImport("msi")]
         public static extern int MsiViewExecute(IntPtr viewhandle, IntPtr
             recordhandle);
 
-        // Fetch the next sequential record from the view
-        // Result is ERROR_SUCCESS if a row is found, and its handle is returned
-        // else ERROR_NO_MORE_ITEMS if no records remain, and a null handle is returned
-        // else result is error: ERROR_INVALID_HANDLE_STATE, ERROR_INVALID_HANDLE, ERROR_GEN_FAILURE
+        // Fetch the next sequential record from the view Result is ERROR_SUCCESS if a row is found,
+        // and its handle is returned else ERROR_NO_MORE_ITEMS if no records remain, and a null
+        // handle is returned else result is error: ERROR_INVALID_HANDLE_STATE,
+        // ERROR_INVALID_HANDLE, ERROR_GEN_FAILURE
 
         [DllImport("msi")]
         public static extern int MsiViewFetch(IntPtr viewhandle, ref IntPtr
             recordhandle);
 
-        // Modify a database record, parameters must match types in query columns
-        // Returns ERROR_SUCCESS, ERROR_INVALID_HANDLE, ERROR_INVALID_HANDLE_STATE, ERROR_GEN_FAILURE, ERROR_ACCESS_DENIED
-        // Execution of this function sets the error record, accessible via MsiGetLastErrorRecord
+        // Modify a database record, parameters must match types in query columns Returns
+        // ERROR_SUCCESS, ERROR_INVALID_HANDLE, ERROR_INVALID_HANDLE_STATE, ERROR_GEN_FAILURE,
+        // ERROR_ACCESS_DENIED Execution of this function sets the error record, accessible via MsiGetLastErrorRecord
 
         [DllImport("msi")]
         public static extern int MsiViewModify(IntPtr viewhandle, MSIMODIFY eModifyMode, // modify action to perform
             IntPtr recordhandle); // record obtained from fetch, or new record
-        // Return the column names or specifications for the current view
-        // Returns ERROR_SUCCESS, ERROR_INVALID_HANDLE, ERROR_INVALID_PARAMETER, or ERROR_INVALID_HANDLE_STATE
+
+        // Return the column names or specifications for the current view Returns ERROR_SUCCESS,
+        // ERROR_INVALID_HANDLE, ERROR_INVALID_PARAMETER, or ERROR_INVALID_HANDLE_STATE
 
         [DllImport("msi")]
         public static extern int MsiViewGetColumnInfo(IntPtr viewhandle, MSICOLINFO eColumnInfo,
@@ -370,115 +374,106 @@ namespace WindowsService.Engine.Tools
         [DllImport("msi")]
         public static extern int MsiCloseHandle(IntPtr handle);
 
-        // Release the result set for an executed view, to allow re-execution
-        // Only needs to be called if not all records have been fetched
-        // Returns ERROR_SUCCESS, ERROR_INVALID_HANDLE, ERROR_INVALID_HANDLE_STATE
+        // Release the result set for an executed view, to allow re-execution Only needs to be
+        // called if not all records have been fetched Returns ERROR_SUCCESS, ERROR_INVALID_HANDLE, ERROR_INVALID_HANDLE_STATE
 
         [DllImport("msi")]
         public static extern int MsiViewClose(IntPtr viewhandle);
 
-        // Return a record containing the names of all primary key columns for a given table
-        // Returns an MSIHANDLE for a record containing the name of each column.
-        // The field count of the record corresponds to the number of primary key columns.
-        // Field [0] of the record contains the table name.
-        // Returns ERROR_SUCCESS, ERROR_INVALID_HANDLE, ERROR_INVALID_TABLE
+        // Return a record containing the names of all primary key columns for a given table Returns
+        // an MSIHANDLE for a record containing the name of each column. The field count of the
+        // record corresponds to the number of primary key columns. Field [0] of the record contains
+        // the table name. Returns ERROR_SUCCESS, ERROR_INVALID_HANDLE, ERROR_INVALID_TABLE
 
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiDatabaseGetPrimaryKeys(IntPtr msihandle,
             string szTableName, // the name of a specific table <case-sensitive>
             ref IntPtr recordhandle); // returned record if ERROR_SUCCESS
-        // -------------------------------------------------------------------------
-        // Record object functions
-        // -------------------------------------------------------------------------
 
-        // Create a new record object with the requested number of fields
-        // Field 0, not included in count, is used for format strings and op codes
-        // All fields are initialized to null
-        // Returns a handle to the created record, or 0 if memory could not be allocated
+        // ------------------------------------------------------------------------- Record object
+        // functions -------------------------------------------------------------------------
+
+        // Create a new record object with the requested number of fields Field 0, not included in
+        // count, is used for format strings and op codes All fields are initialized to null Returns
+        // a handle to the created record, or 0 if memory could not be allocated
 
         [DllImport("msi")]
         public static extern IntPtr MsiCreateRecord(
             int Params); // the number of data fields
-        // Report whether a record field is NULL
-        // Returns TRUE if the field is null or does not exist
+
+        // Report whether a record field is NULL Returns TRUE if the field is null or does not exist
         // Returns FALSE if the field contains data, or the handle is invalid
 
         [DllImport("msi")]
         public static extern bool MsiRecordIsNull(IntPtr recordhandle,
             int Field);
 
-        // Return the length of a record field
-        // Returns 0 if field is NULL or non-existent
-        // Returns sizeof(int) if integer data
-        // Returns character count if string data (not counting null terminator)
-        // Returns bytes count if stream data
+        // Return the length of a record field Returns 0 if field is NULL or non-existent Returns
+        // sizeof(int) if integer data Returns character count if string data (not counting null
+        // terminator) Returns bytes count if stream data
 
         [DllImport("msi")]
         public static extern int MsiRecordDataSize(IntPtr recordhandle,
             int Field);
 
-        // Set a record field to an integer value
-        // Returns ERROR_SUCCESS, ERROR_INVALID_HANDLE, ERROR_INVALID_FIELD
+        // Set a record field to an integer value Returns ERROR_SUCCESS, ERROR_INVALID_HANDLE, ERROR_INVALID_FIELD
 
         [DllImport("msi")]
         public static extern int MsiRecordSetInteger(IntPtr recordhandle,
             int Field,
             int Value);
 
-        // Copy a string into the designated field
-        // A null string pointer and an empty string both set the field to null
-        // Returns ERROR_SUCCESS, ERROR_INVALID_HANDLE, ERROR_INVALID_FIELD
+        // Copy a string into the designated field A null string pointer and an empty string both
+        // set the field to null Returns ERROR_SUCCESS, ERROR_INVALID_HANDLE, ERROR_INVALID_FIELD
 
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiRecordSetString(IntPtr recordhandle,
             int Field,
             string Value);
 
-        // Return the integer value from a record field
-        // Returns the value MSI_NULL_INTEGER if the field is null
-        // or if the field is a string that cannot be converted to an integer
+        // Return the integer value from a record field Returns the value MSI_NULL_INTEGER if the
+        // field is null or if the field is a string that cannot be converted to an integer
 
         [DllImport("msi")]
         public static extern int MsiRecordGetInteger(IntPtr recordhandle,
             int Field);
 
-        // Return the string value of a record field
-        // Integer fields will be converted to a string
-        // Null and non-existent fields will report a value of 0
-        // Fields containing stream data will return ERROR_INVALID_DATATYPE
-        // Returns ERROR_SUCCESS, ERROR_MORE_DATA,
-        //         ERROR_INVALID_HANDLE, ERROR_INVALID_FIELD, ERROR_BAD_ARGUMENTS
+        // Return the string value of a record field Integer fields will be converted to a string
+        // Null and non-existent fields will report a value of 0 Fields containing stream data will
+        // return ERROR_INVALID_DATATYPE Returns ERROR_SUCCESS, ERROR_MORE_DATA,
+        // ERROR_INVALID_HANDLE, ERROR_INVALID_FIELD, ERROR_BAD_ARGUMENTS
 
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiRecordGetString(IntPtr recordhandle,
             int Field,
             string ValueBuf, // buffer for returned value
             ref int len); // in/out buffer character count
-        // Returns the number of fields allocated in the record
-        // Does not count field 0, used for formatting and op codes
+
+        // Returns the number of fields allocated in the record Does not count field 0, used for
+        // formatting and op codes
 
         [DllImport("msi")]
         public static extern int MsiRecordGetFieldCount(IntPtr recordhandle);
 
-        // Set a record stream field from a file
-        // The contents of the specified file will be read into a stream object
-        // The stream will be persisted if the record is inserted into the database
-        // Execution of this function sets the error record, accessible via MsiGetLastErrorRecord
+        // Set a record stream field from a file The contents of the specified file will be read
+        // into a stream object The stream will be persisted if the record is inserted into the
+        // database Execution of this function sets the error record, accessible via MsiGetLastErrorRecord
 
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiRecordSetStream(IntPtr recordhandle,
             int Field,
             string FilePath); // path to file containing stream data
-        // Read bytes from a record stream field into a buffer
-        // Must set the in/out argument to the requested byte count to read
-        // The number of bytes transferred is returned through the argument
-        // If no more bytes are available, ERROR_SUCCESS is still returned
+
+        // Read bytes from a record stream field into a buffer Must set the in/out argument to the
+        // requested byte count to read The number of bytes transferred is returned through the
+        // argument If no more bytes are available, ERROR_SUCCESS is still returned
 
         [DllImport("msi", CharSet = CharSet.Auto)]
         public static extern int MsiRecordReadStream(IntPtr recordhandle,
             int Field,
             string DataBuf, // buffer to receive bytes from stream
             ref int len); // in/out buffer byte count
+
         // Clears all data fields in a record to NULL
 
         [DllImport("msi")]
@@ -491,8 +486,8 @@ namespace WindowsService.Engine.Tools
         [DllImport("msi.dll", SetLastError = true)]
         public static extern int MsiEnumProducts(int iProductIndex, StringBuilder lpProductBuf);
 
-        // The MsiGetFileSignatureInformation function takes the path to a file that has been digitally
-        // signed and returns the file's signer certificate and hash.
+        // The MsiGetFileSignatureInformation function takes the path to a file that has been
+        // digitally signed and returns the file's signer certificate and hash.
         [DllImport("msi")]
         public static extern int MsiGetFileSignatureInformation([In] string szSignedObjectPath, [In] uint dwFlags,
             out IntPtr ppcCertContext, [Out] byte[] pbHashData, ref uint pcbHashData);
@@ -501,6 +496,7 @@ namespace WindowsService.Engine.Tools
         {
             // Product info attributes: advertised information
             public static INSTALLPROPERTY PACKAGENAME = new INSTALLPROPERTY("PackageName");
+
             public static INSTALLPROPERTY TRANSFORMS = new INSTALLPROPERTY("Transforms");
             public static INSTALLPROPERTY LANGUAGE = new INSTALLPROPERTY("Language");
             public static INSTALLPROPERTY PRODUCTNAME = new INSTALLPROPERTY("ProductName");
@@ -508,8 +504,10 @@ namespace WindowsService.Engine.Tools
             public static INSTALLPROPERTY PACKAGECODE = new INSTALLPROPERTY("PackageCode");
             public static INSTALLPROPERTY VERSION = new INSTALLPROPERTY("Version");
             public static INSTALLPROPERTY PRODUCTICON = new INSTALLPROPERTY("ProductIcon");
+
             // Product info attributes: installed information
             public static INSTALLPROPERTY INSTALLEDPRODUCTNAME = new INSTALLPROPERTY("InstalledProductName");
+
             public static INSTALLPROPERTY VERSIONSTRING = new INSTALLPROPERTY("VersionString");
             public static INSTALLPROPERTY HELPLINK = new INSTALLPROPERTY("HelpLink");
             public static INSTALLPROPERTY HELPTELEPHONE = new INSTALLPROPERTY("HelpTelephone");

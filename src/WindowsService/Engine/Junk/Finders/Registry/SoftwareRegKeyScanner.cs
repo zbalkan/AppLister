@@ -3,12 +3,12 @@
     Apache License Version 2.0
 */
 
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security;
+using Microsoft.Win32;
 using WindowsService.Engine.Junk.Confidence;
 using WindowsService.Engine.Junk.Containers;
 using WindowsService.Engine.Tools;
@@ -33,7 +33,7 @@ namespace WindowsService.Engine.Junk.Finders.Registry
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE\Wow6432Node";
 
         /// <summary>
-        /// Keys to step over when scanning
+        ///     Keys to step over when scanning
         /// </summary>
         private static readonly IEnumerable<string> KeyBlacklist = new[]
         {
@@ -41,7 +41,7 @@ namespace WindowsService.Engine.Junk.Finders.Registry
         };
 
         /// <summary>
-        /// Always points to program's directory
+        ///     Always points to program's directory
         /// </summary>
         private static readonly IEnumerable<string> InstallDirKeyNames = new[]
         {
@@ -57,7 +57,7 @@ namespace WindowsService.Engine.Junk.Finders.Registry
         };
 
         /// <summary>
-        /// Always points to program's main executable
+        ///     Always points to program's main executable
         /// </summary>
         private static readonly IEnumerable<string> ExePathKeyNames = new[]
         {
@@ -69,7 +69,7 @@ namespace WindowsService.Engine.Junk.Finders.Registry
         };
 
         /// <summary>
-        /// Can point to programs executable or directory
+        ///     Can point to programs executable or directory
         /// </summary>
         private static readonly IEnumerable<string> ExeOrDirPathKeyNames = new[]
         {

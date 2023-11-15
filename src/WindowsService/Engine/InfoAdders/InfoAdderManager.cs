@@ -6,7 +6,6 @@ using WindowsService.Extensions;
 
 namespace WindowsService.Engine.InfoAdders
 {
-
     public class InfoAdderManager
     {
         private static readonly IMissingInfoAdder[] InfoAdders;
@@ -31,8 +30,9 @@ namespace WindowsService.Engine.InfoAdders
                      return compiled;
                  });
 
-            // Split properties related to uninstaller and its type so they can be moved all at same time
-            // TODO Better sorting logic? If names change or props are added without uninstall in name they'll slip through
+            // Split properties related to uninstaller and its type so they can be moved all at same
+            // time TODO Better sorting logic? If names change or props are added without uninstall
+            // in name they'll slip through
             foreach (var group in TargetProperties.Where(x => x.Key != nameof(ApplicationUninstallerEntry.UninstallerKind))
                 .GroupBy(x => x.Key.Contains("uninstall", StringComparison.OrdinalIgnoreCase)))
             {
@@ -46,7 +46,7 @@ namespace WindowsService.Engine.InfoAdders
         private static readonly Type BoolType = typeof(bool);
 
         /// <summary>
-        /// Check if we can correctly detect if the type has no value.
+        ///     Check if we can correctly detect if the type has no value.
         /// </summary>
         private static bool IsTypeValid(Type type)
         {
@@ -66,7 +66,7 @@ namespace WindowsService.Engine.InfoAdders
         }
 
         /// <summary>
-        /// Fill in information using all detected IMissingInfoAdder classes
+        ///     Fill in information using all detected IMissingInfoAdder classes
         /// </summary>
         public void AddMissingInformation(ApplicationUninstallerEntry target, bool skipRunLast = false)
         {
@@ -147,13 +147,18 @@ namespace WindowsService.Engine.InfoAdders
         }
 
         /// <summary>
-        /// Copy missing property values
+        ///     Copy missing property values
         /// </summary>
-        /// <param name="baseEntry">Copy values to this object</param>
-        /// <param name="entryToMerge">Copy from this object</param>
+        /// <param name="baseEntry">
+        ///     Copy values to this object
+        /// </param>
+        /// <param name="entryToMerge">
+        ///     Copy from this object
+        /// </param>
         public void CopyMissingInformation(ApplicationUninstallerEntry baseEntry, ApplicationUninstallerEntry entryToMerge)
         {
-            // If one of these is not null it will be merged by loop below. If both are not null they need special logic.
+            // If one of these is not null it will be merged by loop below. If both are not null
+            // they need special logic.
             if (baseEntry.StartupEntries != null && entryToMerge.StartupEntries != null)
             {
                 baseEntry.StartupEntries = baseEntry.StartupEntries.Concat(entryToMerge.StartupEntries);
@@ -161,7 +166,8 @@ namespace WindowsService.Engine.InfoAdders
 
             void CopyPropertyIfBetter(CompiledPropertyInfo<ApplicationUninstallerEntry> property, bool alwaysCopy)
             {
-                // If entryToMerge has a default (not set) value for this property, skip it so we don't lose data
+                // If entryToMerge has a default (not set) value for this property, skip it so we
+                // don't lose data
                 var newValue = property.CompiledGet(entryToMerge);
                 if (Equals(newValue, property.Tag)) return;
 
@@ -171,8 +177,8 @@ namespace WindowsService.Engine.InfoAdders
                 }
                 else
                 {
-                    // Copy new value to base entry if base doesn't have the value set, 
-                    // or if the values are strings and merged value is longer
+                    // Copy new value to base entry if base doesn't have the value set, or if the
+                    // values are strings and merged value is longer
                     var oldValue = property.CompiledGet(baseEntry);
                     if (Equals(oldValue, property.Tag) ||
                         newValue is string sNew && oldValue is string sOld && sNew.Length > sOld.Length)
@@ -185,8 +191,9 @@ namespace WindowsService.Engine.InfoAdders
             foreach (var property in NonUninstallerProperties)
                 CopyPropertyIfBetter(property, false);
 
-            // Make sure that all uninstaller-related properties are only copied when necessary, and that UninstallerKind 
-            // always changes together with the uninstall strings or we will get bugs elsewhere if there is a mismatch
+            // Make sure that all uninstaller-related properties are only copied when necessary, and
+            // that UninstallerKind always changes together with the uninstall strings or we will
+            // get bugs elsewhere if there is a mismatch
             if (baseEntry.UninstallerKind == UninstallerType.Unknown && entryToMerge.UninstallerKind != UninstallerType.Unknown ||
                 baseEntry.UninstallerKind == UninstallerType.SimpleDelete && entryToMerge.UninstallPossible ||
                 !baseEntry.UninstallPossible ||

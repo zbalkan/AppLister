@@ -3,10 +3,10 @@
     Apache License Version 2.0
 */
 
-using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Microsoft.Win32;
 using WindowsService.Engine.Tools;
 using WindowsService.Extensions;
 
@@ -23,7 +23,7 @@ namespace WindowsService.Engine.Junk.Containers
         public string ValueName { get; }
 
         /// <summary>
-        /// If not null, overrides ValueName in GetDisplayName
+        ///     If not null, overrides ValueName in GetDisplayName
         /// </summary>
         public string DisplayValueName { get; set; }
 
@@ -43,6 +43,7 @@ namespace WindowsService.Engine.Junk.Containers
                         RegistryTools.ExportRegistryStringValues(Path.Combine(dir, fileName), FullRegKeyPath,
                                                                  new KeyValuePair<string, string>(ValueName, targetValue));
                         break;
+
                     case RegistryValueKind.MultiString:
                     case RegistryValueKind.Binary:
                     case RegistryValueKind.DWord:
@@ -51,11 +52,11 @@ namespace WindowsService.Engine.Junk.Containers
                     default:
                         Debug.Fail($"Unsupported type {valueKind} of value {ValueName}");
                         break;
+
                     case RegistryValueKind.None:
                         break;
                 }
             }
-
         }
 
         public override string GetDisplayName()

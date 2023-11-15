@@ -3,13 +3,13 @@
     Apache License Version 2.0
 */
 
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security;
+using Microsoft.Win32;
 using WindowsService.Engine.InfoAdders;
 using WindowsService.Engine.Tools;
 using WindowsService.Extensions;
@@ -31,14 +31,17 @@ namespace WindowsService.Engine.Factory
         public static readonly string RegistryNameParentKeyName = "ParentKeyName";
         public static readonly string RegistryNamePublisher = "Publisher";
         public static readonly string RegistryNameQuietUninstallString = "QuietUninstallString";
+
         public static readonly IEnumerable<string> RegistryNamesOfUrlSources = new[]
             {"URLInfoAbout", "URLUpdateInfo", "HelpLink"};
+
         public static readonly string RegistryNameSystemComponent = "SystemComponent";
         public static readonly string RegistryNameUninstallString = "UninstallString";
         public static readonly string RegistryNameWindowsInstaller = "WindowsInstaller";
 
         private static readonly string RegUninstallersKeyDirect =
             @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+
         private static readonly string RegUninstallersKeyWow =
             @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
 
@@ -296,12 +299,17 @@ namespace WindowsService.Engine.Factory
         }
 
         /// <summary>
-        ///     Tries to create a new uninstaller entry. If the registry key doesn't contain valid uninstaller
-        ///     information, null is returned. It will throw ArgumentNullException if passed uninstallerKey is null.
-        ///     If there are any problems while reading the registry an exception will be thrown as well.
+        ///     Tries to create a new uninstaller entry. If the registry key doesn't contain valid
+        ///     uninstaller information, null is returned. It will throw ArgumentNullException if
+        ///     passed uninstallerKey is null. If there are any problems while reading the registry
+        ///     an exception will be thrown as well.
         /// </summary>
-        /// <param name="uninstallerKey">Registry key which contains the uninstaller information.</param>
-        /// <param name="is64Bit">Is the registry key pointing to a 64 bit subkey?</param>
+        /// <param name="uninstallerKey">
+        ///     Registry key which contains the uninstaller information.
+        /// </param>
+        /// <param name="is64Bit">
+        ///     Is the registry key pointing to a 64 bit subkey?
+        /// </param>
         private ApplicationUninstallerEntry TryCreateFromRegistry(RegistryKey uninstallerKey, bool is64Bit)
         {
             if (uninstallerKey == null)
@@ -334,8 +342,8 @@ namespace WindowsService.Engine.Factory
             // Figure out what we are dealing with
             tempEntry.UninstallerKind = GetUninstallerType(uninstallerKey);
 
-            // Corner case with some microsoft application installations.
-            // They will sometimes create a naked registry key (product code as reg name) with only the display name value.
+            // Corner case with some microsoft application installations. They will sometimes create
+            // a naked registry key (product code as reg name) with only the display name value.
             if (tempEntry.UninstallerKind != UninstallerType.Msiexec && tempEntry.BundleProviderKey != Guid.Empty
                 && !tempEntry.UninstallPossible && !tempEntry.QuietUninstallPossible)
             {

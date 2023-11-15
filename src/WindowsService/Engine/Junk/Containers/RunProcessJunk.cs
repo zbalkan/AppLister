@@ -3,9 +3,6 @@
     Apache License Version 2.0
 */
 
-using System;
-using System.Diagnostics;
-
 namespace WindowsService.Engine.Junk.Containers
 {
     public class RunProcessJunk : JunkResultBase
@@ -22,7 +19,6 @@ namespace WindowsService.Engine.Junk.Containers
 
         public override void Backup(string backupDirectory)
         {
-
         }
 
         public override void Delete()

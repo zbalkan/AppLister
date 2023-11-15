@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System;
 using System.Linq;
 using WindowsService.Engine.InfoAdders;
+using WindowsService.Engine.Startup;
 using WindowsService.Engine.Tools;
 using WindowsService.Extensions;
-using WindowsService.Engine.Startup;
 
 namespace WindowsService.Engine.Factory
 {
@@ -20,8 +20,7 @@ namespace WindowsService.Engine.Factory
             try
             {
                 // Find msi products ---------------------------------------------------------------------------------------
-                var msiProducts = MsiTools.MsiEnumProducts().DoForEach(x =>
-                { }).ToList();
+                var msiProducts = MsiTools.MsiEnumProducts().ToList();
 
                 // Run some factories in a separate thread -----------------------------------------------------------------
                 concurrentFactory.Start();
@@ -35,7 +34,8 @@ namespace WindowsService.Engine.Factory
                     registryResults = registryFactory.GetUninstallerEntries();
                     Trace.WriteLine($"[Performance] Factory {nameof(RegistryFactory)} took {sw.ElapsedMilliseconds}ms to finish");
 
-                    // Fill in install llocations for DirectoryFactory to improve speed and quality of results
+                    // Fill in install llocations for DirectoryFactory to improve speed and quality
+                    // of results
                     if (UninstallToolsGlobalConfig.UninstallerFactoryCache != null)
                         ApplyCache(registryResults, UninstallToolsGlobalConfig.UninstallerFactoryCache, InfoAdder);
 
@@ -46,8 +46,9 @@ namespace WindowsService.Engine.Factory
                     registryResults = new List<ApplicationUninstallerEntry>();
                 }
 
-                // Look for entries on drives, based on info in registry. ----------------------------------------------------
-                // Will introduce duplicates to already detected stuff. Need to check for duplicates with other entries later.
+                // Look for entries on drives, based on info in registry.
+                // ---------------------------------------------------- Will introduce duplicates to
+                // already detected stuff. Need to check for duplicates with other entries later.
                 IList<ApplicationUninstallerEntry> driveResults;
                 if (UninstallToolsGlobalConfig.ScanDrives)
                 {
@@ -88,12 +89,9 @@ namespace WindowsService.Engine.Factory
                     }
                     catch (SystemException e)
                     {
-                        Trace.WriteLine(@"Failed to save cache: " + e);
+                        Trace.WriteLine($"Failed to save cache: {e}");
                     }
                 }
-
-                // Detect startups and attach them to uninstaller entries ----------------------------------------------------
-                var i = 0;
                 var startupEntries = new List<StartupEntryBase>();
                 foreach (var factory in StartupManager.Factories)
                 {
@@ -103,7 +101,7 @@ namespace WindowsService.Engine.Factory
                     }
                     catch (Exception ex)
                     {
-                        //
+
                     }
                 }
 
@@ -113,7 +111,7 @@ namespace WindowsService.Engine.Factory
                 }
                 catch (Exception ex)
                 {
-                    //
+
                 }
 
                 return mergedResults;
@@ -125,7 +123,7 @@ namespace WindowsService.Engine.Factory
         }
 
         /// <summary>
-        /// Merge new results into the base list
+        ///     Merge new results into the base list
         /// </summary>
         internal static void MergeResults(ICollection<ApplicationUninstallerEntry> baseEntries,
             ICollection<ApplicationUninstallerEntry> newResults)
@@ -175,7 +173,7 @@ namespace WindowsService.Engine.Factory
                     Debug.WriteLine("Cache miss: " + entry.DisplayName);
                 }
             }
-            Trace.WriteLine($@"Cache hits: {hits}/{baseEntries.Count}");
+            Trace.WriteLine($"Cache hits: {hits}/{baseEntries.Count}");
         }
 
         private static List<ApplicationUninstallerEntry> GetMiscUninstallerEntries()
@@ -206,13 +204,11 @@ namespace WindowsService.Engine.Factory
         }
 
         /// <summary>
-        /// Attach startup entries to uninstaller entries that are automatically detected as related.
+        ///     Attach startup entries to uninstaller entries that are automatically detected as related.
         /// </summary>
-        public static void AttachStartupEntries(IEnumerable<ApplicationUninstallerEntry> uninstallers, IEnumerable<StartupEntryBase> startupEntries)
-        {
+        public static void AttachStartupEntries(IEnumerable<ApplicationUninstallerEntry> uninstallers, IEnumerable<StartupEntryBase> startupEntries) =>
             // Using DoForEach to avoid multiple enumerations
             StartupManager.AssignStartupEntries(uninstallers
                 .DoForEach(x => { if (x != null) x.StartupEntries = null; }), startupEntries);
-        }
     }
 }

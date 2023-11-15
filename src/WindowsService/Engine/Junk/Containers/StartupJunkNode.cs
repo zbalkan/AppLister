@@ -49,8 +49,8 @@ namespace WindowsService.Engine.Junk.Containers
 
             if (entry is StartupEntry normalStartupEntry && normalStartupEntry.IsRunOnce)
             {
-                // If the entry is RunOnce, give it some negative points to keep it out of automatic removal.
-                // It might be used to clean up after uninstall on next boot.
+                // If the entry is RunOnce, give it some negative points to keep it out of automatic
+                // removal. It might be used to clean up after uninstall on next boot.
                 Confidence.Add(ConfidenceStartupIsRunOnce);
             }
         }

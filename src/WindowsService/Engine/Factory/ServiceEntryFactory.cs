@@ -25,13 +25,13 @@ namespace WindowsService.Engine.Factory
         }
 
         /* ServiceType
-        Kernel Driver 
-        File System Driver 
-        Adapter 
-        Recognizer Driver 
-        Own Process 
-        Share Process 
-        Interactive Process 
+        Kernel Driver
+        File System Driver
+        Adapter
+        Recognizer Driver
+        Own Process
+        Share Process
+        Interactive Process
         */
 
         public static IEnumerable<ServiceEntry> GetServiceEntries()
