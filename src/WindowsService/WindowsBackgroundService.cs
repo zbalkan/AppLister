@@ -31,7 +31,7 @@ namespace WindowsService
                 _queryPeriodInMilliseconds = period * 60 * 1000;
             }
 
-            internalService = new InventoryService(EventLog);
+            internalService = new InventoryService(EventLog, ServiceKeyPath);
         }
 
         protected override void OnStart(string[] args)
@@ -49,10 +49,7 @@ namespace WindowsService
             }
         }
 
-        protected override void OnStop()
-        {
-            _timer.Dispose();
-        }
+        protected override void OnStop() => _timer.Dispose();
 
         internal void TestStartupAndStop(string[] args)
         {
@@ -61,9 +58,6 @@ namespace WindowsService
             //OnStop();
         }
 
-        private void Refresh(object state)
-        {
-            internalService.Refresh();
-        }
+        private void Refresh(object state) => internalService.Refresh();
     }
 }
