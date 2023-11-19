@@ -5,7 +5,7 @@ using System.Management.Instrumentation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: WmiConfiguration(@"root\cimv2", HostingModel = ManagementHostingModel.LocalSystem)]
+[assembly: WmiConfiguration(@"root\Inventory", HostingModel = ManagementHostingModel.Decoupled)]
 
 namespace WmiProvider
 {
@@ -33,7 +33,7 @@ namespace WmiProvider
         {
             try
             {
-                var MC = new ManagementClass(@"root\cimv2:Win32_InventoryPackage");
+                var MC = new ManagementClass(@"root\Inventory:Win32_Package");
                 MC.Delete();
             }
             catch { }

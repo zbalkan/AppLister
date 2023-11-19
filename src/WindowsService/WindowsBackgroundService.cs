@@ -31,7 +31,7 @@ namespace WindowsService
                 _queryPeriodInMilliseconds = period * 60 * 1000;
             }
 
-            internalService = new InventoryService(EventLog, ServiceKeyPath);
+            internalService = new InventoryService(EventLog);
         }
 
         protected override void OnStart(string[] args)

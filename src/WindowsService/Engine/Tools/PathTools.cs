@@ -93,7 +93,7 @@ namespace WindowsService.Engine.Tools
             }
             catch (ManagementException e)
             {
-                Console.WriteLine($@"An error occurred while querying for WMI data: {e.Message}");
+                Console.WriteLine($"An error occurred while querying for WMI data: {e.Message}");
             }
         }
 
@@ -135,6 +135,9 @@ namespace WindowsService.Engine.Tools
             return combinations.FirstOrDefault(File.Exists) ?? GetExecutablePathFromAppPaths(filename);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
         /// <param name="exename">
         ///     name of the exectuable, including .exe
         /// </param>
