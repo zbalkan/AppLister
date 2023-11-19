@@ -57,9 +57,9 @@ namespace WindowsService.Engine.InfoAdders
         {
             // Detect MSI / Windows installer based on the uninstall string e.g.
             // "C:\ProgramData\Package
-            // Cache\{33d1fd90-4274-48a1-9bc1-97e33d9c2d6f}\vcredist_x86.exe" /uninstall
+            // PersistentCache\{33d1fd90-4274-48a1-9bc1-97e33d9c2d6f}\vcredist_x86.exe" /uninstall
             if (ApplicationEntryTools.PathPointsToMsiExec(uninstallString) || uninstallString.ContainsAll(
-                new[] { @"\Package Cache\{", @"}\", ".exe" }, StringComparison.OrdinalIgnoreCase))
+                new[] { @"\Package PersistentCache\{", @"}\", ".exe" }, StringComparison.OrdinalIgnoreCase))
                 return UninstallerType.Msiexec;
 
             // Detect Sdbinst

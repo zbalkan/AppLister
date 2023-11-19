@@ -77,7 +77,7 @@ namespace WindowsService.Engine.Factory
 
                 FactoryThreadedHelpers.GenerateMissingInformation(mergedResults, InfoAdder, msiProducts, false);
 
-                // Cache missing information to speed up future scans
+                // PersistentCache missing information to speed up future scans
                 if (UninstallToolsGlobalConfig.UninstallerFactoryCache != null)
                 {
                     foreach (var entry in mergedResults)
@@ -170,10 +170,10 @@ namespace WindowsService.Engine.Factory
                 }
                 else
                 {
-                    Debug.WriteLine("Cache miss: " + entry.DisplayName);
+                    Debug.WriteLine("PersistentCache miss: " + entry.DisplayName);
                 }
             }
-            Trace.WriteLine($"Cache hits: {hits}/{baseEntries.Count}");
+            Trace.WriteLine($"PersistentCache hits: {hits}/{baseEntries.Count}");
         }
 
         private static List<ApplicationUninstallerEntry> GetMiscUninstallerEntries()

@@ -100,7 +100,7 @@ namespace WindowsService.Engine
             catch (SystemException e)
             {
                 UninstallerFactoryCache = new ApplicationUninstallerFactoryCache(cachePath);
-                Trace.WriteLine("Cache reload failed: " + e);
+                Trace.WriteLine("PersistentCache reload failed: " + e);
             }
         }
 

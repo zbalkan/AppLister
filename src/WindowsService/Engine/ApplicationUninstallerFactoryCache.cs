@@ -40,7 +40,7 @@ namespace WindowsService.Engine
         {
             //var result = SerializationTools.DeserializeFromXml<List<CacheEntry>>(Filename);
 
-            //Cache.Clear();
+            //PersistentCache.Clear();
 
             //// Ignore entries if more than 1 have the same cache id
             //foreach (var group in result
@@ -51,13 +51,13 @@ namespace WindowsService.Engine
 
             // if (SerializeIcons && cacheEntry.Icon != null) cacheEntry.Entry.IconBitmap = DeserializeIcon(cacheEntry.Icon);
 
-            //    Cache.Add(group.Key, cacheEntry.Entry);
+            //    PersistentCache.Add(group.Key, cacheEntry.Entry);
             //}
         }
 
         public void Save()
         {
-            //SerializationTools.SerializeToXml(Filename, Cache.Select(x => new CacheEntry(
+            //SerializationTools.SerializeToXml(Filename, PersistentCache.Select(x => new CacheEntry(
             //    x.Value,
             //    SerializeIcons && x.Value.IconBitmap != null ? SerializeIcon(x.Value.IconBitmap) : null))
             //    .ToList());

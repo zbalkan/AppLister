@@ -464,7 +464,7 @@ namespace WindowsService.Engine.Tools
             int Field,
             string FilePath); // path to file containing stream data
 
-        // Read bytes from a record stream field into a buffer Must set the in/out argument to the
+        // GetAll bytes from a record stream field into a buffer Must set the in/out argument to the
         // requested byte count to read The number of bytes transferred is returned through the
         // argument If no more bytes are available, ERROR_SUCCESS is still returned
 

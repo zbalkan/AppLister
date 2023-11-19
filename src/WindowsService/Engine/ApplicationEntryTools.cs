@@ -160,7 +160,12 @@ namespace WindowsService.Engine
 
         public static string CleanupDisplayVersion(string version)
         {
-            return version?.Replace(", ", ".").Replace(". ", ".").Replace(",", ".").Replace(". ", ".").Trim();
+            if (string.IsNullOrEmpty(version))
+            {
+                return string.Empty;
+            }
+
+            return version.Replace(", ", ".").Replace(". ", ".").Replace(",", ".").Replace(". ", ".").Trim();
         }
 
         public static string ExtractDirectoryName(string uninstallerLocation)
