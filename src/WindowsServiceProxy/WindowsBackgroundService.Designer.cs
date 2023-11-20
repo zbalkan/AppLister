@@ -1,4 +1,4 @@
-﻿namespace WindowsService
+﻿namespace WindowsServiceProxy
 {
     partial class WindowsBackgroundService
     {

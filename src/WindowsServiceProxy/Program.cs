@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.ServiceProcess;
 
-namespace WindowsService
+namespace WindowsServiceProxy
 {
     internal static class Program
     {

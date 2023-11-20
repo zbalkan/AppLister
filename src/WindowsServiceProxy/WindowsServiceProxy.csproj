@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{7CEB20D7-26B1-4697-9672-22A9DC0D018B}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>WindowsService</RootNamespace>
-    <AssemblyName>WindowsService</AssemblyName>
+    <RootNamespace>WindowsServiceProxy</RootNamespace>
+    <AssemblyName>WindowsServiceProxy</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -51,6 +51,9 @@
     <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>WindowsServiceProxy.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
