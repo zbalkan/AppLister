@@ -1,0 +1,154 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{066B5FCE-96DB-4178-B210-783E39C6B2A2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>InventoryEngine</RootNamespace>
+    <AssemblyName>InventoryEngine</AssemblyName>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApplicationEntryTools.cs" />
+    <Compile Include="ApplicationUninstallerEntry.cs" />
+    <Compile Include="ApplicationUninstallerFactoryCache.cs" />
+    <Compile Include="BrowserHelperEntry.cs" />
+    <Compile Include="CompiledPropertyInfo.cs" />
+    <Compile Include="CSIDL.cs" />
+    <Compile Include="Extensions\ByteExtensions.cs" />
+    <Compile Include="Extensions\CollectionExtensions.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Extensions\MiscExtensions.cs" />
+    <Compile Include="Extensions\ParentProcessUtilities.cs" />
+    <Compile Include="Extensions\ProcessExtensions.cs" />
+    <Compile Include="Extensions\RegistryKeyExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Factory\ApplicationUninstallerFactory.cs" />
+    <Compile Include="Factory\BrowserEntryFactory.cs" />
+    <Compile Include="Factory\ConcurrentApplicationFactory.cs" />
+    <Compile Include="Factory\DirectoryFactory.cs" />
+    <Compile Include="Factory\FactoryThreadedHelpers.cs" />
+    <Compile Include="Factory\FactoryTools.cs" />
+    <Compile Include="Factory\IUninstallerFactory.cs" />
+    <Compile Include="Factory\RegistryFactory.cs" />
+    <Compile Include="Factory\ServiceEntryFactory.cs" />
+    <Compile Include="InfoAdders\AppExecutablesSearcher.cs" />
+    <Compile Include="InfoAdders\CertificateGetter.cs" />
+    <Compile Include="InfoAdders\ExecutableAttributeExtractor.cs" />
+    <Compile Include="InfoAdders\IMissingInfoAdder.cs" />
+    <Compile Include="InfoAdders\InfoAdderManager.cs" />
+    <Compile Include="InfoAdders\InfoAdderPriority.cs" />
+    <Compile Include="InfoAdders\UninstallerTypeAdder.cs" />
+    <Compile Include="Inventory.cs" />
+    <Compile Include="Junk\Confidence\ConfidenceCollection.cs" />
+    <Compile Include="Junk\Confidence\ConfidenceGenerators.cs" />
+    <Compile Include="Junk\Confidence\ConfidenceLevel.cs" />
+    <Compile Include="Junk\Confidence\ConfidenceRecord.cs" />
+    <Compile Include="Junk\Confidence\ConfidenceRecords.cs" />
+    <Compile Include="Junk\Containers\FileSystemJunk.cs" />
+    <Compile Include="Junk\Containers\IJunkResult.cs" />
+    <Compile Include="Junk\Containers\JunkResultBase.cs" />
+    <Compile Include="Junk\Containers\RegistryKeyJunk.cs" />
+    <Compile Include="Junk\Containers\RegistryValueJunk.cs" />
+    <Compile Include="Junk\Containers\RunProcessJunk.cs" />
+    <Compile Include="Junk\Containers\StartupJunkNode.cs" />
+    <Compile Include="Junk\Finders\Drive\CommonDriveJunkScanner.cs" />
+    <Compile Include="Junk\Finders\Drive\InstallLocationScanner.cs" />
+    <Compile Include="Junk\Finders\Drive\PrefetchScanner.cs" />
+    <Compile Include="Junk\Finders\Drive\SpecificUninstallerKindScanner.cs" />
+    <Compile Include="Junk\Finders\Drive\UninstallerLocationScanner.cs" />
+    <Compile Include="Junk\Finders\Drive\WerScanner.cs" />
+    <Compile Include="Junk\Finders\JunkCreatorBase.cs" />
+    <Compile Include="Junk\Finders\Misc\ShortcutJunk.cs" />
+    <Compile Include="Junk\Finders\Misc\StartupJunk.cs" />
+    <Compile Include="Junk\Finders\Registry\AppCompatFlagScanner.cs" />
+    <Compile Include="Junk\Finders\Registry\AudioPolicyConfigScanner.cs" />
+    <Compile Include="Junk\Finders\Registry\ComScanner.cs" />
+    <Compile Include="Junk\Finders\Registry\DebugTracingScanner.cs" />
+    <Compile Include="Junk\Finders\Registry\EventLogScanner.cs" />
+    <Compile Include="Junk\Finders\Registry\FirewallRuleScanner.cs" />
+    <Compile Include="Junk\Finders\Registry\HeapLeakDetectionScanner.cs" />
+    <Compile Include="Junk\Finders\Registry\InstallerFoldersScanner.cs" />
+    <Compile Include="Junk\Finders\Registry\RegisteredApplicationsFinder.cs" />
+    <Compile Include="Junk\Finders\Registry\SoftwareRegKeyScanner.cs" />
+    <Compile Include="Junk\Finders\Registry\TracingScanner.cs" />
+    <Compile Include="Junk\Finders\Registry\UninstallerKeySearcher.cs" />
+    <Compile Include="Junk\Finders\Registry\UserAssistScanner.cs" />
+    <Compile Include="Junk\IJunkCreator.cs" />
+    <Compile Include="Junk\JunkManager.cs" />
+    <Compile Include="Junk\ProgramFilesOrphans.cs" />
+    <Compile Include="MachineType.cs" />
+    <Compile Include="ProcessStartCommand.cs" />
+    <Compile Include="ReflectionTools.cs" />
+    <Compile Include="ServiceEntry.cs" />
+    <Compile Include="Sift4.cs" />
+    <Compile Include="Startup\IStartupDisable.cs" />
+    <Compile Include="Startup\NewStartupDisable.cs" />
+    <Compile Include="Startup\OldStartupDisable.cs" />
+    <Compile Include="Startup\StartupEntry.cs" />
+    <Compile Include="Startup\StartupEntryBase.cs" />
+    <Compile Include="Startup\StartupEntryFactory.cs" />
+    <Compile Include="Startup\StartupEntryManager.cs" />
+    <Compile Include="Startup\StartupManager.cs" />
+    <Compile Include="Startup\StartupPointData.cs" />
+    <Compile Include="Startup\TaskEntry.cs" />
+    <Compile Include="Startup\TaskEntryFactory.cs" />
+    <Compile Include="ThreadedWorkSpreader.cs" />
+    <Compile Include="Tools\GuidTools.cs" />
+    <Compile Include="Tools\MsiTools.cs" />
+    <Compile Include="Tools\MsiWrapper.cs" />
+    <Compile Include="Tools\PathTools.cs" />
+    <Compile Include="Tools\ProcessTools.cs" />
+    <Compile Include="Tools\RegistryTools.cs" />
+    <Compile Include="Tools\WindowsTools.cs" />
+    <Compile Include="UninstallerType.cs" />
+    <Compile Include="UninstallToolsGlobalConfig.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Memory">
+      <Version>4.5.5</Version>
+    </PackageReference>
+    <PackageReference Include="TaskScheduler">
+      <Version>2.10.1</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
