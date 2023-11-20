@@ -355,3 +355,6 @@ MigrationBackup/
 
 # Launch settings
 launchsettings.json
+
+# Installutil logs
+*.InstallLog
