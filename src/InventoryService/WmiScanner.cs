@@ -5,7 +5,7 @@ using InventoryWmiProvider;
 
 namespace InventoryService
 {
-    public class WmiScanner : IScanner
+    public sealed class WmiScanner : IScanner
     {
         public List<Package> GetAll()
         {

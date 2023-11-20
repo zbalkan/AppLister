@@ -8,7 +8,7 @@ using InventoryWmiProvider;
 
 namespace InventoryService
 {
-    internal class Discovery : IScanner
+    public sealed class Discovery : IScanner
     {
         public List<Package> GetAll()
         {
