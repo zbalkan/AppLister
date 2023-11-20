@@ -8,7 +8,7 @@ namespace WindowsService
 {
     public partial class WindowsBackgroundService : ServiceBase
     {
-        private readonly InventoryService internalService;
+        private readonly InventoryService.InventoryService internalService;
         private readonly int _queryPeriodInMilliseconds;
 
         private const int DefaultQueryPeriodInMinutes = 600;  // Default period constant
@@ -31,7 +31,7 @@ namespace WindowsService
                 _queryPeriodInMilliseconds = period * 60 * 1000;
             }
 
-            internalService = new InventoryService(EventLog);
+            internalService = new InventoryService.InventoryService(EventLog);
         }
 
         protected override void OnStart(string[] args)

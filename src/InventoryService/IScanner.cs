@@ -3,7 +3,7 @@ using InventoryWmiProvider;
 
 namespace InventoryService
 {
-    internal interface IScanner
+    public interface IScanner
     {
         /// <summary>
         ///     Reads all the packages from the source.

@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryEngine", "Inventor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryService", "InventoryService\InventoryService.csproj", "{1E29B02D-87A9-4B78-9953-EB9CE9D88FB1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{B48FFA18-9B38-4FA2-A8A1-006D6E782C4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,14 @@ Global
 		{1E29B02D-87A9-4B78-9953-EB9CE9D88FB1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1E29B02D-87A9-4B78-9953-EB9CE9D88FB1}.Release|x64.ActiveCfg = Release|Any CPU
 		{1E29B02D-87A9-4B78-9953-EB9CE9D88FB1}.Release|x64.Build.0 = Release|Any CPU
+		{B48FFA18-9B38-4FA2-A8A1-006D6E782C4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B48FFA18-9B38-4FA2-A8A1-006D6E782C4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B48FFA18-9B38-4FA2-A8A1-006D6E782C4B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B48FFA18-9B38-4FA2-A8A1-006D6E782C4B}.Debug|x64.Build.0 = Debug|Any CPU
+		{B48FFA18-9B38-4FA2-A8A1-006D6E782C4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B48FFA18-9B38-4FA2-A8A1-006D6E782C4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B48FFA18-9B38-4FA2-A8A1-006D6E782C4B}.Release|x64.ActiveCfg = Release|Any CPU
+		{B48FFA18-9B38-4FA2-A8A1-006D6E782C4B}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
