@@ -19,7 +19,17 @@ namespace WindowsService
                         Id = queryObj["Id"] as string,
                         Name = queryObj["Name"] as string,
                         Version = queryObj["Version"] as string,
-                        Publisher = queryObj["Publisher"] as string
+                        Publisher = queryObj["Publisher"] as string,
+                        InstallDate = ManagementDateTimeConverter.ToDateTime(queryObj["InstallDate"] as string),
+                        IsSystemComponent = (bool)queryObj["IsSystemComponent"],
+                        IsUninstallable = (bool)queryObj["IsUninstallable"],
+                        IsBrowser = (bool)queryObj["IsBrowser"],
+                        Executables = queryObj["Executables"] as string[],
+                        IsUpdate = (bool)queryObj["IsUpdate"],
+                        IsOrphaned = (bool)queryObj["IsOrphaned"],
+                        StartupEntries = queryObj["StartupEntries"] as string[],
+                        Architecture = queryObj["Architecture"] as string,
+                        Comments = queryObj["Comments"] as string ?? string.Empty
                     };
                     packages.Add(package);
                 }
