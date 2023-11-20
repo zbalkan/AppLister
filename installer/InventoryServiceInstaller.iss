@@ -5,6 +5,8 @@
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "Zafer Balkan"
 #define MyAppURL "https://github.com/zbalkan/InventoryService"
+#define ParentKey "Software\zb"
+#define AppKey "InventoryService"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -37,10 +39,14 @@ Source: "..\src\WindowsServiceProxy\bin\x64\Release\*.dll"; DestDir: "{app}"; Fl
 Source: "..\src\WindowsServiceProxy\bin\x64\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
+[Registry]
+Root: HKLM; Subkey: {#ParentKey}; Flags: uninsdeletekeyifempty
+Root: HKLM; Subkey: {#ParentKey}\{#AppKey}; Flags: uninsdeletekey
+Root: HKLM; Subkey: {#ParentKey}\{#AppKey}; ValueType: dword; ValueName: "QueryPeriodInMinutes"; ValueData: 10
 
 [Run]
 ; Register WMI class
-Filename: {dotnet40}\InstallUtil.exe; Parameters: """{app}\InventoryWmiProvider.dll""" ; Flags: runhidden runascurrentuser;
+Filename: {dotnet40}\InstallUtil.exe; Parameters: """{app}\InventoryWmiProvider.dll /LogFile=""" ; Flags: runhidden runascurrentuser;
 ; Register and start service
 Filename: {sys}\sc.exe; Parameters: "create ""{#MyAppName}"" start= auto binPath= ""{app}\WindowsServiceProxy.exe""" ; Flags: runhidden runascurrentuser;
 Filename: {sys}\sc.exe; Parameters: "description ""{#MyAppName}"" ""Creates software inventory and publishes as WMI object instances.""" ; Flags: runhidden runascurrentuser;
@@ -51,4 +57,4 @@ Filename: {sys}\sc.exe; Parameters: "start ""{#MyAppName}""" ; Flags: runhidden 
 Filename: {sys}\sc.exe; Parameters: "stop ""{#MyAppName}""" ; Flags: runhidden runascurrentuser; RunOnceId: "StopService";
 Filename: {sys}\sc.exe; Parameters: "delete ""{#MyAppName}""" ; Flags: runhidden runascurrentuser; RunOnceId: "DeleteService";
 ; Unregister WMI class
-Filename: {dotnet40}\InstallUtil.exe; Parameters: "/u {app}\InventoryWmiProvider.dll" ; Flags: runhidden runascurrentuser; RunOnceId: "DelWmiNamespace";
+Filename: {dotnet40}\InstallUtil.exe; Parameters: "/u {app}\InventoryWmiProvider.dll /LogFile=" ; Flags: runhidden runascurrentuser; RunOnceId: "DelWmiNamespace";
