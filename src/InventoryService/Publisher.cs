@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Management.Instrumentation;
 using InventoryWmiProvider;
 
-namespace WindowsService
+namespace InventoryService
 {
     public static class Publisher
     {

@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
-using InventoryService;
 
-namespace WindowsService
+namespace InventoryService
 {
     public sealed class InventoryService
     {

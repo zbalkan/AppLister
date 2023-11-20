@@ -3,7 +3,7 @@ using System.Linq;
 using System.Management;
 using InventoryWmiProvider;
 
-namespace WindowsService
+namespace InventoryService
 {
     public class WmiScanner : IScanner
     {

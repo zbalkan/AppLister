@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using InventoryEngine;
-using WindowsService;
 using InventoryWmiProvider;
 
 namespace InventoryService

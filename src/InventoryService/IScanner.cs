@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using InventoryWmiProvider;
 
-namespace WindowsService
+namespace InventoryService
 {
     internal interface IScanner
     {
