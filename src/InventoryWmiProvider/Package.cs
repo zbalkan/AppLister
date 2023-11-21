@@ -4,7 +4,7 @@ using System.Management.Instrumentation;
 
 namespace InventoryWmiProvider
 {
-    [ManagementEntity(Name = "Win32_Package", Singleton = false)]
+    [ManagementEntity(Name = "CI_Application", Singleton = false)]
     [ManagementQualifier("Description", Value = "Software inventory: A read-only Win32_Product alternative")]
     [DebuggerDisplay("Package = {Id}")]
     public class Package : IEquatable<Package>

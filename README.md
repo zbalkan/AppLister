@@ -20,7 +20,7 @@ You can then run queries against it. The name
 
 ```powershell
 $namespace = "ROOT\Inventory"
-$classname = "Win32_Package"
+$classname = "CI_Application"
 
 Get-WmiObject -Class $Class -Namespace $Namespace |
         Select-Object * -ExcludeProperty PSComputerName, Scope, Path, Options, ClassPath, Properties, SystemProperties, Qualifiers, Site, Container, __*

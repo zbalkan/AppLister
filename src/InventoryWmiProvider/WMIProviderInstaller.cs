@@ -33,7 +33,7 @@ namespace InventoryWmiProvider
         {
             try
             {
-                var MC = new ManagementClass(@"root\Inventory:Win32_Package");
+                var MC = new ManagementClass(@"root\Inventory:CI_Application");
                 MC.Delete();
             }
             catch { }
