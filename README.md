@@ -36,7 +36,7 @@ All of the code is based on .NET Framework 4.8.1 due to the dependencies.
 /root:
   /installer: Inno setup code to compile the installer
   /src:
-    /InventoryEngine: Bulk Crap Installer based discovery engine.
+    /InventoryEngine: Bulk Crap Installer-based discovery engine.
     /InventoryService: The service class and utilities which include the business logic
     /InventoryWmiProvider: The WMI Provider class `Package`, the core object populated and pulished to WMI.
     /Tests: Unit tests

@@ -1,8 +1,3 @@
-/*
-    Copyright (c) 2020 Marcin Szeniak (https://github.com/Klocman/)
-    Apache License Version 2.0
-*/
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

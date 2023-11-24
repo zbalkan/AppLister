@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace InventoryEngine
+﻿namespace InventoryEngine
 {
     /// <summary>
     ///     Algorithm by Siderite https://siderite.blogspot.com/2014/11/super-fast-and-accurate-string-distance.html#at2217133354
