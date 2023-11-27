@@ -19,8 +19,8 @@ Install the service and WMI provider using the installer. It will start discover
 You can then run queries against it. The name
 
 ```powershell
-$namespace = "ROOT\Inventory"
-$classname = "CI_Application"
+$Namespace = "ROOT\Inventory"
+$Class = "CI_Application"
 
 Get-WmiObject -Class $Class -Namespace $Namespace |
         Select-Object * -ExcludeProperty PSComputerName, Scope, Path, Options, ClassPath, Properties, SystemProperties, Qualifiers, Site, Container, __*
@@ -28,7 +28,7 @@ Get-WmiObject -Class $Class -Namespace $Namespace |
 
 ## Architecture
 
-The folder structure clearly shows the architecture of the software. The Windows service is split into two projects: the `WindowsServiceProxy` and `InventoryService`. The `InventoryService` consists of the business logic, hich can be imported and unit-tested. The `WindowsServiceProxy`, on the other hand, is almost a generic Windows service executable which initiates the process.
+The folder structure clearly shows the architecture of the software. The Windows service is split into two projects: the `WindowsServiceProxy` and `InventoryService`. The `InventoryService` consists of the business logic, which can be imported and unit-tested. The `WindowsServiceProxy`, on the other hand, is almost a generic Windows service executable which initiates the process.
 
 All of the code is based on .NET Framework 4.8.1 due to the dependencies.
 
@@ -38,11 +38,11 @@ All of the code is based on .NET Framework 4.8.1 due to the dependencies.
   /src:
     /InventoryEngine: Bulk Crap Installer-based discovery engine.
     /InventoryService: The service class and utilities which include the business logic
-    /InventoryWmiProvider: The WMI Provider class `Package`, the core object populated and pulished to WMI.
+    /InventoryWmiProvider: The WMI Provider class `Package`, the core object populated and published to WMI.
     /Tests: Unit tests
     /WindowsServiceProxy: A reusable, skeleton Windows service executable that initiates the InventoryService.
 ```
 
 ## Thanks
 
-The scan engine is ripped off from [Bulk Crap Uninstaller](https://github.com/Klocman/Bulk-Crap-Uninstaller). This project minimized the backend to a list-only implementation. This project would not happen without [Marcin Szeniak](https://github.com/Klocman)'s work.
+The scan engine is ripped off from [Bulk Crap Uninstaller](https://github.com/Klocman/Bulk-Crap-Uninstaller). This project minimized the back-end to a list-only implementation. This project would not happen without [Marcin Szeniak](https://github.com/Klocman)'s work.
