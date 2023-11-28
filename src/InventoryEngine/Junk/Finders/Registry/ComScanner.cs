@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Microsoft.Win32;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
+using Microsoft.Win32;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
-    public class ComScanner : JunkCreatorBase
+    internal partial class ComScanner : JunkCreatorBase
     {
         private static readonly string[] _classesKeys =
         {
@@ -28,10 +28,14 @@ namespace InventoryEngine.Junk.Finders.Registry
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
             if (string.IsNullOrEmpty(target.InstallLocation))
+            {
                 yield break;
+            }
 
             if (UninstallToolsGlobalConfig.IsSystemDirectory(target.InstallLocation))
+            {
                 yield break;
+            }
 
             foreach (var comEntry in _comEntries.Where(x => PathTools.SubPathIsInsideBasePath(target.InstallLocation, x.FullFilename, true)))
             {
@@ -40,7 +44,9 @@ namespace InventoryEngine.Junk.Finders.Registry
                     using (var interfaceKey = RegistryTools.OpenRegistryKey(interfacePath, false, true))
                     {
                         if (interfaceKey != null)
+                        {
                             yield return JunkFromKey(target, interfaceKey);
+                        }
                     }
                 }
 
@@ -48,7 +54,10 @@ namespace InventoryEngine.Junk.Finders.Registry
                 {
                     using (var classesKey = RegistryTools.OpenRegistryKey(classesKeyPath, false, true))
                     {
-                        if (classesKey == null) continue;
+                        if (classesKey == null)
+                        {
+                            continue;
+                        }
 
                         foreach (var targetSubKeyPath in new[]
                         {
@@ -61,7 +70,10 @@ namespace InventoryEngine.Junk.Finders.Registry
                             if (targetSubKeyPath != null)
                             {
                                 var result = TryGetFromPath(target, classesKey, targetSubKeyPath);
-                                if (result != null) yield return result;
+                                if (result != null)
+                                {
+                                    yield return result;
+                                }
                             }
                         }
 
@@ -69,7 +81,10 @@ namespace InventoryEngine.Junk.Finders.Registry
                         {
                             using (var extensionKey = classesKey.OpenSubKey(extensionKeyName))
                             {
-                                if (extensionKey == null) continue;
+                                if (extensionKey == null)
+                                {
+                                    continue;
+                                }
 
                                 // Contains subkeys with default values containing class guids of
                                 // the extensions
@@ -82,7 +97,9 @@ namespace InventoryEngine.Junk.Finders.Registry
                                             using (var shellSubKey = shellExKey.OpenSubKey(shellSubKeyName))
                                             {
                                                 if (string.Equals(shellSubKey?.GetValue(null, null) as string, comEntry.Guid, StringComparison.OrdinalIgnoreCase))
+                                                {
                                                     yield return JunkFromKey(target, shellSubKey);
+                                                }
                                             }
                                         }
                                     }
@@ -92,7 +109,9 @@ namespace InventoryEngine.Junk.Finders.Registry
                                 using (var persistentHandlerKey = extensionKey.OpenSubKey("PersistentHandler"))
                                 {
                                     if (string.Equals(persistentHandlerKey?.GetValue(null, null) as string, comEntry.Guid, StringComparison.OrdinalIgnoreCase))
+                                    {
                                         yield return JunkFromKey(target, persistentHandlerKey);
+                                    }
                                 }
 
                                 if (comEntry.ProgId != null || comEntry.VersionIndependentProgId != null)
@@ -106,7 +125,9 @@ namespace InventoryEngine.Junk.Finders.Registry
                                             {
                                                 if (string.Equals(progIdName, comEntry.ProgId, StringComparison.OrdinalIgnoreCase) ||
                                                     string.Equals(progIdName, comEntry.VersionIndependentProgId, StringComparison.OrdinalIgnoreCase))
+                                                {
                                                     yield return JunkFromValue(target, openWithProgidsKey.Name, progIdName);
+                                                }
                                             }
                                         }
                                     }
@@ -130,7 +151,10 @@ namespace InventoryEngine.Junk.Finders.Registry
             {
                 using (var classesKey = RegistryTools.OpenRegistryKey(classesKeyPath, false, true))
                 {
-                    if (classesKey == null) continue;
+                    if (classesKey == null)
+                    {
+                        continue;
+                    }
 
                     _extensionKeyNames.Add(classesKeyPath, classesKey.GetSubKeyNames().Where(x => x.Length > 0 && x[0] == '.').ToArray());
 
@@ -141,7 +165,7 @@ namespace InventoryEngine.Junk.Finders.Registry
                     }
                     catch (SystemException ex)
                     {
-                        Trace.WriteLine(@"Unexpected error while scanning COM entries, the registry might be corrupted. COM junk detection will not work. Error: " + ex);
+                        Trace.WriteLine("Unexpected error while scanning COM entries, the registry might be corrupted. COM junk detection will not work. Error: " + ex);
                     }
                 }
             }
@@ -151,16 +175,21 @@ namespace InventoryEngine.Junk.Finders.Registry
             {
                 using (var interfacesKey = RegistryTools.OpenRegistryKey(Path.Combine(classesKeyPath, "Interface"), false, true))
                 {
-                    if (interfacesKey == null) continue;
+                    if (interfacesKey == null)
+                    {
+                        continue;
+                    }
 
                     foreach (var singleInterfaceKey in interfacesKey.GetSubKeyNames())
                     {
                         using (var proxyKey = interfacesKey.OpenSubKey(Path.Combine(singleInterfaceKey, "ProxyStubClsid32")))
                         {
-                            var proxyGuid = proxyKey?.GetValue(null, null) as string;
-                            if (proxyGuid == null) continue;
+                            if (!(proxyKey?.GetValue(null, null) is string proxyGuid))
+                            {
+                                continue;
+                            }
 
-                            var matchClass = _comEntries.FirstOrDefault(x => string.Equals(x.Guid, proxyGuid, StringComparison.OrdinalIgnoreCase));
+                            var matchClass = _comEntries.Find(x => string.Equals(x.Guid, proxyGuid, StringComparison.OrdinalIgnoreCase));
                             matchClass?.InterfaceNames.Add(Path.Combine(interfacesKey.Name, singleInterfaceKey));
                         }
                     }
@@ -173,28 +202,43 @@ namespace InventoryEngine.Junk.Finders.Registry
             // https://docs.microsoft.com/en-us/windows/desktop/com/clsid-key-hklm
             using (var clsid = RegistryTools.OpenRegistryKey(Path.Combine(classes.Name, "CLSID"), false, true))
             {
-                if (clsid == null) return;
+                if (clsid == null)
+                {
+                    return;
+                }
 
                 foreach (var clsidGuid in clsid.GetSubKeyNames())
                 {
                     // This catches most system classes, rest is caught by IsSystemDirectory check later
-                    if (IsSystemGuid(clsidGuid)) continue;
+                    if (IsSystemGuid(clsidGuid))
+                    {
+                        continue;
+                    }
 
                     RegistryKey guidKey = null;
                     try
                     {
                         guidKey = clsid.OpenSubKey(clsidGuid);
-                        if (guidKey == null) continue;
+                        if (guidKey == null)
+                        {
+                            continue;
+                        }
 
                         var result = results.FirstOrDefault(x => string.Equals(x.Guid, clsidGuid, StringComparison.OrdinalIgnoreCase)) ?? new ComEntry(clsidGuid);
 
                         using (var inprocKey = guidKey.OpenSubKey("InprocServer32"))
                         {
                             var path = inprocKey?.GetValue(null, null) as string;
-                            if (string.IsNullOrEmpty(path)) continue;
+                            if (string.IsNullOrEmpty(path))
+                            {
+                                continue;
+                            }
 
                             path = PathTools.NormalizePath(path);
-                            if (UninstallToolsGlobalConfig.IsSystemDirectory(path)) continue;
+                            if (UninstallToolsGlobalConfig.IsSystemDirectory(path))
+                            {
+                                continue;
+                            }
 
                             result.FullFilename = PathTools.NormalizePath(Environment.ExpandEnvironmentVariables(path));
                         }
@@ -202,20 +246,24 @@ namespace InventoryEngine.Junk.Finders.Registry
                         using (var progIdKey = guidKey.OpenSubKey("ProgID"))
                         {
                             if (progIdKey != null)
+                            {
                                 result.ProgId = progIdKey.GetValue(null, null) as string;
+                            }
                         }
 
                         using (var indepProgIdKey = guidKey.OpenSubKey("VersionIndependentProgID"))
                         {
                             if (indepProgIdKey != null)
+                            {
                                 result.VersionIndependentProgId = indepProgIdKey.GetValue(null, null) as string;
+                            }
                         }
 
                         results.Add(result);
                     }
                     catch (SystemException ex)
                     {
-                        Trace.WriteLine($@"Crash while processing COM GUID: {clsidGuid} - {ex}");
+                        Trace.WriteLine($"Crash while processing COM GUID: {clsidGuid} - {ex}");
                     }
                     finally
                     {
@@ -229,16 +277,25 @@ namespace InventoryEngine.Junk.Finders.Registry
         {
             using (var typeLibKey = RegistryTools.OpenRegistryKey(Path.Combine(classes.Name, "TypeLib"), false, true))
             {
-                if (typeLibKey == null) return;
+                if (typeLibKey == null)
+                {
+                    return;
+                }
 
                 foreach (var typeLibKeyGuid in typeLibKey.GetSubKeyNames())
                 {
-                    if (IsSystemGuid(typeLibKeyGuid)) continue;
+                    if (IsSystemGuid(typeLibKeyGuid))
+                    {
+                        continue;
+                    }
 
                     using (var guidKey = typeLibKey.OpenSubKey(typeLibKeyGuid))
                     {
                         var versionKeyName = guidKey?.GetSubKeyNames().FirstOrDefault();
-                        if (versionKeyName == null) continue;
+                        if (versionKeyName == null)
+                        {
+                            continue;
+                        }
 
                         var result = results.FirstOrDefault(x => string.Equals(x.Guid, typeLibKeyGuid, StringComparison.OrdinalIgnoreCase)) ?? new ComEntry(typeLibKeyGuid);
 
@@ -247,10 +304,16 @@ namespace InventoryEngine.Junk.Finders.Registry
                             using (var fileKey = guidKey.OpenSubKey(fileKeyPath))
                             {
                                 var path = fileKey?.GetValue(null, null) as string;
-                                if (string.IsNullOrEmpty(path)) continue;
+                                if (string.IsNullOrEmpty(path))
+                                {
+                                    continue;
+                                }
 
                                 path = PathTools.NormalizePath(path);
-                                if (UninstallToolsGlobalConfig.IsSystemDirectory(path)) continue;
+                                if (UninstallToolsGlobalConfig.IsSystemDirectory(path))
+                                {
+                                    continue;
+                                }
 
                                 result.FullFilename = PathTools.NormalizePath(Environment.ExpandEnvironmentVariables(path));
                                 results.Add(result);
@@ -262,10 +325,7 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
         }
 
-        private static bool IsSystemGuid(string guid)
-        {
-            return guid.Contains("-0000-") || guid[0] != '{';
-        }
+        private static bool IsSystemGuid(string guid) => guid.Contains("-0000-") || guid[0] != '{';
 
         private RegistryKeyJunk JunkFromKey(ApplicationUninstallerEntry target, RegistryKey targetKey)
         {
@@ -285,7 +345,11 @@ namespace InventoryEngine.Junk.Finders.Registry
         {
             using (var targetKey = classesKey.OpenSubKey(targetSubKeyPath))
             {
-                if (targetKey == null) return null;
+                if (targetKey == null)
+                {
+                    return null;
+                }
+
                 return JunkFromKey(target, targetKey);
             }
         }
@@ -294,24 +358,6 @@ namespace InventoryEngine.Junk.Finders.Registry
         {
             _extensionKeyNames.TryGetValue(classesKey, out var result);
             return result ?? Enumerable.Empty<string>();
-        }
-
-        private sealed class ComEntry
-        {
-            public readonly string Guid;
-            public readonly List<string> InterfaceNames = new List<string>();
-
-            public string FullFilename;
-
-            //https://docs.microsoft.com/en-us/windows/desktop/com/-progid--key
-            public string ProgId;
-
-            public string VersionIndependentProgId;
-
-            public ComEntry(string guid)
-            {
-                Guid = guid;
-            }
         }
     }
 }

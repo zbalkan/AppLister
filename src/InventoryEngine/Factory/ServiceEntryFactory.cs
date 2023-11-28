@@ -5,29 +5,48 @@ using System.Linq;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Security;
-using InventoryEngine.Tools;
 using InventoryEngine.Extensions;
+using InventoryEngine.Shared;
+using InventoryEngine.Startup;
+using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory
 {
-    internal static class ServiceEntryFactory
+    internal static partial class ServiceEntryFactory
     {
-        internal enum StartMode
+        public static bool CheckServiceEnabled(string serviceName)
         {
-            Auto,
-            Manual,
-            Disabled
+            var classInstance = GetServiceObject(serviceName);
+
+            return GetEnabledState(classInstance);
         }
 
-        /* ServiceType
-        Kernel Driver
-        File System Driver
-        Adapter
-        Recognizer Driver
-        Own Process
-        Share Process
-        Interactive Process
-        */
+        public static void DeleteService(string serviceName)
+        {
+            try { EnableService(serviceName, false); }
+            catch (ManagementException) { }
+
+            var classInstance = GetServiceObject(serviceName);
+
+            // Execute the method and obtain the return values.
+            var outParams = classInstance.InvokeMethod("Delete", null, new InvokeMethodOptions { Timeout = TimeSpan.FromMinutes(1) });
+            CheckReturnValue(outParams, 16); // 16 - Service Marked For Deletion
+        }
+
+        public static void EnableService(string serviceName, bool newState)
+        {
+            var classInstance = GetServiceObject(serviceName);
+
+            // Obtain in-parameters for the method
+            var inParams = classInstance.GetMethodParameters("ChangeStartMode");
+
+            // Add the input parameters.
+            inParams["StartMode"] = newState ? "Automatic" : "Disabled";
+
+            // Execute the method and obtain the return values.
+            var outParams = classInstance.InvokeMethod("ChangeStartMode", inParams, new InvokeMethodOptions { Timeout = TimeSpan.FromMinutes(1) });
+            CheckReturnValue(outParams);
+        }
 
         public static IEnumerable<ServiceEntry> GetServiceEntries()
         {
@@ -48,11 +67,6 @@ namespace InventoryEngine.Factory
                             StringComparison.InvariantCultureIgnoreCase))
                         {
                             var e = new ServiceEntry((string)queryObj["Name"], queryObj["DisplayName"] as string, filename);
-
-                            //queryObj["Caption"]);
-                            //queryObj["Description"]);
-                            //queryObj["ProcessId"]
-
                             results.Add(e);
                         }
                     }
@@ -60,69 +74,37 @@ namespace InventoryEngine.Factory
             }
             catch (Exception ex) when (ex is TypeInitializationException || ex is ManagementException || ex is ExternalException || ex is PlatformNotSupportedException)
             {
-                Trace.WriteLine(@"Error while gathering services - " + ex);
+                Trace.WriteLine("Error while gathering services - " + ex);
             }
 
             return results.ToArray();
         }
 
-        private static bool GetEnabledState(ManagementBaseObject queryObj)
+        private static void CheckReturnValue(ManagementBaseObject outParams, params uint[] ignoredCodes)
         {
-            return queryObj["StartMode"] as string != nameof(StartMode.Auto);
-        }
+            if (outParams == null)
+            {
+                return;
+            }
 
-        public static void EnableService(string serviceName, bool newState)
-        {
-            var classInstance = GetServiceObject(serviceName);
-
-            // Obtain in-parameters for the method
-            var inParams = classInstance.GetMethodParameters("ChangeStartMode");
-
-            // Add the input parameters.
-            inParams["StartMode"] = newState ? "Automatic" : "Disabled";
-
-            // Execute the method and obtain the return values.
-            var outParams = classInstance.InvokeMethod("ChangeStartMode", inParams, new InvokeMethodOptions { Timeout = TimeSpan.FromMinutes(1) });
-            CheckReturnValue(outParams);
-        }
-
-        public static bool CheckServiceEnabled(string serviceName)
-        {
-            var classInstance = GetServiceObject(serviceName);
-
-            return GetEnabledState(classInstance);
-        }
-
-        public static void DeleteService(string serviceName)
-        {
-            try { EnableService(serviceName, false); }
-            catch (ManagementException) { }
-
-            var classInstance = GetServiceObject(serviceName);
-
-            // Execute the method and obtain the return values.
-            var outParams = classInstance.InvokeMethod("Delete", null, new InvokeMethodOptions { Timeout = TimeSpan.FromMinutes(1) });
-            CheckReturnValue(outParams, 16); // 16 - Service Marked For Deletion
-        }
-
-        private static void CheckReturnValue(ManagementBaseObject outParams, params UInt32[] ignoredCodes)
-        {
-            if (outParams == null) return;
-
-            var exitCode = (UInt32)outParams["ReturnValue"];
-            if (exitCode == 0 || ignoredCodes.Any(x => x == exitCode)) return;
+            var exitCode = (uint)outParams["ReturnValue"];
+            if (exitCode == 0 || ignoredCodes.Any(x => x == exitCode))
+            {
+                return;
+            }
 
             if (exitCode == 2) // 2 - Access Denied
+            {
                 throw new SecurityException("The user does not have the necessary access.");
+            }
 
             throw new ManagementException("Action failed with return value " + outParams["ReturnValue"] +
                 ". Check return codes of Win32_Service class methods for more information.");
         }
 
-        private static ManagementObject GetServiceObject(string serviceName)
-        {
-            return new ManagementObject("root\\CIMV2",
+        private static bool GetEnabledState(ManagementBaseObject queryObj) => queryObj["StartMode"] as string != nameof(StartMode.Auto);
+
+        private static ManagementObject GetServiceObject(string serviceName) => new ManagementObject("root\\CIMV2",
                 $"Win32_Service.Name='{serviceName}'", new ObjectGetOptions { Timeout = TimeSpan.FromMinutes(1) });
-        }
     }
 }

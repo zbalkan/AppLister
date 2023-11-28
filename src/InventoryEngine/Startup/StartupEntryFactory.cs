@@ -4,12 +4,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security;
-using InventoryEngine.Tools;
 using InventoryEngine.Extensions;
+using InventoryEngine.Shared;
+using InventoryEngine.Tools;
 
 namespace InventoryEngine.Startup
 {
-    public static class StartupEntryFactory
+    internal static class StartupEntryFactory
     {
         /// <summary>
         ///     Ordinal locations that contain startup entries
@@ -60,7 +61,9 @@ namespace InventoryEngine.Startup
         private static IEnumerable<StartupEntry> GetDriveStartupItems(StartupPointData point)
         {
             if (!Directory.Exists(point.Path))
+            {
                 yield break;
+            }
 
             foreach (var name in Directory.GetFiles(point.Path)
                 .Where(name => ".lnk".Equals(Path.GetExtension(name), StringComparison.CurrentCultureIgnoreCase)))
@@ -70,7 +73,7 @@ namespace InventoryEngine.Startup
                 {
                     result = new StartupEntry(point, Path.GetFileName(name), WindowsTools.ResolveShortcut(name));
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // TODO
                     continue;
@@ -95,15 +98,17 @@ namespace InventoryEngine.Startup
                         {
                             var result = rKey.GetStringSafe(name);
                             if (string.IsNullOrEmpty(result))
+                            {
                                 continue;
+                            }
 
                             try
                             {
                                 results.Add(new StartupEntry(point, name, result));
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
-                                // TODOs
+                                // TODO
                             }
                         }
                     }
@@ -116,7 +121,7 @@ namespace InventoryEngine.Startup
             }
             catch (SecurityException ex)
             {
-                Trace.WriteLine(@"Failed to process startup entries: " + ex);
+                Trace.WriteLine("Failed to process startup entries: " + ex);
             }
 
             return results;

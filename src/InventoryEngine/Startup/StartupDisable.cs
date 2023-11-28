@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Microsoft.Win32;
-using InventoryEngine.Tools;
 using InventoryEngine.Extensions;
+using InventoryEngine.Tools;
+using Microsoft.Win32;
 
 namespace InventoryEngine.Startup
 {
-    internal sealed class NewStartupDisable : IStartupDisable
+    internal sealed class StartupDisable : IStartupDisable
     {
         /// <summary>
         ///     Only the first byte matters, following bytes contain data that there is no
@@ -29,36 +29,28 @@ namespace InventoryEngine.Startup
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00
         };
 
-        public IEnumerable<StartupEntry> AddDisableInfo(IList<StartupEntry> existingEntries)
-        {
-            return existingEntries.DoForEach(x =>
-            {
-                if (GetDisabled(x))
-                    x.DisabledStore = true;
-            });
-        }
+        public IEnumerable<StartupEntry> AddDisableInfo(IList<StartupEntry> existingEntries) => existingEntries.DoForEach(x =>
+                                                                                                         {
+                                                                                                             if (GetDisabled(x))
+                                                                                                             {
+                                                                                                                 x.DisabledStore = true;
+                                                                                                             }
+                                                                                                         });
 
-        public void Disable(StartupEntry startupEntry)
-        {
-            SetDisabled(startupEntry, true);
-        }
+        public void Disable(StartupEntry startupEntry) => SetDisabled(startupEntry, true);
 
-        public void Enable(StartupEntry startupEntry)
-        {
-            SetDisabled(startupEntry, false);
-        }
+        public void Enable(StartupEntry startupEntry) => SetDisabled(startupEntry, false);
 
-        public string GetDisabledEntryPath(StartupEntry startupEntry)
-        {
-            return startupEntry.FullLongName;
-        }
+        public string GetDisabledEntryPath(StartupEntry startupEntry) => startupEntry.FullLongName;
 
         public bool StillExists(StartupEntry startupEntry)
         {
             if (startupEntry.IsRegKey)
             {
                 using (var key = RegistryTools.OpenRegistryKey(startupEntry.ParentLongName))
+                {
                     return !string.IsNullOrEmpty(key.GetStringSafe(startupEntry.EntryLongName));
+                }
             }
 
             return File.Exists(startupEntry.FullLongName);
@@ -85,9 +77,11 @@ namespace InventoryEngine.Startup
         private static string GetStartupApprovedKey(StartupEntry startupEntry)
         {
             if (!startupEntry.IsRegKey)
+            {
                 return startupEntry.AllUsers
                     ? @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder"
                     : @"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder";
+            }
 
             if (startupEntry.IsRunOnce)
             {

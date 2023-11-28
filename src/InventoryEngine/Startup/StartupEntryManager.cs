@@ -2,30 +2,17 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Microsoft.Win32;
 using InventoryEngine.Tools;
+using Microsoft.Win32;
 
 namespace InventoryEngine.Startup
 {
     public static class StartupEntryManager
     {
-        private static IStartupDisable _disableFunctions;
-
         // 6.2 is windows 8 and 2012, they are using a new startup disable scheme
-        internal static IStartupDisable DisableFunctions
-        {
-            get
-            {
-                if (Environment.OSVersion.Version >= WindowsTools.Windows8)
-                {
-                    return _disableFunctions != null ? _disableFunctions : new NewStartupDisable();
-                }
-                else
-                {
-                    return _disableFunctions != null ? _disableFunctions : new OldStartupDisable();
-                }
-            }
-        }
+        internal static IStartupDisable DisableFunctions => _disableFunctions ?? new StartupDisable();
+
+        private static readonly IStartupDisable _disableFunctions;
 
         /// <summary>
         ///     Delete startup entry data from registry and file system. Only needed items are
@@ -39,43 +26,18 @@ namespace InventoryEngine.Startup
         public static void Delete(StartupEntry startupEntry)
         {
             if (startupEntry.Disabled)
+            {
                 DisableFunctions.Enable(startupEntry);
+            }
 
             if (startupEntry.IsRegKey)
+            {
                 RegistryTools.RemoveRegistryValue(startupEntry.ParentLongName, startupEntry.EntryLongName);
+            }
             else
+            {
                 File.Delete(startupEntry.FullLongName);
-        }
-
-        public static void MoveToRegistry(StartupEntry startupEntry)
-        {
-            if (startupEntry.IsRegKey)
-                return;
-
-            // Don't want to deal with the disable wizardry
-            var wasDisabled = startupEntry.Disabled;
-            if (wasDisabled)
-                Enable(startupEntry);
-
-            // Delete old entry
-            startupEntry.Delete();
-
-            // Plug in new data
-            startupEntry.IsRegKey = true;
-
-            var newPoint =
-                StartupEntryFactory.RunLocations.First(x => x.IsRegKey && x.AllUsers == startupEntry.AllUsers
-                                                            && !x.IsRunOnce && !x.IsWow);
-
-            startupEntry.SetParentLongName(newPoint.Path);
-            startupEntry.SetParentFancyName(newPoint.Name);
-
-            // Recreate registry entry
-            CreateRegValue(startupEntry);
-
-            // Restore disable status
-            if (wasDisabled)
-                Disable(startupEntry);
+            }
         }
 
         /// <summary>
@@ -87,7 +49,9 @@ namespace InventoryEngine.Startup
         public static void Disable(StartupEntry startupEntry)
         {
             if (startupEntry.DisabledStore)
+            {
                 return;
+            }
 
             DisableFunctions.Disable(startupEntry);
         }
@@ -100,7 +64,9 @@ namespace InventoryEngine.Startup
         public static void Enable(StartupEntry startupEntry)
         {
             if (!startupEntry.DisabledStore)
+            {
                 return;
+            }
 
             DisableFunctions.Enable(startupEntry);
         }
@@ -118,7 +84,9 @@ namespace InventoryEngine.Startup
             // Don't want to deal with the disable wizardry
             var wasDisabled = startupEntry.Disabled;
             if (wasDisabled)
+            {
                 Enable(startupEntry);
+            }
 
             // Remove old entry or move the link to the new directory.
             if (startupEntry.IsRegKey)
@@ -149,11 +117,15 @@ namespace InventoryEngine.Startup
 
             // Update registry stuff
             if (startupEntry.IsRegKey)
+            {
                 CreateRegValue(startupEntry);
+            }
 
             // Restore disable status
             if (wasDisabled)
+            {
                 Disable(startupEntry);
+            }
         }
 
         /// <summary>
@@ -164,47 +136,13 @@ namespace InventoryEngine.Startup
         internal static void CreateRegValue(StartupEntry startupEntry)
         {
             if (string.IsNullOrEmpty(startupEntry.Command))
+            {
                 return;
+            }
 
             using (var runKey = RegistryTools.CreateSubKeyRecursively(startupEntry.ParentLongName))
             {
                 runKey.SetValue(startupEntry.EntryLongName, startupEntry.Command, RegistryValueKind.String);
-            }
-        }
-
-        /// <summary>
-        ///     Crate backup of the entry in the specified directory. If backup file already exists,
-        ///     it is overwritten.
-        /// </summary>
-        public static void CreateBackup(StartupEntry startupEntry, string backupPath)
-        {
-            var newPath = Path.Combine(backupPath, "Startup - " + startupEntry.EntryLongName);
-            if (startupEntry.IsRegKey)
-            {
-                var sb = new StringBuilder();
-                sb.AppendLine("Windows Registry Editor Version 5.00");
-                sb.AppendLine();
-                sb.AppendLine($@"[{startupEntry.ParentLongName}]");
-                sb.AppendLine(
-                    $"\"{startupEntry.EntryLongName}\"=\"{startupEntry.Command.Replace("\\", "\\\\").Replace("\"", "\\\"")}\"");
-                File.WriteAllText(newPath + ".reg", sb.ToString());
-            }
-            else
-            {
-                if (!File.Exists(newPath))
-                    File.Delete(newPath);
-
-                if (startupEntry.Disabled)
-                {
-                    var disabledFile = DisableFunctions.GetDisabledEntryPath(startupEntry);
-                    if (File.Exists(disabledFile))
-                        File.Copy(disabledFile, newPath);
-                }
-                else
-                {
-                    if (File.Exists(startupEntry.FullLongName))
-                        File.Copy(startupEntry.FullLongName, newPath);
-                }
             }
         }
     }

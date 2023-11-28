@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace InventoryEngine.Extensions
 {
@@ -24,7 +25,7 @@ namespace InventoryEngine.Extensions
         /// <param name="disposableGetter">
         ///     Lambda for getting the disposable
         /// </param>
-        public static IEnumerable<TDisp> Using<T, TDisp>(this IEnumerable<T> baseEnumerable,
+        internal static IEnumerable<TDisp> Using<T, TDisp>(this IEnumerable<T> baseEnumerable,
             Func<T, TDisp> disposableGetter) where TDisp : class, IDisposable
         {
             TDisp disposable = null;
@@ -47,7 +48,7 @@ namespace InventoryEngine.Extensions
         /// <summary>
         ///     Select using the given action, but ignore exceptions and skip offending items.
         /// </summary>
-        public static IEnumerable<TOut> Attempt<TIn, TOut>(this IEnumerable<TIn> baseEnumerable,
+        internal static IEnumerable<TOut> Attempt<TIn, TOut>(this IEnumerable<TIn> baseEnumerable,
             Func<TIn, TOut> action)
         {
             foreach (var item in baseEnumerable)
@@ -59,7 +60,7 @@ namespace InventoryEngine.Extensions
                 }
                 catch (Exception e)
                 {
-                    Console.Error.WriteLine("Attempt failed, skipping. Error: " + e);
+                    Trace.WriteLine("Attempt failed, skipping. Error: " + e);
                     continue;
                 }
                 yield return output;
@@ -73,7 +74,7 @@ namespace InventoryEngine.Extensions
         ///     Returns distinct elements from a sequence according to a specified key selector function.
         /// </summary>
         /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source"/>.
+        ///     The type of the elements of <paramref name="source" />.
         /// </typeparam>
         /// <typeparam name="TKey">
         ///     The type of key to distinguish elements by.
@@ -85,10 +86,10 @@ namespace InventoryEngine.Extensions
         ///     A function to extract the key for each element.
         /// </param>
         /// <returns>
-        ///     An <see cref="IEnumerable{T}"/> that contains distinct elements from the source sequence.
+        ///     An <see cref="IEnumerable{T}" /> that contains distinct elements from the source sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null"/>.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         /// <remarks>
         ///     <para>
@@ -100,19 +101,19 @@ namespace InventoryEngine.Extensions
         ///     </para>
         ///     <para>
         ///         The
-        ///         <see cref="DistinctBy{TSource, TKey}(IEnumerable{TSource}, Func{TSource, TKey})"/>
+        ///         <see cref="DistinctBy{TSource, TKey}(IEnumerable{TSource}, Func{TSource, TKey})" />
         ///         method returns an unordered sequence that contains no duplicate values. The
-        ///         default equality comparer, <see cref="EqualityComparer{T}.Default"/>, is used to
-        ///         compare values.
+        ///         default equality comparer, <see cref="EqualityComparer{T}.Default" />, is used
+        ///         to compare values.
         ///     </para>
         /// </remarks>
-        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) => DistinctBy(source, keySelector, null);
+        internal static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) => DistinctBy(source, keySelector, null);
 
         /// <summary>
         ///     Returns distinct elements from a sequence according to a specified key selector function.
         /// </summary>
         /// <typeparam name="TSource">
-        ///     The type of the elements of <paramref name="source"/>.
+        ///     The type of the elements of <paramref name="source" />.
         /// </typeparam>
         /// <typeparam name="TKey">
         ///     The type of key to distinguish elements by.
@@ -124,13 +125,13 @@ namespace InventoryEngine.Extensions
         ///     A function to extract the key for each element.
         /// </param>
         /// <param name="comparer">
-        ///     An <see cref="IEqualityComparer{TKey}"/> to compare keys.
+        ///     An <see cref="IEqualityComparer{TKey}" /> to compare keys.
         /// </param>
         /// <returns>
-        ///     An <see cref="IEnumerable{T}"/> that contains distinct elements from the source sequence.
+        ///     An <see cref="IEnumerable{T}" /> that contains distinct elements from the source sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException">
-        ///     <paramref name="source"/> is <see langword="null"/>.
+        ///     <paramref name="source" /> is <see langword="null" />.
         /// </exception>
         /// <remarks>
         ///     <para>
@@ -142,13 +143,13 @@ namespace InventoryEngine.Extensions
         ///     </para>
         ///     <para>
         ///         The
-        ///         <see cref="DistinctBy{TSource, TKey}(IEnumerable{TSource}, Func{TSource, TKey}, IEqualityComparer{TKey}?)"/>
+        ///         <see cref="DistinctBy{TSource, TKey}(IEnumerable{TSource}, Func{TSource, TKey}, IEqualityComparer{TKey}?)" />
         ///         method returns an unordered sequence that contains no duplicate values. If
-        ///         <paramref name="comparer"/> is <see langword="null"/>, the default equality
-        ///         comparer, <see cref="EqualityComparer{T}.Default"/>, is used to compare values.
+        ///         <paramref name="comparer" /> is <see langword="null" />, the default equality
+        ///         comparer, <see cref="EqualityComparer{T}.Default" />, is used to compare values.
         ///     </para>
         /// </remarks>
-        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
+        internal static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
         {
             if (source is null)
             {
@@ -164,14 +165,14 @@ namespace InventoryEngine.Extensions
 
         private static IEnumerable<TSource> DistinctByIterator<TSource, TKey>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
         {
-            using (IEnumerator<TSource> enumerator = source.GetEnumerator())
+            using (var enumerator = source.GetEnumerator())
             {
                 if (enumerator.MoveNext())
                 {
                     var set = new HashSet<TKey>(DefaultInternalSetCapacity, comparer);
                     do
                     {
-                        TSource element = enumerator.Current;
+                        var element = enumerator.Current;
                         if (set.Add(keySelector(element)))
                         {
                             yield return element;

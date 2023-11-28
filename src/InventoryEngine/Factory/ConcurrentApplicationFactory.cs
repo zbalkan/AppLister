@@ -34,15 +34,9 @@ namespace InventoryEngine.Factory
             };
         }
 
-        public void Dispose()
-        {
-            _cancelled = true;
-        }
+        public void Dispose() => _cancelled = true;
 
-        public void Start()
-        {
-            _thread.Start();
-        }
+        public void Start() => _thread.Start();
 
         public List<ApplicationUninstallerEntry> GetResults()
         {
@@ -54,7 +48,9 @@ namespace InventoryEngine.Factory
             }
 
             if (_cancelled)
+            {
                 throw new OperationCanceledException();
+            }
 
             return _threadResults ?? new List<ApplicationUninstallerEntry>();
         }

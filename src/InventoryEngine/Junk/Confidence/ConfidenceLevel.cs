@@ -1,6 +1,6 @@
 namespace InventoryEngine.Junk.Confidence
 {
-    public enum ConfidenceLevel
+    internal enum ConfidenceLevel
     {
         Unknown = 0,
         Bad = 5,

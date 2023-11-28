@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
-using InventoryEngine.Extensions;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
-    public class FirewallRuleScanner : JunkCreatorBase
+    internal class FirewallRuleScanner : JunkCreatorBase
     {
         private const string FirewallRulesKey = @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules";
 
@@ -16,7 +16,9 @@ namespace InventoryEngine.Junk.Finders.Registry
         {
             var results = new List<IJunkResult>();
             if (string.IsNullOrEmpty(target.InstallLocation))
+            {
                 return results;
+            }
 
             using (var key = GetFirewallRulesKey())
             {
@@ -25,7 +27,10 @@ namespace InventoryEngine.Junk.Finders.Registry
                     foreach (var valueName in key.TryGetValueNames())
                     {
                         var value = key.GetStringSafe(valueName);
-                        if (string.IsNullOrEmpty(value)) continue;
+                        if (string.IsNullOrEmpty(value))
+                        {
+                            continue;
+                        }
 
                         var start = value.IndexOf("|App=", StringComparison.InvariantCultureIgnoreCase) + 5;
                         var charCount = value.IndexOf('|', start) - start;

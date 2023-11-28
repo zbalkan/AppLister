@@ -6,12 +6,16 @@ using InventoryEngine.Junk.Containers;
 
 namespace InventoryEngine.Junk.Finders.Drive
 {
-    public class SpecificUninstallerKindScanner : JunkCreatorBase
+    internal class SpecificUninstallerKindScanner : JunkCreatorBase
     {
+        public override string CategoryName => "Junk_Drive_GroupName";
+
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
             if (!File.Exists(target.UninstallerFullFilename))
+            {
                 yield break;
+            }
 
             FileSystemJunk result;
 
@@ -20,7 +24,10 @@ namespace InventoryEngine.Junk.Finders.Drive
                 case UninstallerType.InstallShield:
                     var dirPath = Path.GetDirectoryName(target.UninstallerFullFilename);
 
-                    if (dirPath == null) yield break;
+                    if (dirPath == null)
+                    {
+                        yield break;
+                    }
 
                     var targetDir = new DirectoryInfo(dirPath);
                     result = new FileSystemJunk(targetDir, target, this);
@@ -33,11 +40,15 @@ namespace InventoryEngine.Junk.Finders.Drive
 
                 case UninstallerType.Msiexec:
                     if (target.UninstallerFullFilename.EndsWith("msiexec.exe", StringComparison.OrdinalIgnoreCase))
+                    {
                         yield break;
+                    }
 
                     var path = new FileInfo(target.UninstallerFullFilename);
                     if ((path.Attributes & FileAttributes.System) == FileAttributes.System)
+                    {
                         yield break;
+                    }
 
                     result = new FileSystemJunk(path, target, this);
                     break;
@@ -50,7 +61,5 @@ namespace InventoryEngine.Junk.Finders.Drive
 
             yield return result;
         }
-
-        public override string CategoryName => "Junk_Drive_GroupName";
     }
 }

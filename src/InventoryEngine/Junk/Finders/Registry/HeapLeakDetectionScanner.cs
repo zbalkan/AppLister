@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
-using InventoryEngine.Extensions;
+using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
-    public class HeapLeakDetectionScanner : IJunkCreator
+    internal class HeapLeakDetectionScanner : IJunkCreator
     {
         private const string RegKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\RADAR\HeapLeakDetection\DiagnosedApplications";
 
@@ -38,7 +39,9 @@ namespace InventoryEngine.Junk.Finders.Registry
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
             if (_lookup == null || target.SortedExecutables == null || target.SortedExecutables.Length == 0)
+            {
                 return Enumerable.Empty<IJunkResult>();
+            }
 
             return target.SortedExecutables.Attempt(x =>
                 {

@@ -1,11 +1,16 @@
-using System.IO;
 using InventoryEngine.Junk.Confidence;
-using InventoryEngine.Tools;
+using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Containers
 {
-    public abstract class JunkResultBase : IJunkResult
+    internal abstract class JunkResultBase : IJunkResult
     {
+        public ApplicationUninstallerEntry Application { get; }
+
+        public ConfidenceCollection Confidence { get; }
+
+        public IJunkCreator Source { get; }
+
         protected JunkResultBase(ApplicationUninstallerEntry application, IJunkCreator source) : this(application, source, new ConfidenceCollection())
         {
         }
@@ -17,37 +22,10 @@ namespace InventoryEngine.Junk.Containers
             Confidence = confidence;
         }
 
-        public ConfidenceCollection Confidence { get; }
-        public IJunkCreator Source { get; }
-        public ApplicationUninstallerEntry Application { get; }
-
-        public abstract void Backup(string backupDirectory);
-
-        public abstract void Delete();
-
-        public abstract void Open();
-
         public abstract string GetDisplayName();
 
-        public virtual string ToLongString()
-        {
-            return
-                $@"{Application} - {"JunkRemover_Confidence"}: {Confidence.GetConfidence()} - {GetDisplayName()}";
-        }
+        public virtual string ToLongString() => $"{Application} - JunkRemover_Confidence: {Confidence.GetConfidence()} - {GetDisplayName()}";
 
-        /// <summary>
-        ///     Prepare a backup directory in the specified parent folder, and return it.
-        /// </summary>
-        protected string CreateBackupDirectory(string parent)
-        {
-            var p = Path.Combine(parent, PathTools.SanitizeFileName(Application.DisplayName));
-            Directory.CreateDirectory(p);
-            return p;
-        }
-
-        public override string ToString()
-        {
-            return GetType().Name + " - " + GetDisplayName();
-        }
+        public override string ToString() => GetType().Name + " - " + GetDisplayName();
     }
 }

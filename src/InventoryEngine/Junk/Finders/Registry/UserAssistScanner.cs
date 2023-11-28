@@ -5,10 +5,11 @@ using System.Runtime.InteropServices;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
+using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
-    public class UserAssistScanner : IJunkCreator
+    internal class UserAssistScanner : IJunkCreator
     {
         public string CategoryName => "Junk_UserAssist_GroupName";
 
@@ -29,7 +30,9 @@ namespace InventoryEngine.Junk.Finders.Registry
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
             if (string.IsNullOrEmpty(target.InstallLocation))
+            {
                 yield break;
+            }
 
             foreach (var userAssistGuid in UserAssistGuids)
             {
@@ -37,23 +40,28 @@ namespace InventoryEngine.Junk.Finders.Registry
                     $@"{SoftwareRegKeyScanner.KeyCu}\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{userAssistGuid}\Count"))
                 {
                     if (key == null)
+                    {
                         continue;
+                    }
 
                     foreach (var valueName in key.GetValueNames())
                     {
                         // Convert the value name to a usable form
                         var convertedName = Rot13(valueName);
                         var guidEnd = convertedName.IndexOf('}') + 1;
-                        Guid g;
-                        if (guidEnd > 0 && GuidTools.GuidTryParse(convertedName.Substring(0, guidEnd), out g))
+                        if (guidEnd > 0 && GuidTools.GuidTryParse(convertedName.Substring(0, guidEnd), out var g))
+                        {
                             convertedName = NativeMethods.GetKnownFolderPath(g) + convertedName.Substring(guidEnd);
+                        }
 
                         // Check for matches
                         if (convertedName.StartsWith(target.InstallLocation,
                             StringComparison.InvariantCultureIgnoreCase))
                         {
-                            var junk = new RegistryValueJunk(key.Name, valueName, target, this);
-                            junk.DisplayValueName = convertedName;
+                            var junk = new RegistryValueJunk(key.Name, valueName, target, this)
+                            {
+                                DisplayValueName = convertedName
+                            };
                             junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
                             yield return junk;
                         }
@@ -65,12 +73,14 @@ namespace InventoryEngine.Junk.Finders.Registry
         private static string Rot13(string input)
         {
             if (string.IsNullOrEmpty(input))
+            {
                 return input;
+            }
 
             return new string(input.Select(x => x >= 'a' && x <= 'z'
-                ? (char)((x - 'a' + 13) % 26 + 'a')
+                ? (char)(((x - 'a' + 13) % 26) + 'a')
                 : x >= 'A' && x <= 'Z'
-                    ? (char)((x - 'A' + 13) % 26 + 'A')
+                    ? (char)(((x - 'A' + 13) % 26) + 'A')
                     : x).ToArray());
         }
 
@@ -78,8 +88,7 @@ namespace InventoryEngine.Junk.Finders.Registry
         {
             public static string GetKnownFolderPath(Guid rfid)
             {
-                IntPtr pPath;
-                SHGetKnownFolderPath(rfid, 0, IntPtr.Zero, out pPath);
+                SHGetKnownFolderPath(rfid, 0, IntPtr.Zero, out var pPath);
 
                 var path = Marshal.PtrToStringUni(pPath);
                 Marshal.FreeCoTaskMem(pPath);

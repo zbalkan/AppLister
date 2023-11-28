@@ -4,18 +4,66 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using InventoryEngine;
+using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Junk.Finders;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
-using InventoryEngine.Extensions;
-using WindowsTools = InventoryEngine.Tools.WindowsTools;
 
 namespace UninstallTools.Junk.Finders.Misc
 {
-    public class ShortcutJunk : JunkCreatorBase
+    internal partial class ShortcutJunk : JunkCreatorBase
     {
+        public override string CategoryName => "Junk_Shortcut_GroupName";
         private ICollection<Shortcut> _links;
+
+        public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
+        {
+            var results = new List<FileSystemJunk>();
+
+            if (!string.IsNullOrEmpty(target.InstallLocation))
+            {
+                results.AddRange(GetLinksPointingToLocation(entry => entry.InstallLocation, target)
+                    .DoForEach(x => x.Confidence.Add(ConfidenceRecords.ExplicitConnection)));
+            }
+
+            if (target.UninstallerKind == UninstallerType.Steam)
+            {
+                results.AddRange(GetLinksPointingToSteamApp(target));
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(target.UninstallerFullFilename))
+                {
+                    results.AddRange(GetLinksPointingToLocation(entry => entry.UninstallerFullFilename, target)
+                        .DoForEach(x => x.Confidence.Add(ConfidenceRecords.ExplicitConnection)));
+                }
+
+                if (!string.IsNullOrEmpty(target.UninstallerLocation))
+                {
+                    var exceptUninstallerShortcut = GetLinksPointingToLocation(entry => entry.UninstallerLocation, target)
+                        .Where(possibleResult => results.All(result => !PathTools.PathsEqual(result.Path, possibleResult.Path)))
+                        .ToList();
+
+                    results.AddRange(exceptUninstallerShortcut);
+                }
+            }
+
+            // Remove shortcuts that we aren't sure about
+            foreach (var junkNode in results.ToList())
+            {
+                var name = Path.GetFileNameWithoutExtension(junkNode.Path.Name);
+                junkNode.Confidence.AddRange(ConfidenceGenerators.GenerateConfidence(name, target));
+
+                if (junkNode.Confidence.IsEmpty)
+                {
+                    results.Remove(junkNode);
+                }
+            }
+
+            return results;
+        }
 
         public override void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
         {
@@ -57,7 +105,9 @@ namespace UninstallTools.Junk.Finders.Misc
                     if (string.IsNullOrEmpty(target) ||
                         PathTools.SubPathIsInsideBasePath(syspath, target, true) ||
                         PathTools.SubPathIsInsideBasePath(UninstallToolsGlobalConfig.AppLocation, target, true))
+                    {
                         continue;
+                    }
 
                     results.Add(new Shortcut(linkFilename, target));
                 }
@@ -73,49 +123,27 @@ namespace UninstallTools.Junk.Finders.Misc
             return results;
         }
 
-        public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
+        private FileSystemJunk CreateJunkNode(Shortcut source, ApplicationUninstallerEntry entry) => new FileSystemJunk(new FileInfo(source.LinkFilename), entry, this);
+
+        private IEnumerable<FileSystemJunk> GetLinksPointingToLocation(
+                    Func<ApplicationUninstallerEntry, string> targetSelector, ApplicationUninstallerEntry entry)
         {
-            var results = new List<FileSystemJunk>();
+            var target = targetSelector(entry);
+            var targetIsSafe = !GetOtherUninstallers(entry).Any(x => PathTools.PathsEqual(targetSelector(x), target));
 
-            if (!string.IsNullOrEmpty(target.InstallLocation))
+            foreach (var source in _links)
             {
-                results.AddRange(GetLinksPointingToLocation(entry => entry.InstallLocation, target)
-                    .DoForEach(x => x.Confidence.Add(ConfidenceRecords.ExplicitConnection)));
-            }
-
-            if (target.UninstallerKind == UninstallerType.Steam)
-            {
-                results.AddRange(GetLinksPointingToSteamApp(target));
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(target.UninstallerFullFilename))
+                if (source.LinkTarget.Contains(target, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    results.AddRange(GetLinksPointingToLocation(entry => entry.UninstallerFullFilename, target)
-                        .DoForEach(x => x.Confidence.Add(ConfidenceRecords.ExplicitConnection)));
-                }
+                    var result = CreateJunkNode(source, entry);
+                    if (!targetIsSafe)
+                    {
+                        result.Confidence.Add(ConfidenceRecords.DirectoryStillUsed);
+                    }
 
-                if (!string.IsNullOrEmpty(target.UninstallerLocation))
-                {
-                    var exceptUninstallerShortcut = GetLinksPointingToLocation(entry => entry.UninstallerLocation, target)
-                        .Where(possibleResult => results.All(result => !PathTools.PathsEqual(result.Path, possibleResult.Path)))
-                        .ToList();
-
-                    results.AddRange(exceptUninstallerShortcut);
+                    yield return result;
                 }
             }
-
-            // Remove shortcuts that we aren't sure about
-            foreach (var junkNode in results.ToList())
-            {
-                var name = Path.GetFileNameWithoutExtension(junkNode.Path.Name);
-                junkNode.Confidence.AddRange(ConfidenceGenerators.GenerateConfidence(name, target));
-
-                if (junkNode.Confidence.IsEmpty)
-                    results.Remove(junkNode);
-            }
-
-            return results;
         }
 
         /// <summary>
@@ -126,7 +154,7 @@ namespace UninstallTools.Junk.Finders.Misc
         {
             Debug.Assert(target.UninstallerKind == UninstallerType.Steam);
 
-            var appId = System.Text.RegularExpressions.Regex.Replace(target.RatingId ?? target.RegistryKeyName ?? string.Empty, @"[^0-9]", "");
+            var appId = System.Text.RegularExpressions.Regex.Replace(target.RatingId ?? target.RegistryKeyName ?? string.Empty, "[^0-9]", "");
 
             if (!string.IsNullOrEmpty(appId))
             {
@@ -143,48 +171,6 @@ namespace UninstallTools.Junk.Finders.Misc
             else
             {
                 Debug.Fail("Steam app has an invalid RegistryKeyName, it should contain its ID. Actual value: " + target.RegistryKeyName);
-            }
-        }
-
-        public override string CategoryName => "Junk_Shortcut_GroupName";
-
-        private FileSystemJunk CreateJunkNode(Shortcut source, ApplicationUninstallerEntry entry)
-        {
-            return new FileSystemJunk(new FileInfo(source.LinkFilename), entry, this);
-        }
-
-        private IEnumerable<FileSystemJunk> GetLinksPointingToLocation(
-            Func<ApplicationUninstallerEntry, string> targetSelector, ApplicationUninstallerEntry entry)
-        {
-            var target = targetSelector(entry);
-            var targetIsSafe = !GetOtherUninstallers(entry).Any(x => PathTools.PathsEqual(targetSelector(x), target));
-
-            foreach (var source in _links)
-            {
-                if (source.LinkTarget.Contains(target, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var result = CreateJunkNode(source, entry);
-                    if (!targetIsSafe)
-                        result.Confidence.Add(ConfidenceRecords.DirectoryStillUsed);
-                    yield return result;
-                }
-            }
-        }
-
-        private sealed class Shortcut
-        {
-            public Shortcut(string linkFilename, string linkTarget)
-            {
-                LinkFilename = linkFilename;
-                LinkTarget = linkTarget;
-            }
-
-            public string LinkFilename { get; }
-            public string LinkTarget { get; }
-
-            public override string ToString()
-            {
-                return LinkTarget;
             }
         }
     }

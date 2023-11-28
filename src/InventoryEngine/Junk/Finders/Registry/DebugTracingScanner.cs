@@ -4,13 +4,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security;
+using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
-using InventoryEngine.Extensions;
+using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
-    public class DebugTracingScanner : IJunkCreator
+    internal class DebugTracingScanner : IJunkCreator
     {
         public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
         {
@@ -21,7 +22,9 @@ namespace InventoryEngine.Junk.Finders.Registry
             var returnList = new List<IJunkResult>();
 
             if (string.IsNullOrEmpty(target.InstallLocation))
+            {
                 return returnList;
+            }
 
             string pathRoot;
 
@@ -40,7 +43,9 @@ namespace InventoryEngine.Junk.Finders.Registry
                 : target.InstallLocation;
 
             if (string.IsNullOrEmpty(unrootedLocation.Trim()))
+            {
                 return returnList;
+            }
 
             try
             {
@@ -68,12 +73,9 @@ namespace InventoryEngine.Junk.Finders.Registry
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is SecurityException || ex is IOException)
             {
-                if (ex is UnauthorizedAccessException || ex is SecurityException || ex is IOException)
-                    Trace.WriteLine(ex);
-                else
-                    throw;
+                Trace.WriteLine(ex);
             }
 
             return returnList;

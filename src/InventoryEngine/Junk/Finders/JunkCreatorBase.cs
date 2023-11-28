@@ -5,57 +5,46 @@ using System.Linq;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
+using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders
 {
-    public abstract class JunkCreatorBase : IJunkCreator
+    internal abstract class JunkCreatorBase : IJunkCreator
     {
-        public virtual void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-            AllUninstallers = allUninstallers;
-        }
+        public abstract string CategoryName { get; }
 
         protected ICollection<ApplicationUninstallerEntry> AllUninstallers { get; private set; }
 
-        protected IEnumerable<ApplicationUninstallerEntry> GetOtherUninstallers(ApplicationUninstallerEntry exceptThis)
-        {
-            return AllUninstallers.Where(x => x != exceptThis);
-        }
-
-        protected IEnumerable<string> GetOtherInstallLocations(ApplicationUninstallerEntry target)
-        {
-            return GetOtherUninstallers(target).Select(x => x.InstallLocation).Where(x => !string.IsNullOrEmpty(x));
-        }
-
-        public abstract IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target);
-
-        public abstract string CategoryName { get; }
+        private static readonly string FullWindowsDirectoryName = PathTools.GetWindowsDirectory().FullName;
 
         /// <summary>
         ///     Returns true if the dir is still used by other apps and can't be safely deleted.
         /// </summary>
-        public static bool CheckIfDirIsStillUsed(string location, IEnumerable<string> otherInstallLocations)
-        {
-            return !string.IsNullOrEmpty(location) && otherInstallLocations.Any(x => x.TrimEnd('\\').StartsWith(location, StringComparison.InvariantCultureIgnoreCase));
-        }
+        public static bool CheckIfDirIsStillUsed(string location, IEnumerable<string> otherInstallLocations) => !string.IsNullOrEmpty(location) && otherInstallLocations.Any(x => x.TrimEnd('\\').StartsWith(location, StringComparison.InvariantCultureIgnoreCase));
 
-        private static readonly string FullWindowsDirectoryName = PathTools.GetWindowsDirectory().FullName;
+        public abstract IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target);
+
+        public virtual void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers) => AllUninstallers = allUninstallers;
 
         // TODO overhaul
-        protected FileSystemJunk GetJunkNodeFromLocation(IEnumerable<string> otherInstallLocations, string directory, ApplicationUninstallerEntry app)
+        internal FileSystemJunk GetJunkNodeFromLocation(IEnumerable<string> otherInstallLocations, string directory, ApplicationUninstallerEntry app)
         {
             try
             {
                 var dirInfo = new DirectoryInfo(directory);
 
                 if (dirInfo.FullName.Contains(FullWindowsDirectoryName) || !dirInfo.Exists || dirInfo.Parent == null)
+                {
                     return null;
+                }
 
                 var newNode = new FileSystemJunk(dirInfo, app, this);
                 newNode.Confidence.Add(ConfidenceRecords.ExplicitConnection);
 
                 if (CheckIfDirIsStillUsed(dirInfo.FullName, otherInstallLocations))
+                {
                     newNode.Confidence.Add(ConfidenceRecords.DirectoryStillUsed);
+                }
 
                 return newNode;
             }
@@ -64,5 +53,9 @@ namespace InventoryEngine.Junk.Finders
                 return null;
             }
         }
+
+        protected IEnumerable<string> GetOtherInstallLocations(ApplicationUninstallerEntry target) => GetOtherUninstallers(target).Select(x => x.InstallLocation).Where(x => !string.IsNullOrEmpty(x));
+
+        protected IEnumerable<ApplicationUninstallerEntry> GetOtherUninstallers(ApplicationUninstallerEntry exceptThis) => AllUninstallers.Where(x => x != exceptThis);
     }
 }

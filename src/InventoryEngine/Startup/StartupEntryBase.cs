@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using InventoryEngine.Tools;
 using InventoryEngine.Extensions;
+using InventoryEngine.Shared;
+using InventoryEngine.Tools;
 
 namespace InventoryEngine.Startup
 {
@@ -73,29 +74,20 @@ namespace InventoryEngine.Startup
         /// <summary>
         ///     $"{ProgramName} | {Company} | {Command}"
         /// </summary>
-        public virtual string ToLongString()
-        {
-            return $"{ProgramName} | {Company} | {Command}";
-        }
-
-        /// <summary>
-        ///     Create beckup of this entry in specified folder
-        /// </summary>
-        public abstract void CreateBackup(string backupPath);
+        public virtual string ToLongString() => $"{ProgramName} | {Company} | {Command}";
 
         /// <summary>
         ///     Returns FullLongName, unless it's empty. In that case returns ProgramName, or
         ///     Command if that is empty too.
         /// </summary>
-        public override string ToString()
-        {
-            return FullLongName ?? ProgramName ?? Command;
-        }
+        public override string ToString() => FullLongName ?? ProgramName ?? Command;
 
         protected static string ProcessCommandString(string command)
         {
             if (string.IsNullOrEmpty(command))
+            {
                 return null;
+            }
 
             return ProcessStartCommand.TryParse(command, out var temp) ? temp.FileName : null;
         }
@@ -106,7 +98,9 @@ namespace InventoryEngine.Startup
         protected void FillInformationFromFile(string commandFilename)
         {
             if (!File.Exists(commandFilename))
+            {
                 return;
+            }
 
             try
             {
@@ -115,11 +109,15 @@ namespace InventoryEngine.Startup
 
                 var fileDesc = info.FileDescription.StripStringFromVersionNumber();
                 if (!string.IsNullOrEmpty(fileDesc))
+                {
                     ProgramNameTrimmed = fileDesc;
+                }
                 else
+                {
                     ProgramNameTrimmed = !string.IsNullOrEmpty(info.ProductName)
                         ? info.ProductName
                         : ProgramName.StripStringFromVersionNumber();
+                }
             }
             catch
             {

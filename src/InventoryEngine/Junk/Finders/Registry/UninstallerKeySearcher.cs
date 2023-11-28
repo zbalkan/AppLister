@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
-using InventoryEngine.Extensions;
+using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
-    public class UninstallerKeySearcher : IJunkCreator
+    internal class UninstallerKeySearcher : IJunkCreator
     {
         private static readonly IEnumerable<string> InstallerSubkeyPaths;
 
@@ -32,7 +33,9 @@ namespace InventoryEngine.Junk.Finders.Registry
             {
                 var currentUserId = WindowsTools.GetUserSid().Value;
                 if (string.IsNullOrEmpty(currentUserId) || currentUserId.Length <= 9)
+                {
                     return;
+                }
 
                 var currentUserInstallerDataPath = Path.Combine(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData",
                     currentUserId);
@@ -50,9 +53,7 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
         }
 
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-            _targetKeys = InstallerSubkeyPaths
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers) => _targetKeys = InstallerSubkeyPaths
                 .Using(x => Microsoft.Win32.Registry.LocalMachine.OpenSubKey(x))
                 .Where(k => k != null)
                 .SelectMany(k =>
@@ -60,11 +61,10 @@ namespace InventoryEngine.Junk.Finders.Registry
                     var parentPath = k.Name;
                     return k.GetSubKeyNames().Select(n => new KeyValuePair<string, string>(parentPath, n));
                 }).ToList();
-        }
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
-            if (target.RegKeyStillExists())
+            if (RegistryTools.RegKeyStillExists(target.RegistryPath))
             {
                 var regKeyNode = new RegistryKeyJunk(target.RegistryPath, target, this);
                 regKeyNode.Confidence.Add(ConfidenceRecords.IsUninstallerRegistryKey);

@@ -3,11 +3,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using InventoryEngine.Extensions;
+using InventoryEngine.Shared;
 
 namespace InventoryEngine.InfoAdders
 {
-    public class AppExecutablesSearcher : IMissingInfoAdder
+    internal partial class AppExecutablesSearcher : IMissingInfoAdder
     {
+        public bool AlwaysRun { get; }
+
+        public string[] CanProduceValueNames { get; } = {
+            nameof(ApplicationUninstallerEntry.SortedExecutables)
+        };
+
+        public InfoAdderPriority Priority { get; } = InfoAdderPriority.RunFirst;
+
+        public string[] RequiredValueNames { get; } = {
+            nameof(ApplicationUninstallerEntry.InstallLocation)
+        };
+
+        public bool RequiresAllValues { get; } = true;
         internal static readonly string[] BinaryDirectoryNames;
 
         static AppExecutablesSearcher()
@@ -25,32 +39,12 @@ namespace InventoryEngine.InfoAdders
             BinaryDirectoryNames = names.ToArray();
         }
 
-        public string[] CanProduceValueNames { get; } = {
-            nameof(ApplicationUninstallerEntry.SortedExecutables)
-        };
-
-        public InfoAdderPriority Priority { get; } = InfoAdderPriority.RunFirst;
-
-        public string[] RequiredValueNames { get; } = {
-            nameof(ApplicationUninstallerEntry.InstallLocation)
-        };
-
-        public bool RequiresAllValues { get; } = true;
-        public bool AlwaysRun { get; } = false;
-
         public void AddMissingInformation(ApplicationUninstallerEntry target)
         {
-            /*var trimmedDispName = target.DisplayNameTrimmed;
-            if (string.IsNullOrEmpty(trimmedDispName) || trimmedDispName.Length < 5)
-            {
-                trimmedDispName = target.DisplayName;
-                if (string.IsNullOrEmpty(trimmedDispName))
-                    // Impossible to search for the executable without knowing the app name
-                    return;
-            }*/
-
             if (!Directory.Exists(target.InstallLocation))
+            {
                 return;
+            }
 
             var trimmedDispName = target.DisplayNameTrimmed;
 
@@ -88,13 +82,20 @@ namespace InventoryEngine.InfoAdders
                     else
                     {
                         // This skips ISO language codes, much faster than a more specific compare
-                        if (subName.Length == 5 && subName[2].Equals('-')) continue;
+                        if (subName.Length == 5 && subName[2].Equals('-'))
+                        {
+                            continue;
+                        }
 
                         // Directories with very short names likely contain program files
                         if (subName.Length > 3)
+                        {
                             otherSubdirs.Add(subdir);
+                        }
                         else
+                        {
                             maybeSubdirs.Add(subdir);
+                        }
                     }
                 }
                 catch (IOException)
@@ -106,7 +107,9 @@ namespace InventoryEngine.InfoAdders
             }
 
             if (results.Count == 0 && binSubdirs.Count == 0)
+            {
                 otherSubdirs.AddRange(maybeSubdirs);
+            }
 
             // 7-Zip console application. Sometimes causes bad display data if it's picked as the
             // most likely executable. No effect on real 7-Zip entries.
@@ -125,36 +128,36 @@ namespace InventoryEngine.InfoAdders
                 if (fileName.Equals("uninstaller.exe", StringComparison.OrdinalIgnoreCase)
                     || fileName.Equals("uninstall.exe", StringComparison.OrdinalIgnoreCase)
                     || fileName.Contains("unins00", StringComparison.OrdinalIgnoreCase))
+                {
                     return 20;
+                }
+
                 if (!reportInName && fileName.Contains("report", StringComparison.OrdinalIgnoreCase))
+                {
                     return 10;
+                }
+
                 if (!crashInName && fileName.Contains("crash", StringComparison.OrdinalIgnoreCase))
+                {
                     return 10;
+                }
+
                 if (fileName.Contains("uninsta", StringComparison.OrdinalIgnoreCase))
+                {
                     return 4;
+                }
+
                 if (fileName.Contains("unins", StringComparison.OrdinalIgnoreCase))
+                {
                     return 2;
+                }
+
                 return 0;
             }
 
             return targets.Select(x => new { x, p = GetPenaltyPoints(x) })
                 .OrderBy(x => Sift4.SimplestDistance(x.x.Name, targetString, 3) + x.p)
                 .Select(x => x.x);
-        }
-
-        internal sealed class ScanDirectoryResult
-        {
-            public ScanDirectoryResult(ICollection<FileInfo> executableFiles,
-                ICollection<DirectoryInfo> binSubdirs, ICollection<DirectoryInfo> otherSubdirs)
-            {
-                OtherSubdirs = otherSubdirs;
-                ExecutableFiles = executableFiles;
-                BinSubdirs = binSubdirs;
-            }
-
-            public ICollection<DirectoryInfo> BinSubdirs { get; }
-            public ICollection<FileInfo> ExecutableFiles { get; }
-            public ICollection<DirectoryInfo> OtherSubdirs { get; }
         }
     }
 }

@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Xml.Linq;
+using InventoryEngine.Shared;
 using Microsoft.Win32.TaskScheduler;
 
 namespace InventoryEngine.Startup
 {
     public static class TaskEntryFactory
     {
-        public static IEnumerable<TaskEntry> GetTaskStartupEntries()
+        internal static IEnumerable<TaskEntry> GetTaskStartupEntries()
         {
             TaskCollection tasks;
             try { tasks = TaskService.Instance.RootFolder.Tasks; }
@@ -28,13 +29,19 @@ namespace InventoryEngine.Startup
                     continue;
                 }
 
-                if (actionRoot == null || actionRoot.IsEmpty || xmlNamespace == XNamespace.None) continue;
+                if (actionRoot?.IsEmpty != false || xmlNamespace == XNamespace.None)
+                {
+                    continue;
+                }
 
                 foreach (var actionElement in actionRoot.Elements())
                 {
                     var command = actionElement.Element(xmlNamespace + "Command");
 
-                    if (string.IsNullOrEmpty(command?.Value)) continue;
+                    if (string.IsNullOrEmpty(command?.Value))
+                    {
+                        continue;
+                    }
 
                     var arguments = actionElement.Element(xmlNamespace + "Arguments");
                     var cmdCommand = new ProcessStartCommand(command.Value, arguments?.Value ?? string.Empty);

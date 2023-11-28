@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using InventoryEngine.Extensions;
 using InventoryEngine.InfoAdders;
 using InventoryEngine.Startup;
 using InventoryEngine.Tools;
-using InventoryEngine.Extensions;
 
 namespace InventoryEngine.Factory
 {
@@ -13,7 +13,15 @@ namespace InventoryEngine.Factory
     {
         private static readonly InfoAdderManager InfoAdder = new InfoAdderManager();
 
-        public static IList<ApplicationUninstallerEntry> GetUninstallerEntries()
+        /// <summary>
+        ///     Attach startup entries to uninstaller entries that are automatically detected as related.
+        /// </summary>
+        public static void AttachStartupEntries(IEnumerable<ApplicationUninstallerEntry> uninstallers, IEnumerable<StartupEntryBase> startupEntries) =>
+            // Using DoForEach to avoid multiple enumerations
+            StartupManager.AssignStartupEntries(uninstallers
+                .DoForEach(x => { if (x != null) { x.StartupEntries = null; } }), startupEntries);
+
+        public static IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
         {
             var concurrentFactory = new ConcurrentApplicationFactory(GetMiscUninstallerEntries);
 
@@ -26,7 +34,7 @@ namespace InventoryEngine.Factory
                 concurrentFactory.Start();
 
                 // Find stuff mentioned in registry ------------------------------------------------------------------------
-                IList<ApplicationUninstallerEntry> registryResults;
+                IReadOnlyList<ApplicationUninstallerEntry> registryResults;
                 if (UninstallToolsGlobalConfig.ScanRegistry)
                 {
                     var sw = Stopwatch.StartNew();
@@ -37,19 +45,21 @@ namespace InventoryEngine.Factory
                     // Fill in install llocations for DirectoryFactory to improve speed and quality
                     // of results
                     if (UninstallToolsGlobalConfig.UninstallerFactoryCache != null)
+                    {
                         ApplyCache(registryResults, UninstallToolsGlobalConfig.UninstallerFactoryCache, InfoAdder);
+                    }
 
                     FactoryThreadedHelpers.GenerateMissingInformation(registryResults, InfoAdder, null, true);
                 }
                 else
                 {
-                    registryResults = new List<ApplicationUninstallerEntry>();
+                    registryResults = new List<ApplicationUninstallerEntry>().AsReadOnly();
                 }
 
                 // Look for entries on drives, based on info in registry.
                 // ---------------------------------------------------- Will introduce duplicates to
                 // already detected stuff. Need to check for duplicates with other entries later.
-                IList<ApplicationUninstallerEntry> driveResults;
+                IReadOnlyList<ApplicationUninstallerEntry> driveResults;
                 if (UninstallToolsGlobalConfig.ScanDrives)
                 {
                     var sw = Stopwatch.StartNew();
@@ -73,7 +83,9 @@ namespace InventoryEngine.Factory
 
                 // Fill in any missing information -------------------------------------------------------------------------
                 if (UninstallToolsGlobalConfig.UninstallerFactoryCache != null)
+                {
                     ApplyCache(mergedResults, UninstallToolsGlobalConfig.UninstallerFactoryCache, InfoAdder);
+                }
 
                 FactoryThreadedHelpers.GenerateMissingInformation(mergedResults, InfoAdder, msiProducts, false);
 
@@ -81,7 +93,9 @@ namespace InventoryEngine.Factory
                 if (UninstallToolsGlobalConfig.UninstallerFactoryCache != null)
                 {
                     foreach (var entry in mergedResults)
+                    {
                         UninstallToolsGlobalConfig.UninstallerFactoryCache.TryCacheItem(entry);
+                    }
 
                     try
                     {
@@ -99,9 +113,8 @@ namespace InventoryEngine.Factory
                     {
                         startupEntries.AddRange(factory.Value());
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-
                     }
                 }
 
@@ -109,9 +122,8 @@ namespace InventoryEngine.Factory
                 {
                     AttachStartupEntries(mergedResults, startupEntries);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-
                 }
 
                 return mergedResults;
@@ -125,8 +137,8 @@ namespace InventoryEngine.Factory
         /// <summary>
         ///     Merge new results into the base list
         /// </summary>
-        internal static void MergeResults(ICollection<ApplicationUninstallerEntry> baseEntries,
-            ICollection<ApplicationUninstallerEntry> newResults)
+        internal static void MergeResults(IList<ApplicationUninstallerEntry> baseEntries,
+            IReadOnlyCollection<ApplicationUninstallerEntry> newResults)
         {
             var newToAdd = new List<ApplicationUninstallerEntry>();
             foreach (var entry in newResults)
@@ -141,7 +153,9 @@ namespace InventoryEngine.Factory
                 {
                     // Prevent setting incorrect UninstallerType
                     if (matchedEntry.UninstallPossible)
+                    {
                         entry.UninstallerKind = UninstallerType.Unknown;
+                    }
 
                     InfoAdder.CopyMissingInformation(matchedEntry, entry);
                     continue;
@@ -157,7 +171,7 @@ namespace InventoryEngine.Factory
             }
         }
 
-        private static void ApplyCache(ICollection<ApplicationUninstallerEntry> baseEntries, ApplicationUninstallerFactoryCache cache, InfoAdderManager infoAdder)
+        private static void ApplyCache(IReadOnlyCollection<ApplicationUninstallerEntry> baseEntries, ApplicationUninstallerFactoryCache cache, InfoAdderManager infoAdder)
         {
             var hits = 0;
             foreach (var entry in baseEntries)
@@ -194,7 +208,7 @@ namespace InventoryEngine.Factory
                     MergeResults(otherResults, kvp.GetUninstallerEntries());
                     Trace.WriteLine($"[Performance] Factory {kvp.GetType().Name} took {sw.ElapsedMilliseconds}ms to finish");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // catch
                 }
@@ -202,13 +216,5 @@ namespace InventoryEngine.Factory
 
             return otherResults;
         }
-
-        /// <summary>
-        ///     Attach startup entries to uninstaller entries that are automatically detected as related.
-        /// </summary>
-        public static void AttachStartupEntries(IEnumerable<ApplicationUninstallerEntry> uninstallers, IEnumerable<StartupEntryBase> startupEntries) =>
-            // Using DoForEach to avoid multiple enumerations
-            StartupManager.AssignStartupEntries(uninstallers
-                .DoForEach(x => { if (x != null) x.StartupEntries = null; }), startupEntries);
     }
 }

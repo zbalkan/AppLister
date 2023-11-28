@@ -5,33 +5,32 @@ using System.IO;
 using System.Linq;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
-using InventoryEngine.Extensions;
 
 namespace InventoryEngine.Junk.Finders.Drive
 {
-    public class UninstallerLocationScanner : JunkCreatorBase
+    internal class UninstallerLocationScanner : JunkCreatorBase
     {
+        public override string CategoryName => "Junk_UninstallerLocation_GroupName";
         private IEnumerable<string> _allProgramFiles;
-
-        public override void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-            _allProgramFiles = UninstallToolsGlobalConfig.GetAllProgramFiles().ToList();
-            base.Setup(allUninstallers);
-        }
 
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
             var uninLoc = target.UninstallerLocation;
-            if (string.IsNullOrEmpty(uninLoc)) yield break;
+            if (string.IsNullOrEmpty(uninLoc))
+            {
+                yield break;
+            }
 
             if (_allProgramFiles.Any(x => uninLoc.StartsWith(x, StringComparison.InvariantCultureIgnoreCase))
                 && !CheckIfDirIsStillUsed(uninLoc, GetOtherInstallLocations(target)))
             {
                 var resultNode = GetJunkNodeFromLocation(Enumerable.Empty<string>(), uninLoc, target);
                 if (resultNode != null)
+                {
                     yield return resultNode;
+                }
             }
-            else if (target.UninstallerKind == UninstallerType.Msiexec && !target.BundleProviderKey.IsEmpty())
+            else if (target.UninstallerKind == UninstallerType.Msiexec && !Guid.Empty.Equals(target.BundleProviderKey))
             {
                 FileSystemInfo[] matchedItems;
                 try
@@ -55,6 +54,10 @@ namespace InventoryEngine.Junk.Finders.Drive
             }
         }
 
-        public override string CategoryName => "Junk_UninstallerLocation_GroupName";
+        public override void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
+            _allProgramFiles = UninstallToolsGlobalConfig.GetAllProgramFiles().ToList();
+            base.Setup(allUninstallers);
+        }
     }
 }

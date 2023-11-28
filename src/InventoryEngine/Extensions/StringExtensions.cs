@@ -6,7 +6,7 @@ using System.Text;
 
 namespace InventoryEngine.Extensions
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         /// <summary>
         ///     Check if base string starts with any of the supplied strings.
@@ -22,10 +22,7 @@ namespace InventoryEngine.Extensions
         /// <returns>
         ///     True if any of the items were found in the base string, else false
         /// </returns>
-        public static bool StartsWithAny(this string s, IEnumerable<string> items, StringComparison comparisonType)
-        {
-            return items.Any(item => s.StartsWith(item, comparisonType));
-        }
+        internal static bool StartsWithAny(this string s, IEnumerable<string> items, StringComparison comparisonType) => items.Any(item => s.StartsWith(item, comparisonType));
 
         /// <summary>
         ///     Reverse the string using the specified pattern. The string is split into parts
@@ -40,15 +37,23 @@ namespace InventoryEngine.Extensions
         ///     Pattern used to reverse the string.
         ///     Warning: The pattern has to have identical total length to the length of the string.
         /// </param>
-        public static string Reverse(this string value, int[] pattern)
+        internal static string Reverse(this string value, int[] pattern)
         {
             if (value == null)
+            {
                 throw new NullReferenceException();
+            }
+
             if (pattern == null)
+            {
                 throw new ArgumentNullException(nameof(pattern));
+            }
+
             if (value.Length != pattern.Sum())
+            {
                 throw new ArgumentException(
                     "Pattern doesn't match the string. Sum of the pattern's parts has to have length equal to the length the string.");
+            }
 
             var returnString = new StringBuilder();
 
@@ -75,10 +80,12 @@ namespace InventoryEngine.Extensions
         /// </param>
         /// <returns>
         /// </returns>
-        public static string StripStringFromVersionNumber(this string input)
+        internal static string StripStringFromVersionNumber(this string input)
         {
             if (input == null)
+            {
                 return string.Empty;
+            }
 
             int previousLen;
             do
@@ -88,7 +95,9 @@ namespace InventoryEngine.Extensions
                 input = input.Trim();
 
                 if (input.Length == 0)
+                {
                     return string.Empty;
+                }
 
                 if (input.EndsWith(")", StringComparison.Ordinal))
                 {
@@ -104,7 +113,9 @@ namespace InventoryEngine.Extensions
                     StringComparison.InvariantCultureIgnoreCase).TrimEnd();
 
                 if (input.EndsWith(" v", StringComparison.InvariantCultureIgnoreCase))
+                {
                     input = input.Substring(0, input.Length - 2);
+                }
 
                 input = input.ExtendedTrimEndAny(new[] { "Application", "Helper", " v", " CE" },
                     StringComparison.InvariantCultureIgnoreCase);
@@ -115,15 +126,7 @@ namespace InventoryEngine.Extensions
             return input;
         }
 
-        public static ReadOnlySpan<char> AsSpan(this string s)
-        {
-            return s.ToCharArray().AsSpan();
-        }
-
-        public static bool Contains(this string s, string value, StringComparison comparisonType)
-        {
-            return s.IndexOf(value, comparisonType) >= 0;
-        }
+        internal static bool Contains(this string s, string value, StringComparison comparisonType) => s.IndexOf(value, comparisonType) >= 0;
 
         /// <summary>
         ///     Check if base char array contains any of the supplied chars.
@@ -136,10 +139,7 @@ namespace InventoryEngine.Extensions
         /// <returns>
         ///     True if any of the items were found in the base string, else false
         /// </returns>
-        public static bool ContainsAny(this IEnumerable<char> s, IEnumerable<char> items)
-        {
-            return items.Any(s.Contains);
-        }
+        internal static bool ContainsAny(this IEnumerable<char> s, IEnumerable<char> items) => items.Any(s.Contains);
 
         /// <summary>
         ///     Check if base string contains any of the supplied strings.
@@ -155,10 +155,7 @@ namespace InventoryEngine.Extensions
         /// <returns>
         ///     True if any of the items were found in the base string, else false
         /// </returns>
-        public static bool ContainsAny(this string s, IEnumerable<string> items, StringComparison comparisonType)
-        {
-            return items.Any(item => s.Contains(item, comparisonType));
-        }
+        internal static bool ContainsAny(this string s, IEnumerable<string> items, StringComparison comparisonType) => items.Any(item => s.Contains(item, comparisonType));
 
         /// <summary>
         ///     Check if base string contains all of the supplied strings.
@@ -174,10 +171,7 @@ namespace InventoryEngine.Extensions
         /// <returns>
         ///     True if any of the items were found in the base string, else false
         /// </returns>
-        public static bool ContainsAll(this string s, IEnumerable<string> items, StringComparison comparisonType)
-        {
-            return items.All(item => s.Contains(item, comparisonType));
-        }
+        internal static bool ContainsAll(this string s, IEnumerable<string> items, StringComparison comparisonType) => items.All(item => s.Contains(item, comparisonType));
 
         /// <summary>
         ///     Trim this string from all whitespaces and ending pronounciations (eg. '.' ','), then
@@ -196,11 +190,13 @@ namespace InventoryEngine.Extensions
         /// <returns>
         ///     Trimmed version of the base string
         /// </returns>
-        public static string ExtendedTrimEndAny(this string s, IEnumerable<string> trimmers,
+        internal static string ExtendedTrimEndAny(this string s, IEnumerable<string> trimmers,
             StringComparison comparisonType)
         {
-            if (String.IsNullOrEmpty(s))
-                return String.Empty;
+            if (string.IsNullOrEmpty(s))
+            {
+                return string.Empty;
+            }
 
             var trimmerList = trimmers as IList<string> ?? trimmers.ToList();
             var resultStr = s.Trim().Trim(',', '.', ' ');
@@ -210,14 +206,19 @@ namespace InventoryEngine.Extensions
                 rerun = false;
                 foreach (var trimmer in trimmerList)
                 {
-                    if (!resultStr.EndsWith(trimmer, comparisonType)) continue;
+                    if (!resultStr.EndsWith(trimmer, comparisonType))
+                    {
+                        continue;
+                    }
 
                     var cutNum = resultStr.Length - trimmer.Length;
 
                     // Exit the loop quickly if resultStr contains only the trimmer. Also checks for
                     // negative lenght.
                     if (cutNum <= 0)
-                        return String.Empty;
+                    {
+                        return string.Empty;
+                    }
 
                     resultStr = resultStr.Substring(0, cutNum);
                     resultStr = resultStr.Trim().Trim(',', '.', ' ');
@@ -232,7 +233,7 @@ namespace InventoryEngine.Extensions
         ///     Safe version of normalize that doesn't crash on invalid code points in string.
         ///     Instead the points are replaced with question marks.
         /// </summary>
-        public static string SafeNormalize(this string input, NormalizationForm normalizationForm = NormalizationForm.FormC)
+        internal static string SafeNormalize(this string input, NormalizationForm normalizationForm = NormalizationForm.FormC)
         {
             try
             {
@@ -240,12 +241,13 @@ namespace InventoryEngine.Extensions
             }
             catch (ArgumentException e)
             {
-                throw new InvalidDataException("String contains invalid characters. Data: " + Encoding.UTF32.GetBytes(input).ToHexString(), e);
+                throw new InvalidDataException("String contains invalid characters. Data: " + ConvertToHexString(Encoding.UTF32.GetBytes(input)), e);
             }
         }
 
         #region Private helpers
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Control flow", "TI6101:Do not change a loop variable inside a for loop block", Justification = "<Pending>")]
         private static string ReplaceNonCharacters(string input, char replacement)
         {
             var sb = new StringBuilder(input.Length);
@@ -253,30 +255,36 @@ namespace InventoryEngine.Extensions
             {
                 if (char.IsSurrogatePair(input, i))
                 {
-                    int c = char.ConvertToUtf32(input, i);
+                    var c = char.ConvertToUtf32(input, i);
                     i++;
                     if (IsValidCodePoint(c))
+                    {
                         sb.Append(char.ConvertFromUtf32(c));
+                    }
                     else
+                    {
                         sb.Append(replacement);
+                    }
                 }
                 else
                 {
-                    char c = input[i];
+                    var c = input[i];
                     if (IsValidCodePoint(c))
+                    {
                         sb.Append(c);
+                    }
                     else
+                    {
                         sb.Append(replacement);
+                    }
                 }
             }
             return sb.ToString();
         }
 
-        private static bool IsValidCodePoint(int point)
-        {
-            return point < 0xfdd0 || point >= 0xfdf0 && (point & 0xffff) != 0xffff && (point & 0xfffe) != 0xfffe && point <= 0x10ffff;
-        }
+        private static bool IsValidCodePoint(int point) => point < 0xfdd0 || (point >= 0xfdf0 && (point & 0xffff) != 0xffff && (point & 0xfffe) != 0xfffe && point <= 0x10ffff);
 
+        private static string ConvertToHexString(this byte[] ba) => BitConverter.ToString(ba).Replace("-", "");
         #endregion Private helpers
     }
 }
