@@ -1,39 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using InventoryEngine.Extensions;
+using InventoryEngine.Shared;
 
 namespace InventoryEngine.Tools
 {
-    public static class ProcessTools
+    internal static class ProcessTools
     {
-        public static bool Is64BitProcess => IntPtr.Size == 8;
+        internal static bool Is64BitProcess => IntPtr.Size == 8;
 
-        /// <summary>
-        ///     Kill all of process's children, grandchildren, etc.
-        /// </summary>
-        /// <param name="pid">
-        ///     Process ID.
-        /// </param>
-        public static void KillChildProcesses(int pid)
-        {
-            foreach (var id in GetChildProcesses(pid))
-            {
-                KillProcessAndChildProcesses(id);
-            }
-        }
+        private static readonly char[] SeparateArgsFromCommandInvalidChars =
+                    Path.GetInvalidFileNameChars().Concat(new[] { ',', ';' }).ToArray();
 
         /// <summary>
         ///     Get IDs of all child processes
         /// </summary>
-        public static IEnumerable<int> GetChildProcesses(int pid)
+        internal static IEnumerable<int> GetChildProcesses(int pid)
         {
             try
             {
@@ -61,12 +47,26 @@ namespace InventoryEngine.Tools
         }
 
         /// <summary>
+        ///     Kill all of process's children, grandchildren, etc.
+        /// </summary>
+        /// <param name="pid">
+        ///     Process ID.
+        /// </param>
+        internal static void KillChildProcesses(int pid)
+        {
+            foreach (var id in GetChildProcesses(pid))
+            {
+                KillProcessAndChildProcesses(id);
+            }
+        }
+
+        /// <summary>
         ///     Kill a process, and all of its children, grandchildren, etc.
         /// </summary>
         /// <param name="pid">
         ///     Process ID.
         /// </param>
-        public static void KillProcessAndChildProcesses(int pid)
+        internal static void KillProcessAndChildProcesses(int pid)
         {
             KillChildProcesses(pid);
 
@@ -81,48 +81,6 @@ namespace InventoryEngine.Tools
             }
         }
 
-        /// <exception cref="ArgumentException">
-        ///     processName
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        ///     There are problems accessing the performance counter API's used to get process
-        ///     information. This exception is specific to Windows NT, Windows 2000, and Windows XP.
-        /// </exception>
-        public static bool SafeKillProcess(string processName)
-        {
-            if (string.IsNullOrEmpty(processName))
-                throw new ArgumentException(@"Process name can't be null or empty", nameof(processName));
-
-            foreach (var p in Process.GetProcessesByName(processName))
-            {
-                try
-                {
-                    p.Kill();
-                    p.WaitForExit(); // possibly with a timeout
-                    return true;
-                }
-                catch (Win32Exception)
-                {
-                    // process was terminating or can't be terminated - deal with it
-                    return false;
-                }
-                catch (InvalidOperationException)
-                {
-                    // process has already exited - might be able to let this one go
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        private static readonly char[] SeparateArgsFromCommandInvalidChars =
-            Path.GetInvalidFileNameChars().Concat(new[] { ',', ';' }).ToArray();
-
-        //static readonly char[] pathFilterChars = StringTools.InvalidPathChars.Except(new char[] { '"' }).ToArray();
         /// <summary>
         ///     Attempts to separate filename (or filename with path) from the supplied arguments.
         /// </summary>
@@ -139,20 +97,26 @@ namespace InventoryEngine.Tools
         /// <exception cref="FormatException">
         ///     Filename is in invalid format
         /// </exception>
-        public static ProcessStartCommand SeparateArgsFromCommand(string fullCommand)
+        internal static ProcessStartCommand SeparateArgsFromCommand(string fullCommand)
         {
             if (fullCommand == null)
+            {
                 throw new ArgumentNullException(nameof(fullCommand));
+            }
 
             // Get rid of whitespaces
             fullCommand = fullCommand.Trim();
 
             if (string.IsNullOrEmpty(fullCommand))
+            {
                 throw new ArgumentException("Error_SeparateArgsFromCommand_Empty", nameof(fullCommand));
+            }
 
             var firstDot = fullCommand.IndexOf('.');
             if (firstDot < 0)
+            {
                 return SeparateNonDottedCommand(fullCommand);
+            }
 
             // Check if the path is in format: ExecutableName C:\Argname.exe
             {
@@ -187,7 +151,7 @@ namespace InventoryEngine.Tools
                     // If no ending quote has been found, explode gracefully.
                     throw new FormatException("Error_SeparateArgsFromCommand_MissingQuotationMark");
                 }
-                pathEnd += 1; //?
+                pathEnd++; //?
             }
 
             // If quotation marks were missing, check for any invalid characters after last dot in
@@ -199,13 +163,19 @@ namespace InventoryEngine.Tools
                 {
                     var dot = fullCommand.IndexOf('.', endIndex);
                     if (dot < 0)
+                    {
                         break;
+                    }
 
                     var filenameBreaker = fullCommand.IndexOfAny(SeparateArgsFromCommandInvalidChars, dot);
                     var space = fullCommand.IndexOf(' ', dot);
                     if (filenameBreaker < 0)
                     {
-                        if (space < 0) break;
+                        if (space < 0)
+                        {
+                            break;
+                        }
+
                         filenameBreaker = space;
                     }
 
@@ -272,118 +242,27 @@ namespace InventoryEngine.Tools
             // Check if there are any invalid path chars before the start we found. If yes, our path
             // is most likely an argument.
             if (pathRootEnd > 0 && fullCommand.IndexOfAny(breakChars, 0, pathRootEnd - 2) >= 0)
+            {
                 pathRootEnd = 0;
+            }
+
             var breakIndex = fullCommand.IndexOfAny(breakChars, pathRootEnd);
 
             // If there are no invalid path chars, it's probably just a naked filename or directory path.
             if (breakIndex < 0)
+            {
                 return new ProcessStartCommand(fullCommand.Trim('"'));
+            }
 
             // The invalid char has to have at least 1 space before it to count as an argument.
             // Otherwise the input is likely garbage.
             if (breakIndex > 0 && fullCommand[breakIndex - 1] == ' ')
+            {
                 return new ProcessStartCommand(fullCommand.Substring(0, breakIndex - 1).TrimEnd(),
                     fullCommand.Substring(breakIndex));
-
-            throw new FormatException("Error_SeparateArgsFromCommand_NoDot" + "\n" + fullCommand);
-        }
-
-        /// <summary>
-        ///     Change default culture info for new threads
-        /// </summary>
-        /// <param name="culture">
-        /// </param>
-        public static void SetDefaultCulture(CultureInfo culture)
-        {
-            var type = typeof(CultureInfo);
-
-            if (Environment.Version.Major < 4)
-            {
-                // Fields used before .Net 4.0
-                try
-                {
-                    type.InvokeMember("m_userDefaultCulture",
-                        BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Static,
-                        null,
-                        culture,
-                        new object[] { culture });
-
-                    type.InvokeMember("m_userDefaultUICulture",
-                        BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Static,
-                        null,
-                        culture,
-                        new object[] { culture });
-
-                    return;
-                }
-                catch
-                {
-                    //Ignore failure, try next
-                }
             }
 
-            try
-            {
-                type.InvokeMember("s_userDefaultCulture",
-                    BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Static,
-                    null,
-                    culture,
-                    new object[] { culture });
-
-                type.InvokeMember("s_userDefaultUICulture",
-                    BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Static,
-                    null,
-                    culture,
-                    new object[] { culture });
-            }
-            catch
-            {
-                //Ignore failure
-            }
-        }
-
-        /// <summary>
-        ///     Bring to foreground main window of all processes with name of the executing process
-        /// </summary>
-        public static void ShowMainWindow()
-        {
-            ShowMainWindow(Process.GetCurrentProcess().ProcessName);
-        }
-
-        /// <summary>
-        ///     Bring to foreground main window of all processes with supplied name
-        /// </summary>
-        /// <param name="processName">
-        ///     Name of the processes to bring to foreground
-        /// </param>
-        public static void ShowMainWindow(string processName)
-        {
-            foreach (var p in Process.GetProcessesByName(processName))
-            {
-                ShowWindow(p.MainWindowHandle, 1); //SW_SHOWNORMAL = 1
-                SetForegroundWindow(p.MainWindowHandle);
-            }
-        }
-
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool SetForegroundWindow(IntPtr hwnd);
-
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        private static extern bool ShowWindow(IntPtr hwnd, int nCmdShow);
-
-        /// <summary>
-        ///     Process.GetProcessById but doesn't throw on issues and instead returns null
-        /// </summary>
-        public static Process GetProcessByIdSafe(int processId)
-        {
-            try
-            {
-                return Process.GetProcessById(processId);
-            }
-            catch
-            {
-                return null;
-            }
+            throw new FormatException("Error_SeparateArgsFromCommand_NoDot\n" + fullCommand);
         }
     }
 }

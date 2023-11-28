@@ -2,22 +2,36 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace InventoryEngine
+namespace InventoryEngine.Shared
 {
     /// <summary>
     ///     Compiled get and set methods with drastically improved performance.
     /// </summary>
-    public class CompiledPropertyInfo<TInstance>
+    internal class CompiledPropertyInfo<TInstance>
     {
-        public CompiledPropertyInfo(PropertyInfo propertyInfo) : this(propertyInfo, null)
+        /// <summary>
+        ///     Takes instance containing this property, and returns a boxed property's value. Null
+        ///     if property doesn't have a getter.
+        /// </summary>
+        internal Func<TInstance, object> CompiledGet { get; private set; }
+
+        /// <summary>
+        ///     Takes instance containing this property and a boxed new value to set. Null if
+        ///     property doesn't have a setter.
+        /// </summary>
+        internal Action<TInstance, object> CompiledSet { get; private set; }
+
+        internal PropertyInfo PropertyInfo { get; }
+
+        internal object Tag { get; set; }
+
+        internal CompiledPropertyInfo(PropertyInfo propertyInfo) : this(propertyInfo, null)
         {
         }
 
-        public CompiledPropertyInfo(PropertyInfo propertyInfo, object tag)
+        internal CompiledPropertyInfo(PropertyInfo propertyInfo, object tag)
         {
-            if (propertyInfo == null) throw new ArgumentNullException(nameof(propertyInfo));
-
-            PropertyInfo = propertyInfo;
+            PropertyInfo = propertyInfo ?? throw new ArgumentNullException(nameof(propertyInfo));
             Tag = tag;
 
             CompileProperty(propertyInfo);
@@ -44,20 +58,5 @@ namespace InventoryEngine
                 CompiledSet = setLambda.Compile();
             }
         }
-
-        /// <summary>
-        ///     Takes instance containing this property, and returns a boxed property's value. Null
-        ///     if property doesn't have a getter.
-        /// </summary>
-        public Func<TInstance, object> CompiledGet { get; private set; }
-
-        /// <summary>
-        ///     Takes instance containing this property and a boxed new value to set. Null if
-        ///     property doesn't have a setter.
-        /// </summary>
-        public Action<TInstance, object> CompiledSet { get; private set; }
-
-        public PropertyInfo PropertyInfo { get; }
-        public object Tag { get; set; }
     }
 }

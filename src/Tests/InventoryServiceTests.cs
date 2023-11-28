@@ -7,8 +7,8 @@ namespace Tests
     [TestClass]
     public class InventoryServiceTests
     {
-        private Discovery discovery { get; set; }
-        private WmiScanner wmiScanner { get; set; }
+        private Discovery discovery;
+        private WmiScanner wmiScanner;
 
         [TestInitialize]
         public void Init()
@@ -17,6 +17,7 @@ namespace Tests
             wmiScanner = new WmiScanner();
         }
 
+        // ExceptionAdjustment: M:Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(System.Boolean) -T:Microsoft.VisualStudio.TestTools.UnitTesting.AssertFailedException
         [TestMethod]
         public void WhenPackagesNotPublished_DiscoveredPackages_ShouldBeEmpty()
         {

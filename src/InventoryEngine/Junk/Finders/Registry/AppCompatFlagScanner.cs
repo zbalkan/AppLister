@@ -4,10 +4,11 @@ using System.Linq;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
+using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
-    public class AppCompatFlagScanner : IJunkCreator
+    internal class AppCompatFlagScanner : IJunkCreator
     {
         private static readonly IEnumerable<string> AppCompatFlags = new[]
         {
@@ -22,7 +23,9 @@ namespace InventoryEngine.Junk.Finders.Registry
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
             if (string.IsNullOrEmpty(target.InstallLocation))
+            {
                 yield break;
+            }
 
             foreach (var fullCompatKey in AppCompatFlags.SelectMany(compatKey => new[]
             {
@@ -33,7 +36,9 @@ namespace InventoryEngine.Junk.Finders.Registry
                 using (var key = RegistryTools.OpenRegistryKey(fullCompatKey))
                 {
                     if (key == null)
+                    {
                         continue;
+                    }
 
                     foreach (var valueName in key.GetValueNames())
                     {

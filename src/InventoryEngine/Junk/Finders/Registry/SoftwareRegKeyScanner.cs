@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security;
-using Microsoft.Win32;
+using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
-using InventoryEngine.Extensions;
+using Microsoft.Win32;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
-    public class SoftwareRegKeyScanner : JunkCreatorBase
+    internal class SoftwareRegKeyScanner : JunkCreatorBase
     {
         public override string CategoryName => "Junk_Registry_GroupName";
 
@@ -110,7 +110,9 @@ namespace InventoryEngine.Junk.Finders.Registry
                 using (var softwareKey = RegistryTools.OpenRegistryKey(softwareKeyName))
                 {
                     if (softwareKey != null)
+                    {
                         output.AddRange(FindJunkRecursively(softwareKey));
+                    }
                 }
             }
 
@@ -133,7 +135,9 @@ namespace InventoryEngine.Junk.Finders.Registry
 
                     // Check if application's location is explicitly mentioned in any of the values
                     if (softwareKey.TryGetValueNames().Any(valueName => TestValueForMatches(softwareKey, valueName)))
+                    {
                         confidence.Add(ConfidenceRecords.ExplicitConnection);
+                    }
 
                     if (confidence.Any())
                     {
@@ -150,18 +154,22 @@ namespace InventoryEngine.Junk.Finders.Registry
                     foreach (var subKeyName in softwareKey.GetSubKeyNames())
                     {
                         if (KeyBlacklist.Contains(subKeyName, StringComparison.InvariantCultureIgnoreCase))
+                        {
                             continue;
+                        }
 
                         using (var subKey = softwareKey.OpenSubKey(subKeyName, false))
                         {
                             if (subKey != null)
+                            {
                                 // ReSharper disable once PossibleMultipleEnumeration
                                 returnList = returnList.Concat(FindJunkRecursively(subKey, level + 1));
+                            }
                         }
                     }
                 }
 
-                ConfidenceGenerators.TestForSimilarNames(_uninstaller, AllUninstallers, added.Select(x => new KeyValuePair<JunkResultBase, string>(x, x.RegKeyName)).ToList());
+                ConfidenceGenerators.TestForSimilarNames(_uninstaller, AllUninstallers, added.ConvertAll(x => new KeyValuePair<JunkResultBase, string>(x, x.RegKeyName)));
             }
             // Reg key invalid
             catch (ArgumentException)
@@ -180,28 +188,25 @@ namespace InventoryEngine.Junk.Finders.Registry
 
         private bool TestValueForMatches(RegistryKey softwareKey, string valueName)
         {
-            bool hit;
             if (InstallDirKeyNames.Contains(valueName, StringComparison.InvariantCultureIgnoreCase))
             {
-                hit = PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, softwareKey.GetStringSafe(valueName), true);
+                return PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, softwareKey.GetStringSafe(valueName), true);
             }
             else if (ExePathKeyNames.Contains(valueName, StringComparison.InvariantCultureIgnoreCase))
             {
-                hit = TestPathsMatchExe(softwareKey.GetStringSafe(valueName));
+                return TestPathsMatchExe(softwareKey.GetStringSafe(valueName));
             }
             else if (ExeOrDirPathKeyNames.Contains(valueName, StringComparison.InvariantCultureIgnoreCase))
             {
                 var path = softwareKey.GetStringSafe(valueName);
-                hit = File.Exists(path)
+                return File.Exists(path)
                     ? TestPathsMatchExe(softwareKey.GetStringSafe(valueName))
                     : PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, softwareKey.GetStringSafe(valueName), true);
             }
             else
             {
-                hit = PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, softwareKey.GetStringSafe(null), true);
+                return PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, softwareKey.GetStringSafe(null), true);
             }
-
-            return hit;
         }
 
         private IEnumerable<RegistryKeyJunk> ScanRelatedKeys(IEnumerable<RegistryKeyJunk> itemsToCompare)
@@ -223,7 +228,7 @@ namespace InventoryEngine.Junk.Finders.Registry
                 {
                     var nodePath = Path.Combine(keyToTest, nodeName);
                     // Check if the same node exists in other root keys
-                    var node = input.FirstOrDefault(x => PathTools.PathsEqual(x.FullRegKeyPath, nodePath));
+                    var node = input.Find(x => PathTools.PathsEqual(x.FullRegKeyPath, nodePath));
 
                     if (node != null)
                     {
@@ -257,9 +262,6 @@ namespace InventoryEngine.Junk.Finders.Registry
             return output;
         }
 
-        private bool TestPathsMatchExe(string keyValue)
-        {
-            return PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, Path.GetDirectoryName(keyValue), true);
-        }
+        private bool TestPathsMatchExe(string keyValue) => PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, Path.GetDirectoryName(keyValue), true);
     }
 }

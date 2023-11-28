@@ -2,15 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
-using InventoryEngine.Extensions;
 
 namespace InventoryEngine.Junk.Finders.Drive
 {
-    public class WerScanner : JunkCreatorBase
+    internal class WerScanner : JunkCreatorBase
     {
+        public override string CategoryName => "Junk_WerReports_GroupName";
         private const string CrashLabel = "AppCrash_";
         private static readonly ICollection<string> Archives;
         private ICollection<string> _werReportPaths;
@@ -29,28 +31,30 @@ namespace InventoryEngine.Junk.Finders.Drive
             .ToArray();
         }
 
-        public override void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-            base.Setup(allUninstallers);
-
-            _werReportPaths = Archives.Attempt(Directory.GetDirectories).SelectMany(x => x).ToArray();
-        }
-
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
             if (target.SortedExecutables == null || target.SortedExecutables.Length == 0)
+            {
                 yield break;
+            }
 
             var appExecutables = target.SortedExecutables.Attempt(Path.GetFileName).ToList();
 
             foreach (var reportPath in _werReportPaths)
             {
                 var startIndex = reportPath.LastIndexOf(CrashLabel, StringComparison.InvariantCultureIgnoreCase);
-                if (startIndex <= 0) continue;
+                if (startIndex <= 0)
+                {
+                    continue;
+                }
+
                 startIndex += CrashLabel.Length;
 
                 var count = reportPath.IndexOf('_', startIndex) - startIndex;
-                if (count <= 1) continue;
+                if (count <= 1)
+                {
+                    continue;
+                }
 
                 var filename = reportPath.Substring(startIndex, count);
 
@@ -63,6 +67,11 @@ namespace InventoryEngine.Junk.Finders.Drive
             }
         }
 
-        public override string CategoryName => "Junk_WerReports_GroupName";
+        public override void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
+            base.Setup(allUninstallers);
+
+            _werReportPaths = Archives.Attempt(Directory.GetDirectories).SelectMany(x => x).ToArray();
+        }
     }
 }

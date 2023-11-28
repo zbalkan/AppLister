@@ -2,16 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
-using InventoryEngine.Extensions;
+using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
-    public class AudioPolicyConfigScanner : IJunkCreator
+    internal class AudioPolicyConfigScanner : IJunkCreator
     {
-        private static readonly string AudioPolicyConfigSubkey = @"Microsoft\Internet Explorer\LowRegistry\Audio\PolicyConfig\PropertyStore";
+        private const string AudioPolicyConfigSubkey = @"Microsoft\Internet Explorer\LowRegistry\Audio\PolicyConfig\PropertyStore";
 
         public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
         {
@@ -22,7 +23,9 @@ namespace InventoryEngine.Junk.Finders.Registry
             var returnList = new List<IJunkResult>();
 
             if (string.IsNullOrEmpty(target.InstallLocation))
+            {
                 return returnList;
+            }
 
             string pathRoot;
 
@@ -41,22 +44,28 @@ namespace InventoryEngine.Junk.Finders.Registry
                 : target.InstallLocation;
 
             if (string.IsNullOrEmpty(unrootedLocation.Trim()))
+            {
                 return returnList;
+            }
 
             using (var key = RegistryTools.OpenRegistryKey(Path.Combine(SoftwareRegKeyScanner.KeyCu, AudioPolicyConfigSubkey)))
             {
                 if (key == null)
+                {
                     return returnList;
+                }
 
                 foreach (var subKeyName in key.GetSubKeyNames())
                 {
                     using (var subKey = key.OpenSubKey(subKeyName))
                     {
-                        if (subKey == null) continue;
+                        if (subKey == null)
+                        {
+                            continue;
+                        }
 
                         var defVal = subKey.GetStringSafe(null);
-                        if (defVal != null &&
-                            defVal.Contains(unrootedLocation, StringComparison.InvariantCultureIgnoreCase))
+                        if (defVal?.Contains(unrootedLocation, StringComparison.InvariantCultureIgnoreCase) == true)
                         {
                             var junk = new RegistryKeyJunk(subKey.Name, target, this);
                             junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);

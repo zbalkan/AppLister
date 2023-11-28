@@ -1,39 +1,17 @@
 ﻿using System;
-using System.IO;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Startup;
+using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Containers
 {
-    public class StartupJunkNode : JunkResultBase
+    internal class StartupJunkNode : JunkResultBase
     {
         public static readonly ConfidenceRecord ConfidenceStartupIsRunOnce = new ConfidenceRecord(-5, "Confidence_Startup_IsRunOnce");
 
         public static readonly ConfidenceRecord ConfidenceStartupMatched = new ConfidenceRecord(6, "Confidence_Sta rtup_StartupMatched");
 
         internal StartupEntryBase Entry { get; }
-
-        public override void Backup(string backupDirectory)
-        {
-            var p = Path.Combine(CreateBackupDirectory(backupDirectory), "Startup");
-            Directory.CreateDirectory(p);
-            Entry.CreateBackup(p);
-        }
-
-        public override void Delete()
-        {
-            // removed
-        }
-
-        public override void Open()
-        {
-            // removed
-        }
-
-        public override string GetDisplayName()
-        {
-            return Entry.ToString();
-        }
 
         public StartupJunkNode(StartupEntryBase entry, ApplicationUninstallerEntry application, IJunkCreator source)
             : base(application, source)
@@ -49,5 +27,7 @@ namespace InventoryEngine.Junk.Containers
                 Confidence.Add(ConfidenceStartupIsRunOnce);
             }
         }
+
+        public override string GetDisplayName() => Entry.ToString();
     }
 }

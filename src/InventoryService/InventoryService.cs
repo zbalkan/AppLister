@@ -1,13 +1,16 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace InventoryService
 {
-    public sealed class InventoryService
+    public sealed class InventoryService : IDisposable
     {
         private readonly EventLog _logger;
         private readonly Discovery discovery;
         private readonly Stopwatch stopwatch;
         private readonly WmiScanner wmiScanner;
+        private bool disposedValue;
+
         public InventoryService(EventLog logger)
         {
             _logger = logger;
@@ -35,6 +38,26 @@ namespace InventoryService
             }
             _logger?.WriteEntry("Updating inventory.", EventLogEntryType.Information);
             Publisher.Publish(discoveredPackages);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _logger.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

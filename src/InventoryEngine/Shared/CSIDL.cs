@@ -1,6 +1,7 @@
-﻿namespace InventoryEngine
+﻿namespace InventoryEngine.Shared
 {
-    public enum CSIDL
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1154:Sort enum members.", Justification = "Sorting by alphabetical order for values makes more sense in this context.")]
+    internal enum CSIDL
     {
         //Application Data
         //C:\Documents and Settings\Administrator\Application Data

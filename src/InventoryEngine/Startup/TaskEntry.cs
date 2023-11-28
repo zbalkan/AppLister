@@ -4,23 +4,8 @@ using Microsoft.Win32.TaskScheduler;
 
 namespace InventoryEngine.Startup
 {
-    public sealed class TaskEntry : StartupEntryBase
+    internal sealed class TaskEntry : StartupEntryBase, IDisposable
     {
-        internal TaskEntry(string name, string command, string commandFilename, Microsoft.Win32.TaskScheduler.Task task)
-        {
-            ProgramName = name;
-            Command = command;
-            CommandFilePath = Environment.ExpandEnvironmentVariables(commandFilename);
-            SourceTask = task;
-
-            ParentLongName = "Startup_ShortName_Task" + task.Path;
-            EntryLongName = task.Name;
-
-            FillInformationFromFile(CommandFilePath);
-        }
-
-        private Microsoft.Win32.TaskScheduler.Task SourceTask { get; }
-
         public override bool Disabled
         {
             get
@@ -38,7 +23,7 @@ namespace InventoryEngine.Startup
                 {
                     SourceTask.Enabled = !value;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // TODO
                 }
@@ -51,21 +36,41 @@ namespace InventoryEngine.Startup
             protected set { }
         }
 
-        public override void Delete()
+        private Task SourceTask { get; }
+        private bool disposedValue;
+        internal TaskEntry(string name, string command, string commandFilename, Task task)
         {
-            SourceTask.Folder.DeleteTask(SourceTask.Name, false);
+            ProgramName = name;
+            Command = command;
+            CommandFilePath = Environment.ExpandEnvironmentVariables(commandFilename);
+            SourceTask = task;
+
+            ParentLongName = "Startup_ShortName_Task" + task.Path;
+            EntryLongName = task.Name;
+
+            FillInformationFromFile(CommandFilePath);
+        }
+        public override void Delete() => SourceTask.Folder.DeleteTask(SourceTask.Name, false);
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
-        public override bool StillExists()
-        {
-            return TaskService.Instance.FindTask(SourceTask.Name) != null;
-        }
+        public override bool StillExists() => TaskService.Instance.FindTask(SourceTask.Name) != null;
 
-        public override void CreateBackup(string backupPath)
+        private void Dispose(bool disposing)
         {
-            File.WriteAllText(
-                Path.Combine(backupPath, "Startup_ShortName_Task" + " - " + EntryLongName + ".xml"),
-                SourceTask.Xml);
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    SourceTask.Dispose();
+                }
+                disposedValue = true;
+            }
         }
     }
 }

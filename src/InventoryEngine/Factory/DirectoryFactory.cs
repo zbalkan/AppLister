@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using InventoryEngine.Extensions;
 using InventoryEngine.InfoAdders;
 using InventoryEngine.Tools;
-using InventoryEngine.Extensions;
 
 namespace InventoryEngine.Factory
 {
@@ -18,7 +18,7 @@ namespace InventoryEngine.Factory
             _existingUninstallerEntries = existing;
         }
 
-        public IList<ApplicationUninstallerEntry> GetUninstallerEntries()
+        public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
         {
             var existingUninstallers = _existingUninstallerEntries.ToList();
 
@@ -26,7 +26,7 @@ namespace InventoryEngine.Factory
             var dirsToSkip = GetDirectoriesToSkip(existingUninstallers, pfDirs).ToList();
 
             var itemsToScan = GetDirectoriesToScan(existingUninstallers, pfDirs, dirsToSkip).ToList();
-            return FactoryThreadedHelpers.DriveApplicationScan(dirsToSkip, itemsToScan);
+            return FactoryThreadedHelpers.DriveApplicationScan(dirsToSkip, itemsToScan).ToList().AsReadOnly();
         }
 
         public static IEnumerable<ApplicationUninstallerEntry> TryGetApplicationsFromDirectories(
@@ -40,7 +40,9 @@ namespace InventoryEngine.Factory
             {
                 if (UninstallToolsGlobalConfig.IsSystemDirectory(directory) ||
                     directory.Name.StartsWith("Windows", StringComparison.InvariantCultureIgnoreCase))
+                {
                     continue;
+                }
 
                 var detectedEntries = TryCreateFromDirectory(directory, dirsToSkip);
 
@@ -60,8 +62,7 @@ namespace InventoryEngine.Factory
             if (UninstallToolsGlobalConfig.AutoDetectCustomProgramFiles)
             {
                 var extraPfDirectories = FindExtraPfDirectories(existingUninstallers)
-                  .Where(extraDir => !extraDir.FullName.Contains(@"\Common Files", StringComparison.InvariantCultureIgnoreCase))
-                  .Where(extraDir => pfDirectories.All(pfDir => !PathTools.PathsEqual(pfDir.FullName, extraDir.FullName)));
+                  .Where(extraDir => !extraDir.FullName.Contains(@"\Common Files", StringComparison.InvariantCultureIgnoreCase) && pfDirectories.All(pfDir => !PathTools.PathsEqual(pfDir.FullName, extraDir.FullName)));
 
                 pfDirectories.AddRange(extraPfDirectories);
 
@@ -80,7 +81,11 @@ namespace InventoryEngine.Factory
                 var drives = DriveInfo.GetDrives();
                 foreach (var driveInfo in drives)
                 {
-                    if (!driveInfo.IsReady) continue;
+                    if (!driveInfo.IsReady)
+                    {
+                        continue;
+                    }
+
                     switch (driveInfo.DriveType)
                     {
                         case DriveType.Fixed:
@@ -96,7 +101,10 @@ namespace InventoryEngine.Factory
 
                         case DriveType.Removable:
                             if (UninstallToolsGlobalConfig.AutoDetectScanRemovable)
+                            {
                                 goto case DriveType.Fixed;
+                            }
+
                             break;
 
                         case DriveType.Network:
@@ -192,7 +200,9 @@ namespace InventoryEngine.Factory
         {
             // Level 0 is for the pf folder itself. First subfolder is level 1.
             if (level > 2 || dirsToSkip.Any(x => directory.FullName.Contains(x, StringComparison.InvariantCultureIgnoreCase)))
+            {
                 return;
+            }
 
             // Get contents of this installDir
             AppExecutablesSearcher.ScanDirectoryResult result;
@@ -212,13 +222,17 @@ namespace InventoryEngine.Factory
 
             // Check if it is potentially dangerous to process this installDir.
             if (result.ExecutableFiles.Count > 40)
+            {
                 return;
+            }
 
             var anyFiles = result.ExecutableFiles.Any();
             if (!anyFiles && !result.BinSubdirs.Any())
             {
                 foreach (var dir in result.OtherSubdirs)
+                {
                     CreateFromDirectoryHelper(results, dir, level + 1, dirsToSkip);
+                }
             }
             else if (anyFiles)
             {
@@ -236,7 +250,9 @@ namespace InventoryEngine.Factory
                     entry.RawDisplayName = directory.Name;
 
                     if (level > 0)
+                    {
                         entry.Publisher = directory.Parent?.Name;
+                    }
                 }
 
                 var sorted = AppExecutablesSearcher.SortListExecutables(result.ExecutableFiles, entry.DisplayNameTrimmed).ToArray();
@@ -246,7 +262,7 @@ namespace InventoryEngine.Factory
                 //entry.IconBitmap = TryExtractAssociatedIcon(compareBestMatchFile.FullName);
 
                 // Extract info from file metadata and overwrite old values
-                var compareBestMatchFile = sorted.First();
+                var compareBestMatchFile = sorted[0];
                 ExecutableAttributeExtractor.FillInformationFromFileAttribs(entry, compareBestMatchFile.FullName, false);
 
                 results.Add(entry);
@@ -261,7 +277,9 @@ namespace InventoryEngine.Factory
             DirectoryInfo directory, ICollection<string> dirsToSkip)
         {
             if (directory == null)
+            {
                 throw new ArgumentNullException(nameof(directory));
+            }
 
             var results = new List<ApplicationUninstallerEntry>();
 
@@ -270,7 +288,9 @@ namespace InventoryEngine.Factory
             foreach (var tempEntry in results)
             {
                 if (tempEntry.Is64Bit == MachineType.Unknown)
+                {
                     tempEntry.Is64Bit = UninstallToolsGlobalConfig.IsPathInsideProgramFiles(directory.FullName);
+                }
 
                 tempEntry.IsRegistered = false;
                 tempEntry.IsOrphaned = true;
@@ -287,7 +307,9 @@ namespace InventoryEngine.Factory
 
             if (UninstallToolsGlobalConfig.IsSystemDirectory(directoryToScan) ||
                 directoryToScan.Name.StartsWith("Windows", StringComparison.InvariantCultureIgnoreCase))
+            {
                 return Enumerable.Empty<ApplicationUninstallerEntry>();
+            }
 
             return TryCreateFromDirectory(directoryToScan, dirsToSkip);
         }

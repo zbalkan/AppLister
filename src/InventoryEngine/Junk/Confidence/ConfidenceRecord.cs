@@ -2,6 +2,10 @@ namespace InventoryEngine.Junk.Confidence
 {
     public sealed class ConfidenceRecord
     {
+        public int Change { get; }
+
+        public string Reason { get; }
+
         public ConfidenceRecord(int change, string reason)
         {
             Change = change;
@@ -13,15 +17,14 @@ namespace InventoryEngine.Junk.Confidence
             Change = change;
         }
 
-        public int Change { get; }
-        public string Reason { get; }
-
         public override bool Equals(object obj)
         {
             if (obj is ConfidenceRecord casted)
             {
                 if (ReferenceEquals(this, obj))
+                {
                     return true;
+                }
 
                 return casted.Change == Change && casted.Reason == Reason;
             }
@@ -29,9 +32,6 @@ namespace InventoryEngine.Junk.Confidence
             return false;
         }
 
-        public override int GetHashCode()
-        {
-            return Change.GetHashCode() ^ Reason.GetHashCode();
-        }
+        public override int GetHashCode() => Change.GetHashCode() ^ Reason.GetHashCode();
     }
 }

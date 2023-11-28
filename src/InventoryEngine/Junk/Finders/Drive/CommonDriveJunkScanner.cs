@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
-using InventoryEngine.Extensions;
 
 namespace InventoryEngine.Junk.Finders.Drive
 {
-    public class CommonDriveJunkScanner : JunkCreatorBase
+    internal class CommonDriveJunkScanner : JunkCreatorBase
     {
+        public override string CategoryName => "Junk_Drive_GroupName";
         private static IEnumerable<DirectoryInfo> _foldersToCheck;
+
+        public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target) => _foldersToCheck.SelectMany(x => FindJunkRecursively(x, target));
 
         public override void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
         {
@@ -27,12 +30,23 @@ namespace InventoryEngine.Junk.Finders.Drive
             _foldersToCheck = validDirs.DistinctBy(x => x.FullName.ToLowerInvariant()).ToList();
         }
 
-        public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
+        private static IEnumerable<ConfidenceRecord> GenerateConfidence(string itemName, string itemParentPath,
+            ApplicationUninstallerEntry uninstaller, int level)
         {
-            return _foldersToCheck.SelectMany(x => FindJunkRecursively(x, target));
-        }
+            var baseOutput = ConfidenceGenerators.GenerateConfidence(itemName, itemParentPath, level, uninstaller).ToList();
 
-        public override string CategoryName => "Junk_Drive_GroupName";
+            if (!baseOutput.Any(x => x.Change > 0))
+            {
+                return Enumerable.Empty<ConfidenceRecord>();
+            }
+
+            if (UninstallToolsGlobalConfig.QuestionableDirectoryNames.Contains(itemName, StringComparison.OrdinalIgnoreCase))
+            {
+                baseOutput.Add(ConfidenceRecords.QuestionableDirectoryName);
+            }
+
+            return baseOutput;
+        }
 
         private IEnumerable<FileSystemJunk> FindJunkRecursively(DirectoryInfo directory, ApplicationUninstallerEntry uninstaller, int level = 0)
         {
@@ -46,7 +60,9 @@ namespace InventoryEngine.Junk.Finders.Drive
                 foreach (var dir in dirs)
                 {
                     if (UninstallToolsGlobalConfig.IsSystemDirectory(dir))
+                    {
                         continue;
+                    }
 
                     var generatedConfidence = GenerateConfidence(dir.FullName, directory.FullName, uninstaller, level).ToList();
 
@@ -57,12 +73,17 @@ namespace InventoryEngine.Junk.Finders.Drive
                         newNode.Confidence.AddRange(generatedConfidence);
 
                         if (CheckIfDirIsStillUsed(dir.FullName, GetOtherInstallLocations(uninstaller)))
+                        {
                             newNode.Confidence.Add(ConfidenceRecords.DirectoryStillUsed);
+                        }
 
                         added.Add(newNode);
                     }
 
-                    if (level > 1) continue;
+                    if (level > 1)
+                    {
+                        continue;
+                    }
 
                     var junkNodes = FindJunkRecursively(dir, uninstaller, level + 1).ToList();
                     // ReSharper disable once PossibleMultipleEnumeration
@@ -75,35 +96,22 @@ namespace InventoryEngine.Junk.Finders.Drive
                         {
                             var subDirs = dir.GetDirectories();
                             if (!subDirs.Any() || subDirs.All(d => junkNodes.Any(y => PathTools.PathsEqual(d.FullName, y.Path.FullName))))
+                            {
                                 newNode.Confidence.Add(ConfidenceRecords.AllSubdirsMatched);
+                            }
                         }
                     }
                 }
 
-                ConfidenceGenerators.TestForSimilarNames(uninstaller, AllUninstallers, added.Select(x => new KeyValuePair<JunkResultBase, string>(x, Path.GetFileNameWithoutExtension(x.Path.FullName))).ToList());
+                ConfidenceGenerators.TestForSimilarNames(uninstaller, AllUninstallers, added.ConvertAll(x => new KeyValuePair<JunkResultBase, string>(x, Path.GetFileNameWithoutExtension(x.Path.FullName))));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!Debugger.IsAttached)
             {
-                if (Debugger.IsAttached) throw;
                 Trace.WriteLine(ex);
             }
 
             // ReSharper disable once PossibleMultipleEnumeration
             return results;
-        }
-
-        private static IEnumerable<ConfidenceRecord> GenerateConfidence(string itemName, string itemParentPath,
-            ApplicationUninstallerEntry uninstaller, int level)
-        {
-            var baseOutput = ConfidenceGenerators.GenerateConfidence(itemName, itemParentPath, level, uninstaller).ToList();
-
-            if (!baseOutput.Any(x => x.Change > 0))
-                return Enumerable.Empty<ConfidenceRecord>();
-
-            if (UninstallToolsGlobalConfig.QuestionableDirectoryNames.Contains(itemName, StringComparison.OrdinalIgnoreCase))
-                baseOutput.Add(ConfidenceRecords.QuestionableDirectoryName);
-
-            return baseOutput;
         }
     }
 }

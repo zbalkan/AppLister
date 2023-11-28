@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
-using InventoryEngine.Extensions;
+using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk
 {
-    public class ProgramFilesOrphans : IJunkCreator
+    internal class ProgramFilesOrphans : IJunkCreator
     {
         private string[] _otherInstallLocations;
         private string[] _otherNames;
@@ -28,7 +29,9 @@ namespace InventoryEngine.Junk
             var output = new List<FileSystemJunk>();
 
             foreach (var kvp in _programFilesDirectories)
+            {
                 FindJunkRecursively(output, kvp, 0);
+            }
 
             return output;
         }
@@ -38,24 +41,30 @@ namespace InventoryEngine.Junk
             try
             {
                 if ((parentDirectory.Attributes & FileAttributes.System) == FileAttributes.System)
+                {
                     return;
+                }
 
                 var subDirectories = parentDirectory.GetDirectories();
 
                 foreach (var subDirectory in subDirectories)
                 {
                     if (UninstallToolsGlobalConfig.IsSystemDirectory(subDirectory))
+                    {
                         continue;
+                    }
 
                     if (subDirectory.FullName.ContainsAny(_otherInstallLocations, StringComparison.CurrentCultureIgnoreCase))
+                    {
                         continue;
+                    }
 
                     var questionableDirName = subDirectory.Name.ContainsAny(UninstallToolsGlobalConfig.QuestionableDirectoryNames, StringComparison.CurrentCultureIgnoreCase);
 
                     var nameIsUsed = subDirectory.Name.ContainsAny(_otherNames, StringComparison.CurrentCultureIgnoreCase);
 
                     var allFiles = subDirectory.GetFiles("*", SearchOption.AllDirectories);
-                    var allFilesContainExe = allFiles.Any(x => WindowsTools.IsExectuable(x.Extension, false, true));
+                    var allFilesContainExe = allFiles.Any(x => WindowsTools.IsExecutable(x.Extension, false, true));
                     var immediateFiles = subDirectory.GetFiles("*", SearchOption.TopDirectoryOnly);
 
                     ConfidenceRecord resultRecord;
@@ -81,35 +90,47 @@ namespace InventoryEngine.Junk
                         }
                     }
 
-                    if (resultRecord == null) continue;
+                    if (resultRecord == null)
+                    {
+                        continue;
+                    }
 
                     var newNode = new FileSystemJunk(subDirectory, null, this);
                     newNode.Confidence.Add(resultRecord);
 
                     if (subDirectory.Name.ContainsAny(_otherPublishers, StringComparison.CurrentCultureIgnoreCase))
+                    {
                         newNode.Confidence.Add(ConfidenceRecords.PublisherIsStillUsed);
+                    }
 
                     if (nameIsUsed)
+                    {
                         newNode.Confidence.Add(ConfidenceRecords.ProgramNameIsStillUsed);
+                    }
 
                     if (questionableDirName)
+                    {
                         newNode.Confidence.Add(ConfidenceRecords.QuestionableDirectoryName);
+                    }
 
                     if (allFiles.Length > 100)
+                    {
                         newNode.Confidence.Add(ConfidenceRecords.ManyFilesArePresent);
+                    }
 
                     // Remove 2 points for every sublevel
                     newNode.Confidence.Add(level * -2);
 
                     if (!subDirectory.GetDirectories().Any())
+                    {
                         newNode.Confidence.Add(ConfidenceRecords.FolderHasNoSubdirectories);
+                    }
 
                     returnList.Add(newNode);
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!Debugger.IsAttached)
             {
-                if (Debugger.IsAttached) throw;
                 Trace.WriteLine($"Crash while scanning for {CategoryName} junk: {ex}");
             }
         }
@@ -125,10 +146,10 @@ namespace InventoryEngine.Junk
                     .Where(x => !string.IsNullOrEmpty(x)).Distinct().ToArray();
 
             _otherPublishers =
-                applicationUninstallerEntries.Select(x => x.PublisherTrimmed).Where(x => x != null && x.Length > 3)
+                applicationUninstallerEntries.Select(x => x.PublisherTrimmed).Where(x => x?.Length > 3)
                     .Distinct().ToArray();
             _otherNames =
-                applicationUninstallerEntries.Select(x => x.DisplayNameTrimmed).Where(x => x != null && x.Length > 3)
+                applicationUninstallerEntries.Select(x => x.DisplayNameTrimmed).Where(x => x?.Length > 3)
                     .Distinct().ToArray();
         }
 

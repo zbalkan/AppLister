@@ -3,20 +3,18 @@ using System.IO;
 using System.Linq;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
+using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
-    public class TracingScanner : IJunkCreator
+    internal class TracingScanner : IJunkCreator
     {
         private const string TracingKey = @"SOFTWARE\Microsoft\Tracing";
         private const string FullTracingKey = @"HKEY_LOCAL_MACHINE\" + TracingKey;
 
         private ICollection<ApplicationUninstallerEntry> _allEntries;
 
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-            _allEntries = allUninstallers;
-        }
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers) => _allEntries = allUninstallers;
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -29,7 +27,9 @@ namespace InventoryEngine.Junk.Finders.Registry
                     {
                         var i = subKeyName.LastIndexOf('_');
                         if (i <= 0)
+                        {
                             continue;
+                        }
 
                         var str = subKeyName.Substring(0, i);
 
@@ -44,7 +44,7 @@ namespace InventoryEngine.Junk.Finders.Registry
                 }
             }
 
-            ConfidenceGenerators.TestForSimilarNames(target, _allEntries, results.Select(x => new KeyValuePair<JunkResultBase, string>(x, x.RegKeyName)).ToList());
+            ConfidenceGenerators.TestForSimilarNames(target, _allEntries, results.ConvertAll(x => new KeyValuePair<JunkResultBase, string>(x, x.RegKeyName)));
 
             return results;
         }

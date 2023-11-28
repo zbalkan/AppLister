@@ -4,14 +4,15 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security;
-using Microsoft.Win32;
-using InventoryEngine.InfoAdders;
-using InventoryEngine.Tools;
 using InventoryEngine.Extensions;
+using InventoryEngine.InfoAdders;
+using InventoryEngine.Shared;
+using InventoryEngine.Tools;
+using Microsoft.Win32;
 
 namespace InventoryEngine.Factory
 {
-    public class RegistryFactory : IUninstallerFactory
+    internal class RegistryFactory : IUninstallerFactory
     {
         public static readonly string RegistryNameBundleProviderKey = "BundleProviderKey";
         public static readonly string RegistryNameComment = "Comment";
@@ -34,10 +35,10 @@ namespace InventoryEngine.Factory
         public static readonly string RegistryNameUninstallString = "UninstallString";
         public static readonly string RegistryNameWindowsInstaller = "WindowsInstaller";
 
-        private static readonly string RegUninstallersKeyDirect =
+        private const string RegUninstallersKeyDirect =
             @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
 
-        private static readonly string RegUninstallersKeyWow =
+        private const string RegUninstallersKeyWow =
             @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
 
         private readonly IEnumerable<Guid> _windowsInstallerValidGuids;
@@ -47,7 +48,7 @@ namespace InventoryEngine.Factory
             _windowsInstallerValidGuids = windowsInstallerValidGuids;
         }
 
-        public IList<ApplicationUninstallerEntry> GetUninstallerEntries()
+        public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
         {
             var uninstallerRegistryKeys = new List<KeyValuePair<RegistryKey, bool>>();
 
@@ -68,12 +69,14 @@ namespace InventoryEngine.Factory
                 {
                     var entry = TryCreateFromRegistry(data.Key, data.Value);
                     if (entry != null)
+                    {
                         state.Add(entry);
+                    }
                 }
                 catch (Exception ex)
                 {
                     //Uninstaller is invalid or there is no uninstaller in the first place. Skip it to avoid problems.
-                    Trace.WriteLine($@"Failed to extract reg entry {data.Key.Name} - {ex}");
+                    Trace.WriteLine($"Failed to extract reg entry {data.Key.Name} - {ex}");
                 }
                 finally
                 {
@@ -101,34 +104,28 @@ namespace InventoryEngine.Factory
 
             workSpreader.Start(dataBuckets);
 
-            return workSpreader.Join().SelectMany(x => x).ToList();
+            return workSpreader.Join().SelectMany(x => x).ToList().AsReadOnly();
         }
 
-        private static string GetAboutUrl(RegistryKey uninstallerKey)
-        {
-            return RegistryNamesOfUrlSources.Select(uninstallerKey.GetStringSafe)
+        private static string GetAboutUrl(RegistryKey uninstallerKey) => RegistryNamesOfUrlSources.Select(uninstallerKey.GetStringSafe)
                 .FirstOrDefault(tempSource => !string.IsNullOrEmpty(tempSource) && tempSource.Contains('.'));
-        }
 
-        private static ApplicationUninstallerEntry GetBasicInformation(RegistryKey uninstallerKey)
+        private static ApplicationUninstallerEntry GetBasicInformation(RegistryKey uninstallerKey) => new ApplicationUninstallerEntry
         {
-            return new ApplicationUninstallerEntry
-            {
-                RegistryPath = uninstallerKey.Name,
-                RegistryKeyName = uninstallerKey.GetKeyName(),
-                Comment = uninstallerKey.GetStringSafe(RegistryNameComment),
-                RawDisplayName = uninstallerKey.GetStringSafe(RegistryNameDisplayName),
-                DisplayVersion = ApplicationEntryTools.CleanupDisplayVersion(uninstallerKey.GetStringSafe(RegistryNameDisplayVersion)),
-                ParentKeyName = uninstallerKey.GetStringSafe(RegistryNameParentKeyName),
-                Publisher = uninstallerKey.GetStringSafe(RegistryNamePublisher),
-                UninstallString = GetUninstallString(uninstallerKey),
-                QuietUninstallString = GetQuietUninstallString(uninstallerKey),
-                ModifyPath = uninstallerKey.GetStringSafe(RegistryNameModifyPath),
-                InstallLocation = uninstallerKey.GetStringSafe(RegistryNameInstallLocation),
-                InstallSource = uninstallerKey.GetStringSafe(RegistryNameInstallSource),
-                SystemComponent = Convert.ToInt32(uninstallerKey.GetValue(RegistryNameSystemComponent, 0)) != 0,
-            };
-        }
+            RegistryPath = uninstallerKey.Name,
+            RegistryKeyName = uninstallerKey.GetKeyName(),
+            Comment = uninstallerKey.GetStringSafe(RegistryNameComment),
+            RawDisplayName = uninstallerKey.GetStringSafe(RegistryNameDisplayName),
+            DisplayVersion = ApplicationEntryTools.CleanupDisplayVersion(uninstallerKey.GetStringSafe(RegistryNameDisplayVersion)),
+            ParentKeyName = uninstallerKey.GetStringSafe(RegistryNameParentKeyName),
+            Publisher = uninstallerKey.GetStringSafe(RegistryNamePublisher),
+            UninstallString = GetUninstallString(uninstallerKey),
+            QuietUninstallString = GetQuietUninstallString(uninstallerKey),
+            ModifyPath = uninstallerKey.GetStringSafe(RegistryNameModifyPath),
+            InstallLocation = uninstallerKey.GetStringSafe(RegistryNameInstallLocation),
+            InstallSource = uninstallerKey.GetStringSafe(RegistryNameInstallSource),
+            SystemComponent = Convert.ToInt32(uninstallerKey.GetValue(RegistryNameSystemComponent, 0)) != 0,
+        };
 
         private static Guid GetGuid(RegistryKey uninstallerKey)
         {
@@ -136,44 +133,24 @@ namespace InventoryEngine.Factory
             var tempGuidString = uninstallerKey.GetStringSafe(RegistryNameBundleProviderKey);
 
             if (GuidTools.GuidTryParse(tempGuidString, out var resultGuid))
-                return resultGuid;
-
-            if (GuidTools.TryExtractGuid(uninstallerKey.GetKeyName(), out resultGuid))
-                return resultGuid;
-            string uninstallString = GetUninstallString(uninstallerKey);
-            // Look for a valid GUID in the path
-            return GuidTools.TryExtractGuid(uninstallString, out resultGuid) ? resultGuid : Guid.Empty;
-        }
-
-        private static string GetUninstallString(RegistryKey uninstallerKey)
-        {
-            return GetKeyFuzzy(uninstallerKey, RegistryNameUninstallString) ?? GetQuietUninstallString(uninstallerKey);
-        }
-
-        private static string GetQuietUninstallString(RegistryKey uninstallerKey)
-        {
-            return GetKeyFuzzy(uninstallerKey, RegistryNameQuietUninstallString);
-        }
-
-        private static string GetKeyFuzzy(RegistryKey uninstallerKey, string keyName)
-        {
-            var uninstallString = uninstallerKey.GetStringSafe(keyName);
-            if (uninstallString == null)
             {
-                // Handle hidden uninstall strings like UninstallString_hidden
-                uninstallString = uninstallerKey.GetValueNames()
-                    .Where(x => x.StartsWith(keyName, StringComparison.OrdinalIgnoreCase))
-                    .Select(uninstallerKey.GetStringSafe)
-                    .FirstOrDefault(x => !string.IsNullOrEmpty(x));
+                return resultGuid;
             }
 
-            return uninstallString;
+            if (GuidTools.TryExtractGuid(uninstallerKey.GetKeyName(), out resultGuid))
+            {
+                return resultGuid;
+            }
+
+            var uninstallString = GetUninstallString(uninstallerKey);
+            // Look for a valid GUID in the path
+            return GuidTools.TryExtractGuid(uninstallString, out resultGuid) ? resultGuid : Guid.Empty;
         }
 
         private static DateTime GetInstallDate(RegistryKey uninstallerKey)
         {
             var dateString = uninstallerKey.GetStringSafe(RegistryNameInstallDate);
-            if (dateString != null && dateString.Length == 8)
+            if (dateString?.Length == 8)
             {
                 try
                 {
@@ -210,37 +187,35 @@ namespace InventoryEngine.Factory
         {
             var parentKeyName = uninstallerKey.GetStringSafe("ParentKeyName");
             if (!string.IsNullOrEmpty(parentKeyName))
+            {
                 return true;
+            }
 
             var releaseType = uninstallerKey.GetStringSafe("ReleaseType");
             if (!string.IsNullOrEmpty(releaseType) &&
                 releaseType.ContainsAny(new[] { "Update", "Hotfix" }, StringComparison.OrdinalIgnoreCase))
+            {
                 return true;
+            }
 
             var defaultValue = uninstallerKey.GetStringSafe(null);
             if (string.IsNullOrEmpty(defaultValue))
+            {
                 return false;
+            }
 
             //Regex WindowsUpdateRegEx = new Regex(@"KB[0-9]{6}$"); //Doesnt work for all cases
             return defaultValue.Length > 6 && defaultValue.StartsWith("KB", StringComparison.Ordinal)
                    && char.IsNumber(defaultValue[2]) && char.IsNumber(defaultValue.Last());
         }
 
-        private static bool GetProtectedFlag(RegistryKey uninstallerKey)
+        private static string GetKeyFuzzy(RegistryKey uninstallerKey, string keyName)
         {
-            return Convert.ToInt32(uninstallerKey.GetValue("NoRemove", 0)) != 0;
-        }
-
-        private static RegistryKey OpenSubKeySafe(RegistryKey baseKey, string name, bool writable = false)
-        {
-            try
-            {
-                return baseKey.OpenSubKey(name, writable);
-            }
-            catch (SecurityException)
-            {
-                return null;
-            }
+            var uninstallString = uninstallerKey.GetStringSafe(keyName) ?? uninstallerKey.GetValueNames()
+                    .Where(x => x.StartsWith(keyName, StringComparison.OrdinalIgnoreCase))
+                    .Select(uninstallerKey.GetStringSafe)
+                    .FirstOrDefault(x => !string.IsNullOrEmpty(x));
+            return uninstallString;
         }
 
         private static IEnumerable<KeyValuePair<RegistryKey, bool>> GetParentRegistryKeys()
@@ -265,6 +240,10 @@ namespace InventoryEngine.Factory
             }
             return keysToCheck.Where(x => x.Key != null);
         }
+
+        private static bool GetProtectedFlag(RegistryKey uninstallerKey) => Convert.ToInt32(uninstallerKey.GetValue("NoRemove", 0)) != 0;
+
+        private static string GetQuietUninstallString(RegistryKey uninstallerKey) => GetKeyFuzzy(uninstallerKey, RegistryNameQuietUninstallString);
 
         private static UninstallerType GetUninstallerType(RegistryKey uninstallerKey)
         {
@@ -293,6 +272,20 @@ namespace InventoryEngine.Factory
                 : UninstallerTypeAdder.GetUninstallerType(uninstallString);
         }
 
+        private static string GetUninstallString(RegistryKey uninstallerKey) => GetKeyFuzzy(uninstallerKey, RegistryNameUninstallString) ?? GetQuietUninstallString(uninstallerKey);
+
+        private static RegistryKey OpenSubKeySafe(RegistryKey baseKey, string name, bool writable = false)
+        {
+            try
+            {
+                return baseKey.OpenSubKey(name, writable);
+            }
+            catch (SecurityException)
+            {
+                return null;
+            }
+        }
+
         /// <summary>
         ///     Tries to create a new uninstaller entry. If the registry key doesn't contain valid
         ///     uninstaller information, null is returned. It will throw ArgumentNullException if
@@ -308,7 +301,9 @@ namespace InventoryEngine.Factory
         private ApplicationUninstallerEntry TryCreateFromRegistry(RegistryKey uninstallerKey, bool is64Bit)
         {
             if (uninstallerKey == null)
+            {
                 throw new ArgumentNullException(nameof(uninstallerKey));
+            }
 
             var tempEntry = GetBasicInformation(uninstallerKey);
             tempEntry.IsRegistered = true;
@@ -340,10 +335,9 @@ namespace InventoryEngine.Factory
             // Corner case with some microsoft application installations. They will sometimes create
             // a naked registry key (product code as reg name) with only the display name value.
             if (tempEntry.UninstallerKind != UninstallerType.Msiexec && tempEntry.BundleProviderKey != Guid.Empty
-                && !tempEntry.UninstallPossible && !tempEntry.QuietUninstallPossible)
+                && !tempEntry.UninstallPossible && !tempEntry.QuietUninstallPossible && _windowsInstallerValidGuids.Contains(tempEntry.BundleProviderKey))
             {
-                if (_windowsInstallerValidGuids.Contains(tempEntry.BundleProviderKey))
-                    tempEntry.UninstallerKind = UninstallerType.Msiexec;
+                tempEntry.UninstallerKind = UninstallerType.Msiexec;
             }
 
             return tempEntry;

@@ -10,6 +10,7 @@ namespace InventoryService
 {
     public sealed class Discovery : IScanner
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1212:Remove redundant assignment.", Justification = "<Pending>")]
         public List<Package> GetAll()
         {
             var apps = Inventory.QueryApps();
@@ -26,7 +27,7 @@ namespace InventoryService
                             .Replace(" ", "_").Replace(".", "_").Replace("__", "_")),
                         Name = app.DisplayNameTrimmed,
                         Version = app.DisplayVersion,
-                        Publisher = app.Publisher,
+                        Publisher = app.PublisherTrimmed,
                         InstallDate = app.InstallDate,
                         IsSystemComponent = app.SystemComponent,
                         IsUninstallable = !app.IsProtected,
@@ -46,7 +47,8 @@ namespace InventoryService
                     Trace.TraceError($"{ex.Message} @{app.DisplayNameTrimmed}");
                 }
             }
-            return packages.GroupBy(x => x.Id).Select(x => x.First()).OrderBy(p => p.Id).ToList();
+            packages =  packages.GroupBy(x => x.Id).Select(x => x.First()).OrderBy(p => p.Id).ToList();
+            return packages;
         }
 
         private static string[] GetStartupEntries(ApplicationUninstallerEntry app)
