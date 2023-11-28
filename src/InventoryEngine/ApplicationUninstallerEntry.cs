@@ -171,8 +171,8 @@ namespace InventoryEngine
         /// </summary>
         internal string[] SortedExecutables { get; set; }
 
-        internal static readonly IEnumerable<string> CompanyNameEndTrimmers =
-                    new[] { "corp", "corporation", "limited", "inc", "incorporated" };
+        private static readonly IEnumerable<string> CompanyNameEndTrimmers =
+                    new[] { "corp", "corporation", "corporations", "limited", "inc", "incorporated", "ltd", "foundation", "s.r.o" };
 
         /// <summary>
         ///     List of properties that migh have changed by updating the key property
