@@ -1,7 +1,5 @@
-using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using InventoryEngine.Tools;
 using Microsoft.Win32;
 
@@ -10,9 +8,9 @@ namespace InventoryEngine.Startup
     public static class StartupEntryManager
     {
         // 6.2 is windows 8 and 2012, they are using a new startup disable scheme
-        internal static IStartupDisable DisableFunctions => _disableFunctions ?? new StartupDisable();
+        internal static IStartupDisable DisableFunctions => _disableFunctions ?? (_disableFunctions = new StartupDisable());
 
-        private static readonly IStartupDisable _disableFunctions;
+        private static IStartupDisable _disableFunctions;
 
         /// <summary>
         ///     Delete startup entry data from registry and file system. Only needed items are

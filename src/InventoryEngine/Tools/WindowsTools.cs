@@ -177,8 +177,6 @@ namespace InventoryEngine.Tools
             "ZL9"
         };
 
-        private static long _uniqueUserId;
-
         internal static string GetEnvironmentPath(CSIDL target)
         {
             var path = new StringBuilder(260);

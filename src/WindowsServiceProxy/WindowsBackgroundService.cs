@@ -28,11 +28,14 @@ namespace WindowsServiceProxy
                 }
 
                 var period = (int)key.GetValue(QueryPeriodKey, DefaultQueryPeriodInMinutes);
-                _queryPeriodInMilliseconds = period * 60 * 1000;
+                _queryPeriodInMilliseconds = ToMillisecond(period);
             }
 
             internalService = new InventoryService.InventoryService(EventLog);
         }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Data types", "TI0301:Do not use 'magic numbers'", Justification = "Converting minutes to milliseconds")]
+        private static int ToMillisecond(int period) => period * 60 * 1000;
 
         protected override void OnStart(string[] args)
         {
@@ -54,8 +57,10 @@ namespace WindowsServiceProxy
         internal void TestStartupAndStop(string[] args)
         {
             OnStart(args);
-            while (true) { }
-            //OnStop();
+            while (true)
+            {
+                // empty loop to keep the main thread alive
+            }
         }
 
         private void Refresh(object state) => internalService.Refresh();
