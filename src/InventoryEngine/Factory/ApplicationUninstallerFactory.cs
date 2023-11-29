@@ -40,7 +40,7 @@ namespace InventoryEngine.Factory
                     var sw = Stopwatch.StartNew();
                     var registryFactory = new RegistryFactory(msiProducts);
                     registryResults = registryFactory.GetUninstallerEntries();
-                    Trace.WriteLine($"[Performance] Factory {nameof(RegistryFactory)} took {sw.ElapsedMilliseconds}ms to finish");
+                    Debug.WriteLine($"[Performance] Factory {nameof(RegistryFactory)} took {sw.ElapsedMilliseconds}ms to finish");
 
                     FactoryThreadedHelpers.GenerateMissingInformation(registryResults, InfoAdder, null, true);
                 }
@@ -58,7 +58,7 @@ namespace InventoryEngine.Factory
                     var sw = Stopwatch.StartNew();
                     var driveFactory = new DirectoryFactory(registryResults);
                     driveResults = driveFactory.GetUninstallerEntries();
-                    Trace.WriteLine($"[Performance] Factory {nameof(DirectoryFactory)} took {sw.ElapsedMilliseconds}ms to finish");
+                    Debug.WriteLine($"[Performance] Factory {nameof(DirectoryFactory)} took {sw.ElapsedMilliseconds}ms to finish");
                 }
                 else
                 {
@@ -157,7 +157,7 @@ namespace InventoryEngine.Factory
                 {
                     var sw = Stopwatch.StartNew();
                     MergeResults(otherResults, kvp.GetUninstallerEntries());
-                    Trace.WriteLine($"[Performance] Factory {kvp.GetType().Name} took {sw.ElapsedMilliseconds}ms to finish");
+                    Debug.WriteLine($"[Performance] Factory {kvp.GetType().Name} took {sw.ElapsedMilliseconds}ms to finish");
                 }
                 catch (Exception)
                 {

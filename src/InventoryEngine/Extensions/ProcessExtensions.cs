@@ -22,33 +22,11 @@ namespace InventoryEngine.Extensions
             }
             catch (Exception e1)
             {
-                Console.WriteLine("Failed to GetChildProcesses using ManagementObjectSearcher: " + e1.Message);
+                Debug.WriteLine("Failed to GetChildProcesses using ManagementObjectSearcher: " + e1.Message);
                 UsePinvokeStrategy(process, results);
             }
 
             return results.Distinct();
-        }
-
-        private static void UsePinvokeStrategy(Process process, List<Process> results)
-        {
-            try
-            {
-                var allProcesses = Process.GetProcesses()
-                    .Attempt(proc => new { proc, parent = ParentProcessUtilities.GetParentProcess(proc.Handle) })
-                    .Where(x => x.parent != null)
-                    .ToList();
-
-                var newChildren = allProcesses.Where(p => p.parent == process).Select(x => x.proc).ToList();
-                while (newChildren.Any())
-                {
-                    results.AddRange(newChildren);
-                    newChildren = allProcesses.Where(p => newChildren.Contains(p.parent)).Select(x => x.proc).ToList();
-                }
-            }
-            catch (Exception e2)
-            {
-                Console.WriteLine("Failed to GetChildProcesses using ParentProcessUtilities: " + e2);
-            }
         }
 
         private static void UseManagementObjectSearcherStrategy(Process process, List<Process> results)
@@ -73,6 +51,28 @@ namespace InventoryEngine.Extensions
                         results.Add(resultProcess);
                     }
                 }
+            }
+        }
+
+        private static void UsePinvokeStrategy(Process process, List<Process> results)
+        {
+            try
+            {
+                var allProcesses = Process.GetProcesses()
+                    .Attempt(proc => new { proc, parent = ParentProcessUtilities.GetParentProcess(proc.Handle) })
+                    .Where(x => x.parent != null)
+                    .ToList();
+
+                var newChildren = allProcesses.Where(p => p.parent == process).Select(x => x.proc).ToList();
+                while (newChildren.Any())
+                {
+                    results.AddRange(newChildren);
+                    newChildren = allProcesses.Where(p => newChildren.Contains(p.parent)).Select(x => x.proc).ToList();
+                }
+            }
+            catch (Exception e2)
+            {
+                Debug.WriteLine("Failed to GetChildProcesses using ParentProcessUtilities: " + e2);
             }
         }
     }

@@ -268,14 +268,20 @@ namespace InventoryEngine.Tools
             {
                 using (var key = Registry.LocalMachine.OpenSubKey(internetKeyName))
                 {
-                    if (key == null) continue;
+                    if (key == null)
+                    {
+                        continue;
+                    }
 
                     foreach (var registryKey in key.GetSubKeyNames())
                     {
                         using (var commandKey = key.OpenSubKey(registryKey + @"\shell\open\command"))
                         {
                             var path = commandKey?.GetStringSafe(null);
-                            if (path != null) results.Add(path.Trim('\"'));
+                            if (path != null)
+                            {
+                                results.Add(path.Trim('\"'));
+                            }
                         }
                     }
                 }

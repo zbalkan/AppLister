@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using InventoryEngine.Extensions;
+using Microsoft.Win32;
 
 namespace InventoryEngine.Tools
 {
@@ -65,6 +67,24 @@ namespace InventoryEngine.Tools
             // NEXT LINE
             '\u0085'
         };
+
+        /// <summary>
+        /// Get full path of an application available in current environment. Same as writing it's name in CMD.
+        /// </summary>
+        /// <param name="filename">Name of the exectuable, including the extension</param>
+        /// <returns></returns>
+        public static string GetFullPathOfExecutable(string filename)
+        {
+            IEnumerable<string> paths = new[] { Environment.CurrentDirectory };
+            var pathVariable = Environment.GetEnvironmentVariable("PATH");
+            if (pathVariable != null)
+            {
+                paths = paths.Concat(pathVariable.Split(';'));
+            }
+
+            var combinations = paths.Select(x => Path.Combine(x, filename));
+            return combinations.FirstOrDefault(File.Exists) ?? GetExecutablePathFromAppPaths(filename);
+        }
 
         /// <summary>
         ///     Version of Path.Combine with much less restrictive input checks, and additional path cleanup.
@@ -256,6 +276,16 @@ namespace InventoryEngine.Tools
             }
 
             return subPath.StartsWith(basePath + '/', StringComparison.InvariantCultureIgnoreCase);
+        }
+        /// <param name="exename">name of the exectuable, including .exe</param>
+        private static string GetExecutablePathFromAppPaths(string exename)
+        {
+            const string appPaths = @"Software\Microsoft\Windows\CurrentVersion\App Paths";
+            var executableEntry = Path.Combine(appPaths, exename);
+            using (var key = Registry.CurrentUser.OpenSubKey(executableEntry) ?? Registry.LocalMachine.OpenSubKey(executableEntry))
+            {
+                return key?.GetStringSafe(null);
+            }
         }
     }
 }

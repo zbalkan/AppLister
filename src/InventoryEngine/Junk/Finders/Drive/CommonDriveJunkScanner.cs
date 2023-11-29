@@ -107,7 +107,7 @@ namespace InventoryEngine.Junk.Finders.Drive
             }
             catch (Exception ex) when (!Debugger.IsAttached)
             {
-                Trace.WriteLine(ex);
+                Debug.WriteLine(ex);
             }
 
             // ReSharper disable once PossibleMultipleEnumeration

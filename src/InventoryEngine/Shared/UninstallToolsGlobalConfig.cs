@@ -211,13 +211,13 @@ namespace InventoryEngine
             }
             catch (ArgumentException ex)
             {
-                Trace.WriteLine(ex);
+                Debug.WriteLine(ex);
                 // Treat this as a no-touch directory just to be safe
                 return true;
             }
             catch (IOException ex)
             {
-                Trace.WriteLine(ex);
+                Debug.WriteLine(ex);
                 // Treat this as a no-touch directory just to be safe
                 return true;
             }

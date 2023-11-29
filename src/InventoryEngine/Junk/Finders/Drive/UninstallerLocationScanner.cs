@@ -41,7 +41,7 @@ namespace InventoryEngine.Junk.Finders.Drive
                 }
                 catch (SystemException e)
                 {
-                    Trace.WriteLine(e);
+                    Debug.WriteLine(e);
                     yield break;
                 }
 

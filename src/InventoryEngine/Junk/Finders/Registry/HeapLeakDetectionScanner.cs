@@ -32,7 +32,7 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
             catch (SystemException ex)
             {
-                Trace.WriteLine($"Failed to setup {CategoryName} junk scanner: {ex}");
+                Debug.WriteLine($"Failed to setup {CategoryName} junk scanner: {ex}");
             }
         }
 

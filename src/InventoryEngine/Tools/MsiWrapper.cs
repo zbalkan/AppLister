@@ -1,11 +1,6 @@
-﻿using System.Runtime.InteropServices;
-using System.Text;
-
-namespace InventoryEngine.Tools
+﻿namespace InventoryEngine.Tools
 {
-    internal static class MsiWrapper
+    internal static partial class MsiWrapper
     {
-        [DllImport("msi.dll", SetLastError = true)]
-        internal static extern int MsiEnumProducts(int iProductIndex, StringBuilder lpProductBuf);
     }
 }

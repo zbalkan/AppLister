@@ -165,7 +165,7 @@ namespace InventoryEngine.Junk.Finders.Registry
                     }
                     catch (SystemException ex)
                     {
-                        Trace.WriteLine("Unexpected error while scanning COM entries, the registry might be corrupted. COM junk detection will not work. Error: " + ex);
+                        Debug.WriteLine("Unexpected error while scanning COM entries, the registry might be corrupted. COM junk detection will not work. Error: " + ex);
                     }
                 }
             }
@@ -263,7 +263,7 @@ namespace InventoryEngine.Junk.Finders.Registry
                     }
                     catch (SystemException ex)
                     {
-                        Trace.WriteLine($"Crash while processing COM GUID: {clsidGuid} - {ex}");
+                        Debug.WriteLine($"Crash while processing COM GUID: {clsidGuid} - {ex}");
                     }
                     finally
                     {

@@ -39,7 +39,7 @@ namespace InventoryEngine.Tools
                 }
                 catch (Exception a)
                 {
-                    Console.WriteLine(a);
+                    Debug.WriteLine(a);
                     return Enumerable.Empty<int>();
                 }
                 return processById.GetChildProcesses().Select(x => x.Id);
@@ -100,7 +100,6 @@ namespace InventoryEngine.Tools
                     }
                 }
             }
-
 
             // Check if the path is contained inside of quotation marks. Assume that the quotation
             // mark must come before the dot. Otherwise, it is likely that the arguments use quotations.

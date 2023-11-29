@@ -43,7 +43,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factory\ChocolateyFactory.cs" />
     <Compile Include="Factory\IIndependantUninstallerFactory.cs" />
+    <Compile Include="Factory\OculusFactory.cs" />
+    <Compile Include="Factory\ScriptFactory.cs" />
+    <Compile Include="Factory\SteamFactory.cs" />
+    <Compile Include="InfoAdders\GenerateSteamHelperStrings.cs" />
+    <Compile Include="InfoAdders\InstallDateAdder.cs" />
+    <Compile Include="InfoAdders\InstallLocationGenerator.cs" />
+    <Compile Include="InfoAdders\Is64BitGetter.cs" />
+    <Compile Include="InfoAdders\MsiInfoAdder.cs" />
+    <Compile Include="InfoAdders\UninstallerSearcher.cs" />
+    <Compile Include="InfoAdders\VersionCleaner.cs" />
+    <Compile Include="Junk\Containers\RunProcessJunk.cs" />
     <Compile Include="Tools\ApplicationEntryTools.cs" />
     <Compile Include="ApplicationUninstallerEntry.cs" />
     <Compile Include="Factory\ApplicationUninstallerFactoryCache.cs" />
@@ -115,6 +127,9 @@
     <Compile Include="Junk\ProgramFilesOrphans.cs" />
     <Compile Include="MachineType.cs" />
     <Compile Include="Shared\ProcessStartCommand.cs" />
+    <Compile Include="Tools\FactoryTools.cs" />
+    <Compile Include="Tools\FilesystemTools.cs" />
+    <Compile Include="Tools\MsiWrapper.INSTALLPROPERTY.cs" />
     <Compile Include="Tools\ReflectionTools.cs" />
     <Compile Include="Startup\ServiceEntry.cs" />
     <Compile Include="Shared\Sift4.cs" />

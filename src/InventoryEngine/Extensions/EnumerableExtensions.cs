@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -8,43 +7,6 @@ namespace InventoryEngine.Extensions
     internal static class EnumerableExtensions
     {
         private const int DefaultInternalSetCapacity = 7;
-
-        /// <summary>
-        ///     Wraps the specified disposable in an using statement. Dispose is called on the
-        ///     current item when the next item is enumerated, at the end of the enumeration, and
-        ///     when an uncaught exception is thrown.
-        /// </summary>
-        /// <typeparam name="T">
-        ///     Type of the base enumerable
-        /// </typeparam>
-        /// <typeparam name="TDisp">
-        ///     Type of the disposable class
-        /// </typeparam>
-        /// <param name="baseEnumerable">
-        ///     Base enumerable
-        /// </param>
-        /// <param name="disposableGetter">
-        ///     Lambda for getting the disposable
-        /// </param>
-        internal static IEnumerable<TDisp> Using<T, TDisp>(this IEnumerable<T> baseEnumerable,
-            Func<T, TDisp> disposableGetter) where TDisp : class, IDisposable
-        {
-            TDisp disposable = null;
-            try
-            {
-                foreach (var item in baseEnumerable)
-                {
-                    disposable?.Dispose();
-
-                    disposable = disposableGetter(item);
-                    yield return disposable;
-                }
-            }
-            finally
-            {
-                disposable?.Dispose();
-            }
-        }
 
         /// <summary>
         ///     Select using the given action, but ignore exceptions and skip offending items.
@@ -61,15 +23,12 @@ namespace InventoryEngine.Extensions
                 }
                 catch (Exception e)
                 {
-                    Trace.WriteLine("Attempt failed, skipping. Error: " + e);
+                    Debug.WriteLine("Attempt failed, skipping. Error: " + e);
                     continue;
                 }
                 yield return output;
             }
         }
-
-        // The DistinctBy method is for .Net 6.0 and above.
-        // Reference: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Linq/src/System/Linq/Distinct.cs#L48
 
         /// <summary>
         ///     Returns distinct elements from a sequence according to a specified key selector function.
@@ -122,6 +81,44 @@ namespace InventoryEngine.Extensions
             return DistinctByIterator(source, keySelector);
         }
 
+        /// <summary>
+        ///     Wraps the specified disposable in an using statement. Dispose is called on the
+        ///     current item when the next item is enumerated, at the end of the enumeration, and
+        ///     when an uncaught exception is thrown.
+        /// </summary>
+        /// <typeparam name="T">
+        ///     Type of the base enumerable
+        /// </typeparam>
+        /// <typeparam name="TDisp">
+        ///     Type of the disposable class
+        /// </typeparam>
+        /// <param name="baseEnumerable">
+        ///     Base enumerable
+        /// </param>
+        /// <param name="disposableGetter">
+        ///     Lambda for getting the disposable
+        /// </param>
+        internal static IEnumerable<TDisp> Using<T, TDisp>(this IEnumerable<T> baseEnumerable,
+            Func<T, TDisp> disposableGetter) where TDisp : class, IDisposable
+        {
+            TDisp disposable = null;
+            try
+            {
+                foreach (var item in baseEnumerable)
+                {
+                    disposable?.Dispose();
+
+                    disposable = disposableGetter(item);
+                    yield return disposable;
+                }
+            }
+            finally
+            {
+                disposable?.Dispose();
+            }
+        }
+        // The DistinctBy method is for .Net 6.0 and above.
+        // Reference: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Linq/src/System/Linq/Distinct.cs#L48
         private static IEnumerable<TSource> DistinctByIterator<TSource, TKey>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
             using (var enumerator = source.GetEnumerator())

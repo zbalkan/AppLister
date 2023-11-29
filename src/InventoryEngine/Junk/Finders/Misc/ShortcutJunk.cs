@@ -80,7 +80,7 @@ namespace UninstallTools.Junk.Finders.Misc
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(ex);
+                Debug.WriteLine(ex);
                 Debug.Fail(ex.ToString());
             }
             return Enumerable.Empty<string>();
@@ -114,8 +114,8 @@ namespace UninstallTools.Junk.Finders.Misc
                 catch (Exception ex)
                 {
                     var failMessage = "Failed to resolve shortcut: " + linkFilename;
-                    Trace.WriteLine(failMessage);
-                    Trace.WriteLine(ex);
+                    Debug.WriteLine(failMessage);
+                    Debug.WriteLine(ex);
                     Debug.Fail(failMessage);
                 }
             }

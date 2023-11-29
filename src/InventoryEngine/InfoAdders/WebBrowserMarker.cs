@@ -9,7 +9,10 @@ namespace InventoryEngine.InfoAdders
 
         public void AddMissingInformation(ApplicationUninstallerEntry target)
         {
-            if (target == null || target.SortedExecutables.Length == 0) return;
+            if (target == null || target.SortedExecutables.Length == 0)
+            {
+                return;
+            }
 
             target.IsWebBrowser = target.SortedExecutables.Any(
                 x => BrowserExecutables.Any(

@@ -38,7 +38,7 @@ namespace InventoryEngine.Shared
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine("Exception in worker thread: " + ex);
+                    Debug.WriteLine("Exception in worker thread: " + ex);
                 }
             }
 

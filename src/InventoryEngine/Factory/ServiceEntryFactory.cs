@@ -74,10 +74,10 @@ namespace InventoryEngine.Factory
             }
             catch (Exception ex) when (ex is TypeInitializationException || ex is ManagementException || ex is ExternalException || ex is PlatformNotSupportedException)
             {
-                Trace.WriteLine("Error while gathering services - " + ex);
+                Debug.WriteLine("Error while gathering services - " + ex);
             }
 
-            return results.ToArray();
+            return results.AsReadOnly();
         }
 
         private static void CheckReturnValue(ManagementBaseObject outParams, params uint[] ignoredCodes)

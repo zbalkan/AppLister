@@ -8,8 +8,15 @@ using InventoryWmiProvider;
 
 namespace InventoryService
 {
+    /// <summary>
+    ///     The class that utilizes scan engine to collect software packages
+    /// </summary>
     public sealed class Discovery : IScanner
     {
+        /// <summary>
+        ///     Initiates the engine and scan in different stores
+        /// </summary>
+        /// <returns>List of installed applciations as a list of <see cref="Package"/>instances.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1212:Remove redundant assignment.", Justification = "<Pending>")]
         public List<Package> GetAll()
         {

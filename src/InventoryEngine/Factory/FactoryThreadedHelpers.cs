@@ -40,7 +40,6 @@ namespace InventoryEngine.Factory
 
             var results = new List<ApplicationUninstallerEntry>();
 
-
             foreach (var workerResults in workSpreader.Join())
             {
                 ApplicationUninstallerFactory.MergeResults(results, workerResults);
@@ -76,7 +75,7 @@ namespace InventoryEngine.Factory
                     }
                     catch (SystemException ex)
                     {
-                        Trace.WriteLine(ex);
+                        Debug.WriteLine(ex);
                     }
                 }
                 return cDrive;
@@ -128,7 +127,7 @@ namespace InventoryEngine.Factory
             }
             catch (SystemException ex)
             {
-                Trace.WriteLine("Failed to get logical disk to physical drive relationships - " + ex);
+                Debug.WriteLine("Failed to get logical disk to physical drive relationships - " + ex);
                 output.Clear();
                 output.Add(itemsToScan.ToList());
             }

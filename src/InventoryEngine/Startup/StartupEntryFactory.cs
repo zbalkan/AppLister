@@ -121,7 +121,7 @@ namespace InventoryEngine.Startup
             }
             catch (SecurityException ex)
             {
-                Trace.WriteLine("Failed to process startup entries: " + ex);
+                Debug.WriteLine("Failed to process startup entries: " + ex);
             }
 
             return results;

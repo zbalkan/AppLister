@@ -34,7 +34,7 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
             catch (SystemException ex)
             {
-                Trace.WriteLine(ex);
+                Debug.WriteLine(ex);
                 return returnList;
             }
 
@@ -75,7 +75,7 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
             catch (Exception ex) when (ex is UnauthorizedAccessException || ex is SecurityException || ex is IOException)
             {
-                Trace.WriteLine(ex);
+                Debug.WriteLine(ex);
             }
 
             return returnList;

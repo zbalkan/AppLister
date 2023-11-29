@@ -95,7 +95,7 @@ namespace InventoryEngine.Factory
                             }
                             catch (SystemException ex)
                             {
-                                Trace.WriteLine(ex);
+                                Debug.WriteLine(ex);
                             }
                             break;
 
@@ -132,7 +132,7 @@ namespace InventoryEngine.Factory
                 }
                 catch (SystemException ex)
                 {
-                    Trace.WriteLine($"Could not access a program files directory: {x?.Name} | Reason:{ex.Message}");
+                    Debug.WriteLine($"Could not access a program files directory: {x?.Name} | Reason:{ex.Message}");
                 }
                 return Enumerable.Empty<DirectoryInfo>();
             });

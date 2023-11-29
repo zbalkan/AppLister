@@ -57,7 +57,7 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
             catch (SystemException ex)
             {
-                Trace.WriteLine("Failed to get firewall rule registry key: " + ex);
+                Debug.WriteLine("Failed to get firewall rule registry key: " + ex);
                 return null;
             }
         }

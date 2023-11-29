@@ -69,7 +69,7 @@ namespace InventoryEngine.Startup
             }
             catch (SystemException ex)
             {
-                Trace.WriteLine($"Failed to get Disabled start-up state for {startupEntry.ProgramName}: {ex}");
+                Debug.WriteLine($"Failed to get Disabled start-up state for {startupEntry.ProgramName}: {ex}");
                 return false;
             }
         }

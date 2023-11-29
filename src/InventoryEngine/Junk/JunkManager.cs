@@ -95,7 +95,7 @@ namespace InventoryEngine.Junk
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine("Failed to collect KnownFolders: " + ex);
+                    Debug.WriteLine("Failed to collect KnownFolders: " + ex);
                 }
             }
 

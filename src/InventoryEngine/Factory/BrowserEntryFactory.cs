@@ -34,7 +34,7 @@ namespace InventoryEngine.Factory
                     }
                     catch (UnauthorizedAccessException e)
                     {
-                        Trace.WriteLine($"Failed to read reg key {registryStartupPoint}: " + e);
+                        Debug.WriteLine($"Failed to read reg key {registryStartupPoint}: " + e);
                         continue;
                     }
 

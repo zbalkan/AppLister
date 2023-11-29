@@ -96,7 +96,6 @@ namespace InventoryEngine.Tools
             {
                 Debug.Fail(ex.Message);
             }
-            //Debug.Assert(score <= 0);
             return score;
         }
 

@@ -131,7 +131,7 @@ namespace InventoryEngine.Junk
             }
             catch (Exception ex) when (!Debugger.IsAttached)
             {
-                Trace.WriteLine($"Crash while scanning for {CategoryName} junk: {ex}");
+                Debug.WriteLine($"Crash while scanning for {CategoryName} junk: {ex}");
             }
         }
 

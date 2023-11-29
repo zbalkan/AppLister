@@ -35,7 +35,7 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
             catch (SystemException ex)
             {
-                Trace.WriteLine(ex);
+                Debug.WriteLine(ex);
                 return returnList;
             }
 

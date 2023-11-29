@@ -95,7 +95,7 @@ namespace InventoryEngine.Junk.Finders.Drive
             }
             catch (SystemException ex)
             {
-                Trace.WriteLine("Failed to gather prefetch files - " + ex);
+                Debug.WriteLine("Failed to gather prefetch files - " + ex);
             }
         }
     }
