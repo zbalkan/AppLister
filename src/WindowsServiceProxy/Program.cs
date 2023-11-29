@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.ServiceProcess;
 
 namespace WindowsServiceProxy
@@ -11,6 +12,7 @@ namespace WindowsServiceProxy
         /// </summary>
         private static void Main(string[] args)
         {
+            EnsureSingleInstance();
             var service = new WindowsBackgroundService
             {
                 ServiceName = "InventoryService"
@@ -40,6 +42,17 @@ namespace WindowsServiceProxy
                 EventLog.CreateEventSource(service.EventLog.Source, service.EventLog.Log);
             }
             service.EventLog.EndInit();
+        }
+
+        private static void EnsureSingleInstance()
+        {
+            var proc = Process.GetCurrentProcess();
+            var count = Process.GetProcesses().Count(p => p.ProcessName == proc.ProcessName);
+
+            if (count > 1)
+            {
+                Environment.Exit(1);
+            }
         }
     }
 }
