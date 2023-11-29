@@ -10,7 +10,7 @@ namespace InventoryService
         public List<Package> GetAll()
         {
             var packages = new List<Package>();
-            using (var searcher = new ManagementObjectSearcher("root\\Inventory", "SELECT * FROM CI_Application"))
+            using (var searcher = new ManagementObjectSearcher("root\\cimv2", "SELECT * FROM CI_Application"))
             {
                 foreach (var queryObj in searcher.Get().OfType<ManagementObject>())
                 {

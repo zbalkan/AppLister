@@ -19,7 +19,7 @@ Install the service and WMI provider using the installer. It will start discover
 You can then run queries against it. The name
 
 ```powershell
-$Namespace = "ROOT\Inventory"
+$Namespace = "ROOT\cimv2"
 $Class = "CI_Application"
 
 Get-WmiObject -Class $Class -Namespace $Namespace |
