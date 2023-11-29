@@ -36,8 +36,10 @@ Uninstallable=yes
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "..\src\WindowsServiceProxy\bin\x64\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\src\WindowsServiceProxy\bin\x64\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\src\WindowsServiceProxy\bin\x64\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
+;recursesubdirs createallsubdirs
+Source: "..\src\WindowsServiceProxy\bin\x64\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion
+;recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
