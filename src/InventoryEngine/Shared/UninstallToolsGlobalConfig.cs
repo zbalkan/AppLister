@@ -24,27 +24,6 @@ namespace InventoryEngine
         /// </summary>
         internal static string[] CustomProgramFiles { get; set; }
 
-        internal static bool EnableAppInfoCache
-        {
-            get => UninstallerFactoryCache != null;
-            set
-            {
-                if (value == EnableAppInfoCache)
-                {
-                    return;
-                }
-
-                if (value)
-                {
-                    ReloadCache();
-                }
-                else
-                {
-                    ClearChache();
-                }
-            }
-        }
-
         /// <summary>
         ///     Automatize non-quiet uninstallers.
         /// </summary>
@@ -107,8 +86,6 @@ namespace InventoryEngine
         ///     Built-in program files paths.
         /// </summary>
         internal static IEnumerable<string> StockProgramFiles { get; }
-
-        internal static ApplicationUninstallerFactoryCache UninstallerFactoryCache { get; private set; }
 
         internal static string WindowsDirectory { get; }
 
@@ -191,12 +168,6 @@ namespace InventoryEngine
             {
                 _pf64 = null;
             }
-        }
-
-        internal static void ClearChache()
-        {
-            UninstallerFactoryCache?.Delete();
-            UninstallerFactoryCache = null;
         }
 
         /// <summary>
@@ -314,24 +285,6 @@ namespace InventoryEngine
             }
 
             return output;
-        }
-
-        private static void ReloadCache()
-        {
-            var cachePath = AppInfoCachePath;
-            try
-            {
-                UninstallerFactoryCache = new ApplicationUninstallerFactoryCache(cachePath);
-                if (File.Exists(cachePath))
-                {
-                    UninstallerFactoryCache.Read();
-                }
-            }
-            catch (SystemException e)
-            {
-                UninstallerFactoryCache = new ApplicationUninstallerFactoryCache(cachePath);
-                Trace.WriteLine("PersistentCache reload failed: " + e);
-            }
         }
     }
 }

@@ -42,13 +42,6 @@ namespace InventoryEngine.Factory
                     registryResults = registryFactory.GetUninstallerEntries();
                     Trace.WriteLine($"[Performance] Factory {nameof(RegistryFactory)} took {sw.ElapsedMilliseconds}ms to finish");
 
-                    // Fill in install llocations for DirectoryFactory to improve speed and quality
-                    // of results
-                    if (UninstallToolsGlobalConfig.UninstallerFactoryCache != null)
-                    {
-                        ApplyCache(registryResults, UninstallToolsGlobalConfig.UninstallerFactoryCache, InfoAdder);
-                    }
-
                     FactoryThreadedHelpers.GenerateMissingInformation(registryResults, InfoAdder, null, true);
                 }
                 else
@@ -81,31 +74,8 @@ namespace InventoryEngine.Factory
                 // Make sure to merge driveResults last
                 MergeResults(mergedResults, driveResults);
 
-                // Fill in any missing information -------------------------------------------------------------------------
-                if (UninstallToolsGlobalConfig.UninstallerFactoryCache != null)
-                {
-                    ApplyCache(mergedResults, UninstallToolsGlobalConfig.UninstallerFactoryCache, InfoAdder);
-                }
-
                 FactoryThreadedHelpers.GenerateMissingInformation(mergedResults, InfoAdder, msiProducts, false);
 
-                // PersistentCache missing information to speed up future scans
-                if (UninstallToolsGlobalConfig.UninstallerFactoryCache != null)
-                {
-                    foreach (var entry in mergedResults)
-                    {
-                        UninstallToolsGlobalConfig.UninstallerFactoryCache.TryCacheItem(entry);
-                    }
-
-                    try
-                    {
-                        UninstallToolsGlobalConfig.UninstallerFactoryCache.Save();
-                    }
-                    catch (SystemException e)
-                    {
-                        Trace.WriteLine($"Failed to save cache: {e}");
-                    }
-                }
                 var startupEntries = new List<StartupEntryBase>();
                 foreach (var factory in StartupManager.Factories)
                 {
@@ -126,7 +96,7 @@ namespace InventoryEngine.Factory
                 {
                 }
 
-                return mergedResults;
+                return mergedResults.OrderBy(e => e.DisplayNameTrimmed).ToList().AsReadOnly();
             }
             finally
             {
@@ -169,25 +139,6 @@ namespace InventoryEngine.Factory
             {
                 baseEntries.Add(newEntry);
             }
-        }
-
-        private static void ApplyCache(IReadOnlyCollection<ApplicationUninstallerEntry> baseEntries, ApplicationUninstallerFactoryCache cache, InfoAdderManager infoAdder)
-        {
-            var hits = 0;
-            foreach (var entry in baseEntries)
-            {
-                var matchedEntry = cache.TryGetCachedItem(entry);
-                if (matchedEntry != null)
-                {
-                    infoAdder.CopyMissingInformation(entry, matchedEntry);
-                    hits++;
-                }
-                else
-                {
-                    Debug.WriteLine("PersistentCache miss: " + entry.DisplayName);
-                }
-            }
-            Trace.WriteLine($"PersistentCache hits: {hits}/{baseEntries.Count}");
         }
 
         private static List<ApplicationUninstallerEntry> GetMiscUninstallerEntries()

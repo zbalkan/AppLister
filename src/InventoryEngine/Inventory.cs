@@ -18,7 +18,6 @@ namespace InventoryEngine
             UninstallToolsGlobalConfig.QuietAutomatization = true;
             UninstallToolsGlobalConfig.UseQuietUninstallDaemon = true;
             UninstallToolsGlobalConfig.AutoDetectCustomProgramFiles = true;
-            UninstallToolsGlobalConfig.EnableAppInfoCache = false;
 
             // Scan application sources
             UninstallToolsGlobalConfig.ScanStoreApps = true;
