@@ -47,41 +47,6 @@ namespace InventoryEngine.Tools
         }
 
         /// <summary>
-        ///     Kill all of process's children, grandchildren, etc.
-        /// </summary>
-        /// <param name="pid">
-        ///     Process ID.
-        /// </param>
-        internal static void KillChildProcesses(int pid)
-        {
-            foreach (var id in GetChildProcesses(pid))
-            {
-                KillProcessAndChildProcesses(id);
-            }
-        }
-
-        /// <summary>
-        ///     Kill a process, and all of its children, grandchildren, etc.
-        /// </summary>
-        /// <param name="pid">
-        ///     Process ID.
-        /// </param>
-        internal static void KillProcessAndChildProcesses(int pid)
-        {
-            KillChildProcesses(pid);
-
-            try
-            {
-                var proc = Process.GetProcessById(pid);
-                proc.Kill();
-            }
-            catch (ArgumentException)
-            {
-                // Process already exited.
-            }
-        }
-
-        /// <summary>
         ///     Attempts to separate filename (or filename with path) from the supplied arguments.
         /// </summary>
         /// <param name="fullCommand">
@@ -119,24 +84,23 @@ namespace InventoryEngine.Tools
             }
 
             // Check if the path is in format: ExecutableName C:\Argname.exe
+            var pathRoot = fullCommand.IndexOf(":\\", StringComparison.InvariantCulture);
+            var firstSpace = fullCommand.IndexOf(' ');
+            if (firstSpace >= 0 && firstSpace < pathRoot)
             {
-                var pathRoot = fullCommand.IndexOf(":\\", StringComparison.InvariantCulture);
-                var firstSpace = fullCommand.IndexOf(' ');
-                if (firstSpace >= 0 && firstSpace < pathRoot)
+                var filenameBreaker = fullCommand.IndexOfAny(SeparateArgsFromCommandInvalidChars, 0, pathRoot - 1);
+                if (filenameBreaker < 0)
                 {
-                    var filenameBreaker = fullCommand.IndexOfAny(SeparateArgsFromCommandInvalidChars, 0, pathRoot - 1);
-                    if (filenameBreaker < 0)
+                    var slashIndex = fullCommand.IndexOf('\\');
+                    if (slashIndex >= 0 && slashIndex > pathRoot)
                     {
-                        var slashIndex = fullCommand.IndexOf('\\');
-                        if (slashIndex >= 0 && slashIndex > pathRoot)
-                        {
-                            var rootSpace = fullCommand.LastIndexOf(' ', pathRoot);
-                            return new ProcessStartCommand(fullCommand.Substring(0, rootSpace).TrimEnd(),
-                                fullCommand.Substring(rootSpace));
-                        }
+                        var rootSpace = fullCommand.LastIndexOf(' ', pathRoot);
+                        return new ProcessStartCommand(fullCommand.Substring(0, rootSpace).TrimEnd(),
+                            fullCommand.Substring(rootSpace));
                     }
                 }
             }
+
 
             // Check if the path is contained inside of quotation marks. Assume that the quotation
             // mark must come before the dot. Otherwise, it is likely that the arguments use quotations.
@@ -201,9 +165,6 @@ namespace InventoryEngine.Tools
 
                     endIndex = dash;
                 }
-
-                // old
-                //pathEnd = fullCommand.IndexOfAny(" ,:;?-=", fullCommand.LastIndexOf('.'));
             }
 
             return SeparateCommand(fullCommand, pathEnd);

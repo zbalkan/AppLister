@@ -14,16 +14,6 @@ namespace InventoryEngine.Extensions
                 .Concat(subitemSelector(x).SelectManyResursively(subitemSelector)));
 
         /// <summary>
-        ///     Move item at specified index to a new index
-        /// </summary>
-        internal static void Move<T>(this IList<T> list, int oldIndex, int newIndex)
-        {
-            var item = list[oldIndex];
-            list.RemoveAt(oldIndex);
-            list.Insert(newIndex, item);
-        }
-
-        /// <summary>
         ///     Run distinct using the specified equality comparator
         /// </summary>
         internal static IEnumerable<TSource> Distinct<TSource>(this IEnumerable<TSource> source,

@@ -21,19 +21,6 @@ namespace InventoryEngine.Tools
         private const string HkuShortRootName2 = "HKU";
 
         /// <summary>
-        ///     Copy subkey to a different parent key.
-        /// </summary>
-        internal static void CopySubKey(this RegistryKey parentKey,
-            string subKeyName, RegistryKey newParentKey, string newSubKeyName)
-        {
-            using (var destinationKey = newParentKey.CreateSubKey(newSubKeyName))
-            using (var sourceKey = parentKey.OpenSubKey(subKeyName, true))
-            {
-                RecurseCopyKey(sourceKey, destinationKey);
-            }
-        }
-
-        /// <summary>
         ///     Return registry key at supplied path. If the key or its parents don't exist, create
         ///     them before returning. The returned RegistryKey is writable.
         /// </summary>
@@ -104,7 +91,7 @@ namespace InventoryEngine.Tools
         /// <param name="ignoreAccessExceptions">
         ///     If true, return null instead of throwin an exception if the key is inaccessible
         /// </param>
-        internal static RegistryKey OpenRegistryKey(string fullPath, bool writable, bool ignoreAccessExceptions)
+        internal static RegistryKey OpenRegistryKey(string fullPath, bool writable, bool ignoreAccessExceptions = false)
         {
             if (!ignoreAccessExceptions)
             {
@@ -128,33 +115,29 @@ namespace InventoryEngine.Tools
         }
 
         /// <summary>
-        ///     Open registry key using its fully qualified path. Root key can be named by either
-        ///     its long or short name. (long: "HKEY_LOCAL_MACHINE", short: "HKLM")
+        ///     Check if entry has not been uninstalled already (check registry key)
         /// </summary>
-        /// <param name="fullPath">
-        ///     Full path of the requested registry key
-        /// </param>
-        /// <param name="writable">
-        ///     If false, key is opened read-only
-        /// </param>
-        internal static RegistryKey OpenRegistryKey(string fullPath, bool writable)
+        /// <returns>
+        ///     True if key exists
+        /// </returns>
+        internal static bool RegKeyStillExists(string registryPath)
         {
-            if (fullPath == null)
+            if (string.IsNullOrEmpty(registryPath))
             {
-                throw new ArgumentNullException(nameof(fullPath));
+                return false;
             }
 
-            if (fullPath.Length < 4)
+            try
             {
-                throw new ArgumentException("Path is too short/invalid");
+                using (var key = OpenRegistryKey(registryPath))
+                {
+                    return key != null;
+                }
             }
-
-            var rootKey = GetRootHive(fullPath);
-
-            var result = rootKey.OpenSubKey(StripKeyRoot(fullPath), writable);
-            //if (result == null)
-            //    throw new ArgumentException("Invalid subpath");
-            return result;
+            catch
+            {
+                return false;
+            }
         }
 
         internal static void RemoveRegistryValue(string fullRegistryPath, string valueName)
@@ -207,28 +190,15 @@ namespace InventoryEngine.Tools
         }
 
         /// <summary>
-        ///     Check if entry has not been uninstalled already (check registry key)
+        ///     Copy subkey to a different parent key.
         /// </summary>
-        /// <returns>
-        ///     True if key exists
-        /// </returns>
-        internal static bool RegKeyStillExists(string registryPath)
+        private static void CopySubKey(this RegistryKey parentKey,
+            string subKeyName, RegistryKey newParentKey, string newSubKeyName)
         {
-            if (string.IsNullOrEmpty(registryPath))
+            using (var destinationKey = newParentKey.CreateSubKey(newSubKeyName))
+            using (var sourceKey = parentKey.OpenSubKey(subKeyName, true))
             {
-                return false;
-            }
-
-            try
-            {
-                using (var key = OpenRegistryKey(registryPath))
-                {
-                    return key != null;
-                }
-            }
-            catch
-            {
-                return false;
+                RecurseCopyKey(sourceKey, destinationKey);
             }
         }
 
@@ -250,9 +220,7 @@ namespace InventoryEngine.Tools
                 firstSplitter = fullPath.Length;
             }
 
-            var rootName = fullPath.Substring(0, firstSplitter).ToUpperInvariant();
-
-            switch (rootName)
+            switch (fullPath.Substring(0, firstSplitter).ToUpperInvariant())
             {
                 case HklmRootName:
                 case HklmShortRootName:
@@ -305,6 +273,32 @@ namespace InventoryEngine.Tools
             }
         }
 
+        /// <summary>
+        ///     Open registry key using its fully qualified path. Root key can be named by either
+        ///     its long or short name. (long: "HKEY_LOCAL_MACHINE", short: "HKLM")
+        /// </summary>
+        /// <param name="fullPath">
+        ///     Full path of the requested registry key
+        /// </param>
+        /// <param name="writable">
+        ///     If false, key is opened read-only
+        /// </param>
+        private static RegistryKey OpenRegistryKey(string fullPath, bool writable)
+        {
+            if (fullPath == null)
+            {
+                throw new ArgumentNullException(nameof(fullPath));
+            }
+
+            if (fullPath.Length < 4)
+            {
+                throw new ArgumentException("Path is too short/invalid");
+            }
+
+            var rootKey = GetRootHive(fullPath);
+
+            return rootKey.OpenSubKey(StripKeyRoot(fullPath), writable);
+        }
         private static void RecurseCopyKey(RegistryKey sourceKey, RegistryKey destinationKey)
         {
             foreach (var valueName in sourceKey.GetValueNames())
