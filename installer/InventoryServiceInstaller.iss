@@ -42,9 +42,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
 Source: "..\src\WindowsServiceProxy\bin\x64\Release\*.dll"; DestDir: "{app}"; Flags: ignoreversion
-;recursesubdirs createallsubdirs
-Source: "..\src\WindowsServiceProxy\bin\x64\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion
-;recursesubdirs createallsubdirs
+Source: "..\src\WindowsServiceProxy\bin\x64\Release\*.exe"; DestDir: "{app}"; Flags: ignoreversion;
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]
@@ -54,11 +52,11 @@ Root: HKLM; Subkey: {#ParentKey}\{#MyAppShortName}; ValueType: dword; ValueName:
 
 [Run]
 ; Register WMI class
-Filename: {dotnet40}\InstallUtil.exe; Parameters: """{app}\InventoryWmiProvider.dll"" /LogFile=""{tmp}"" /ShowCallStack" ; Flags: runhidden runascurrentuser;
+Filename: {dotnet40}\InstallUtil.exe; Parameters: """{app}\InventoryWmiProvider.dll"" /LogFile="""" /ShowCallStack" ; Flags: runhidden runascurrentuser;
 ; Register and start service
-Filename: {sys}\sc.exe; Parameters: "create ""{#MyAppShortName}"" start= auto binPath= ""{app}\WindowsServiceProxy.exe"" displayname=""{#MyAppDisplayName}""" ; Flags: runhidden runascurrentuser;
+Filename: {sys}\sc.exe; Parameters: "create ""{#MyAppShortName}"" start= auto binPath= ""{app}\{#MyAppShortName}.exe"" displayname=""{#MyAppDisplayName}""" ; Flags: runhidden runascurrentuser;
 Filename: {sys}\sc.exe; Parameters: "description ""{#MyAppShortName}"" ""Creates software inventory and publishes as WMI object instances.""" ; Flags: runhidden runascurrentuser;
-Filename: {sys}\sc.exe; Parameters: "failure ""{#MyAppShortName}"" actions= restart/60000/restart/60000/""""/60000 reset= 86400" ; Flags: runhidden runascurrentuser;
+Filename: {sys}\sc.exe; Parameters: "failure ""{#MyAppShortName}"" actions= restart/60000/restart/60000/""""/60000 reset= 0" ; Flags: runhidden runascurrentuser;
 Filename: {sys}\sc.exe; Parameters: "start ""{#MyAppShortName}""" ; Flags: runhidden runascurrentuser; Description: "Start service";
 
 [UninstallRun]
@@ -66,4 +64,4 @@ Filename: {sys}\sc.exe; Parameters: "start ""{#MyAppShortName}""" ; Flags: runhi
 Filename: {sys}\sc.exe; Parameters: "stop ""{#MyAppShortName}""" ; Flags: runhidden runascurrentuser; RunOnceId: "StopService";
 Filename: {sys}\sc.exe; Parameters: "delete ""{#MyAppShortName}""" ; Flags: runhidden runascurrentuser; RunOnceId: "DeleteService";
 ; Unregister WMI class
-Filename: {dotnet40}\InstallUtil.exe; Parameters: "/u ""{app}\InventoryWmiProvider.dll"" /LogFile=""{tmp}"" /ShowCallStack" ; Flags: runhidden runascurrentuser; RunOnceId: "DelWmiNamespace";
+Filename: {dotnet40}\InstallUtil.exe; Parameters: "/u ""{app}\InventoryWmiProvider.dll"" /LogFile="""" /ShowCallStack" ; Flags: runhidden runascurrentuser; RunOnceId: "DelWmiNamespace";

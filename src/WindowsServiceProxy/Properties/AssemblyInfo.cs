@@ -3,11 +3,11 @@ using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following set of attributes.
 // Change these attribute values to modify the information associated with an assembly.
-[assembly: AssemblyTitle("WindowsServiceProxy")]
+[assembly: AssemblyTitle("InventorySvc")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Zafer Balkan")]
-[assembly: AssemblyProduct("WindowsServiceProxy")]
+[assembly: AssemblyProduct("InventorySvc")]
 [assembly: AssemblyCopyright("Copyright ©  2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

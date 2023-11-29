@@ -13,7 +13,7 @@ namespace WindowsServiceProxy
 
         private const int DefaultQueryPeriodInMinutes = 600;  // Default period constant
         private const string QueryPeriodKey = "QueryPeriodInMinutes";
-        private const string ServiceKeyPath = @"SOFTWARE\zb\InventoryService";
+        private const string ServiceKeyPath = @"SOFTWARE\zb\InventorySvc";
 
         private Timer _timer;
 
