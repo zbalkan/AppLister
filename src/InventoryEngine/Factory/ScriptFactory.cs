@@ -26,11 +26,17 @@ namespace InventoryEngine.Factory
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
         {
             var results = new List<ApplicationUninstallerEntry>();
-            if (!IsHelperAvailable()) return results;
+            if (!IsHelperAvailable())
+            {
+                return results;
+            }
 
             var result = FactoryTools.StartHelperAndReadOutput(HelperPath, "list");
 
-            if (string.IsNullOrEmpty(result)) return results;
+            if (string.IsNullOrEmpty(result))
+            {
+                return results;
+            }
 
             var dataSets = FactoryTools.ExtractAppDataSetsFromHelperOutput(result);
 
@@ -42,7 +48,9 @@ namespace InventoryEngine.Factory
                 foreach (var entryProp in EntryProps)
                 {
                     if (!dataSet.TryGetValue(entryProp.Name, out var item) || string.IsNullOrEmpty(item))
+                    {
                         continue;
+                    }
 
                     try
                     {
@@ -50,14 +58,19 @@ namespace InventoryEngine.Factory
                     }
                     catch (SystemException ex)
                     {
-                        Trace.WriteLine(ex);
+                        Debug.WriteLine(ex);
                     }
                 }
 
-                if (!entry.UninstallPossible && !entry.QuietUninstallPossible) continue;
+                if (!entry.UninstallPossible && !entry.QuietUninstallPossible)
+                {
+                    continue;
+                }
 
                 if (string.IsNullOrEmpty(entry.Publisher))
+                {
                     entry.Publisher = "Script";
+                }
 
                 results.Add(entry);
             }

@@ -10,6 +10,7 @@
     <RootNamespace>InventoryEngine</RootNamespace>
     <AssemblyName>InventoryEngine</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -29,12 +30,15 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Management.Automation, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,8 +50,21 @@
     <Compile Include="Factory\ChocolateyFactory.cs" />
     <Compile Include="Factory\IIndependantUninstallerFactory.cs" />
     <Compile Include="Factory\OculusFactory.cs" />
+    <Compile Include="Factory\PredefinedFactory.cs" />
+    <Compile Include="Factory\ScoopFactory.AppInstall.cs" />
+    <Compile Include="Factory\ScoopFactory.AppManifest.cs" />
+    <Compile Include="Factory\ScoopFactory.AppManifestArchitecture.cs" />
+    <Compile Include="Factory\ScoopFactory.cs" />
+    <Compile Include="Factory\ScoopFactory.DynamicStringArrayConverter.cs" />
+    <Compile Include="Factory\ScoopFactory.ExportAppEntry.cs" />
+    <Compile Include="Factory\ScoopFactory.ExportInfo.cs" />
+    <Compile Include="Factory\ScoopFactory.PowerShellDateTimeOffsetConverter.cs" />
     <Compile Include="Factory\ScriptFactory.cs" />
     <Compile Include="Factory\SteamFactory.cs" />
+    <Compile Include="Factory\StoreAppFactory.cs" />
+    <Compile Include="Factory\WindowsFeatureFactory.cs" />
+    <Compile Include="Factory\WindowsFeatureFactory.WindowsFeatureInfo.cs" />
+    <Compile Include="Factory\WindowsUpdateFactory.cs" />
     <Compile Include="InfoAdders\GenerateSteamHelperStrings.cs" />
     <Compile Include="InfoAdders\InstallDateAdder.cs" />
     <Compile Include="InfoAdders\InstallLocationGenerator.cs" />
@@ -58,7 +75,6 @@
     <Compile Include="Junk\Containers\RunProcessJunk.cs" />
     <Compile Include="Tools\ApplicationEntryTools.cs" />
     <Compile Include="ApplicationUninstallerEntry.cs" />
-    <Compile Include="Factory\ApplicationUninstallerFactoryCache.cs" />
     <Compile Include="InfoAdders\WebBrowserMarker.cs" />
     <Compile Include="Startup\BrowserHelperEntry.cs" />
     <Compile Include="Shared\CompiledPropertyInfo.cs" />
@@ -158,8 +174,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="NuGet.Core">
+      <Version>2.14.0</Version>
+    </PackageReference>
     <PackageReference Include="System.Memory">
       <Version>4.5.5</Version>
+    </PackageReference>
+    <PackageReference Include="System.Text.Json">
+      <Version>8.0.0</Version>
     </PackageReference>
     <PackageReference Include="TaskScheduler">
       <Version>2.10.1</Version>

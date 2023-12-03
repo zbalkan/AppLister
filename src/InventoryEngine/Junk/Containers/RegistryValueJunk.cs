@@ -5,7 +5,7 @@ namespace InventoryEngine.Junk.Containers
     internal class RegistryValueJunk : RegistryKeyJunk
     {
         /// <summary>
-        ///     If not null, overrides ValueName in GetDisplayName
+        ///     If not null, overrides ValueName in ResolveDisplayName
         /// </summary>
         public string DisplayValueName { get; set; }
 

@@ -17,21 +17,26 @@ namespace InventoryService
         ///     Initiates the engine and scan in different stores
         /// </summary>
         /// <returns>List of installed applciations as a list of <see cref="Package"/>instances.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1212:Remove redundant assignment.", Justification = "<Pending>")]
         public List<Package> GetAll()
         {
             var apps = Inventory.QueryApps();
+            return MaptoPackage(apps);
+        }
 
+        private List<Package> MaptoPackage(IReadOnlyList<ApplicationUninstallerEntry> apps)
+        {
             var packages = new List<Package>();
             foreach (var app in apps)
             {
+                if (app.DisplayName.Contains("Python"))
+                {
+                    Debug.WriteLine("test");
+                }
                 try
                 {
                     packages.Add(new Package()
                     {
-                        Id = CleanString($"{app.DisplayNameTrimmed}_{app.DisplayVersion}"
-                            .ToLowerInvariant()
-                            .Replace(" ", "_").Replace(".", "_").Replace("__", "_")),
+                        Id = ExtractId(app),
                         Name = app.DisplayNameTrimmed,
                         Version = app.DisplayVersion,
                         Publisher = app.PublisherTrimmed,
@@ -42,6 +47,7 @@ namespace InventoryService
                         Executables = app.GetSortedExecutables().ToArray(),
                         IsOrphaned = app.IsOrphaned,
                         IsUpdate = app.IsUpdate,
+                        IsStoreApp = CheckStoreApp(app),
                         StartupEntries = GetStartupEntries(app),
                         Architecture = Enum.GetName(typeof(MachineType), app.Is64Bit),
                         Comments = app.Comment
@@ -54,9 +60,16 @@ namespace InventoryService
                     Trace.TraceError($"{ex.Message} @{app.DisplayNameTrimmed}");
                 }
             }
-            packages =  packages.GroupBy(x => x.Id).Select(x => x.First()).OrderBy(p => p.Id).ToList();
-            return packages;
+            return packages.GroupBy(x => x.Id).Select(x => x.First()).OrderBy(p => p.Id).ToList();
         }
+
+        private static string ExtractId(ApplicationUninstallerEntry app) => Regex
+            .Replace(
+            $"{string.Join("_", (new string[] { app.DisplayNameTrimmed, app.DisplayVersion }).Where(str => !string.IsNullOrEmpty(str)))}"
+            .ToLowerInvariant().Replace(" ", "_").Replace(".", "_").Replace("__", "_"),
+            "[^a-zA-Z0-9.()_]", string.Empty);
+
+        private bool CheckStoreApp(ApplicationUninstallerEntry app) => app.UninstallerKind == UninstallerType.StoreApp;
 
         private static string[] GetStartupEntries(ApplicationUninstallerEntry app)
         {
@@ -66,7 +79,5 @@ namespace InventoryService
             }
             return app.StartupEntries.Select(entry => entry.FullLongName).ToArray();
         }
-
-        private static string CleanString(string str) => Regex.Replace(str, "[^a-zA-Z0-9.()_]", string.Empty);
     }
 }

@@ -168,15 +168,18 @@ namespace InventoryEngine.Factory
                                             int.Parse(dateString.Substring(6, 2)),
                                             int.Parse(dateString.Substring(4, 2)));
                     }
-                    catch (SystemException)
+                    catch (SystemException ex)
                     {
+                        Debug.WriteLine(ex);
                     }
                 }
-                catch (FormatException)
+                catch (FormatException ex)
                 {
+                    Debug.WriteLine(ex);
                 }
-                catch (ArgumentException)
+                catch (ArgumentException ex)
                 {
+                    Debug.WriteLine(ex);
                 }
             }
 
@@ -204,7 +207,6 @@ namespace InventoryEngine.Factory
                 return false;
             }
 
-            //Regex WindowsUpdateRegEx = new Regex(@"KB[0-9]{6}$"); //Doesnt work for all cases
             return defaultValue.Length > 6 && defaultValue.StartsWith("KB", StringComparison.Ordinal)
                    && char.IsNumber(defaultValue[2]) && char.IsNumber(defaultValue.Last());
         }
@@ -313,7 +315,6 @@ namespace InventoryEngine.Factory
             {
                 if (tempEntry.Publisher == null && !tempEntry.UninstallPossible && !tempEntry.QuietUninstallPossible)
                 {
-                    //throw new ArgumentException("Supplied key doesn't contain any useful information");
                     return null;
                 }
                 tempEntry.RawDisplayName = string.Empty;

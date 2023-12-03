@@ -156,12 +156,14 @@ namespace InventoryEngine.Factory
                 try
                 {
                     var sw = Stopwatch.StartNew();
+                    Debug.WriteLine($"Factory {kvp.GetType().Name} started.");
                     MergeResults(otherResults, kvp.GetUninstallerEntries());
-                    Debug.WriteLine($"[Performance] Factory {kvp.GetType().Name} took {sw.ElapsedMilliseconds}ms to finish");
+                    Debug.WriteLine($"Factory {kvp.GetType().Name} took {sw.ElapsedMilliseconds}ms to finish");
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // catch
+                    // catch and continue
+                    Debug.WriteLine(ex);
                 }
             }
 

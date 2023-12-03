@@ -39,6 +39,7 @@ namespace InventoryEngine.Tools
                 }
                 catch (Win32Exception ex)
                 {
+                    Debug.WriteLine(ex);
                     return null;
                 }
             }

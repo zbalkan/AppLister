@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using InventoryEngine.Tools;
 
 namespace InventoryEngine.Shared
@@ -48,13 +49,16 @@ namespace InventoryEngine.Shared
             {
                 result = ProcessTools.SeparateArgsFromCommand(command);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 result = null;
+                Debug.WriteLine(ex);
             }
 
             return result != null;
         }
+
+        internal ProcessStartInfo ToProcessStartInfo() => new ProcessStartInfo(FileName, Arguments) { UseShellExecute = true };
 
         internal string ToCommandLine() => ToString();
 
