@@ -181,7 +181,7 @@
       <Version>4.5.5</Version>
     </PackageReference>
     <PackageReference Include="System.Text.Json">
-      <Version>8.0.0</Version>
+      <Version>8.0.4</Version>
     </PackageReference>
     <PackageReference Include="TaskScheduler">
       <Version>2.10.1</Version>
