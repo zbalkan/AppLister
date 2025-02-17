@@ -40,6 +40,7 @@ namespace InventoryService
             }
             _logger?.WriteEntry("Updating inventory.", EventLogEntryType.Information);
             Publisher.Publish(discoveredPackages);
+            _logger?.WriteEntry($"Inventory updated with {discoveredPackages.Count} packages.");
         }
 
         private void Dispose(bool disposing)
