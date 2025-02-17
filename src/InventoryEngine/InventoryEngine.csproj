@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Factory\ChocolateyFactory.cs" />
-    <Compile Include="Factory\IIndependantUninstallerFactory.cs" />
+    <Compile Include="Factory\IIndependentUninstallerFactory.cs" />
     <Compile Include="Factory\OculusFactory.cs" />
     <Compile Include="Factory\PredefinedFactory.cs" />
     <Compile Include="Factory\ScoopFactory.AppInstall.cs" />

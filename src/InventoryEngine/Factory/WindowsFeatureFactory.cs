@@ -8,7 +8,7 @@ using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory
 {
-    internal partial class WindowsFeatureFactory : IIndependantUninstallerFactory
+    internal partial class WindowsFeatureFactory : IIndependentUninstallerFactory
     {
         public string DisplayName => "Progress_AppStores_WinFeatures";
 

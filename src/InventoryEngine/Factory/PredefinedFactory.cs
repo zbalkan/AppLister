@@ -5,7 +5,7 @@ namespace InventoryEngine.Factory
     /// <summary>
     /// Get uninstallers that were manually pre-defined.
     /// </summary>
-    internal class PredefinedFactory : IIndependantUninstallerFactory
+    internal class PredefinedFactory : IIndependentUninstallerFactory
     {
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries() => new List<ApplicationUninstallerEntry>();
 

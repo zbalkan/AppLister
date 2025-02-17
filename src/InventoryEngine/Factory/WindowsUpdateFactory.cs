@@ -7,7 +7,7 @@ using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory
 {
-    internal class WindowsUpdateFactory : IIndependantUninstallerFactory
+    internal class WindowsUpdateFactory : IIndependentUninstallerFactory
     {
         private static string HelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "WinUpdateHelper.exe");
         private static bool IsHelperAvailable() => File.Exists(HelperPath);

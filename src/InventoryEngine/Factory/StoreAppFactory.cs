@@ -11,7 +11,7 @@ using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory
 {
-    internal class StoreAppFactory : IIndependantUninstallerFactory
+    internal class StoreAppFactory : IIndependentUninstallerFactory
     {
         public string DisplayName => "Progress_AppStores_WinStore";
 

@@ -1,6 +1,6 @@
 ﻿namespace InventoryEngine.Factory
 {
-    public interface IIndependantUninstallerFactory : IUninstallerFactory
+    public interface IIndependentUninstallerFactory : IUninstallerFactory
     {
         string DisplayName { get; }
 

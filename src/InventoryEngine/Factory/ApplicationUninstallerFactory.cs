@@ -145,9 +145,9 @@ namespace InventoryEngine.Factory
         {
             var otherResults = new List<ApplicationUninstallerEntry>();
 
-            var miscFactories = ReflectionTools.GetTypesImplementingBase<IIndependantUninstallerFactory>()
+            var miscFactories = ReflectionTools.GetTypesImplementingBase<IIndependentUninstallerFactory>()
                 .Attempt(Activator.CreateInstance)
-                .Cast<IIndependantUninstallerFactory>()
+                .Cast<IIndependentUninstallerFactory>()
                 .Where(x => x.IsEnabled())
                 .ToList();
 

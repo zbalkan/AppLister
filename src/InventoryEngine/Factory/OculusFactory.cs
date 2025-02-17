@@ -7,7 +7,7 @@ using InventoryEngine.Extensions;
 
 namespace InventoryEngine.Factory
 {
-    public class OculusFactory : IIndependantUninstallerFactory
+    public class OculusFactory : IIndependentUninstallerFactory
     {
         public string DisplayName => "Progress_AppStores_Oculus";
         private static string HelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "OculusHelper.exe");

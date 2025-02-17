@@ -11,7 +11,7 @@ using InventoryEngine.Extensions;
 
 namespace InventoryEngine.Factory
 {
-    internal class SteamFactory : IIndependantUninstallerFactory, IJunkCreator
+    internal class SteamFactory : IIndependentUninstallerFactory, IJunkCreator
     {
         private static bool GetSteamInfo(out string steamLocation)
         {

@@ -13,7 +13,7 @@ using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory
 {
-    internal sealed partial class ScoopFactory : IIndependantUninstallerFactory
+    internal sealed partial class ScoopFactory : IIndependentUninstallerFactory
     {
         public string DisplayName => "Progress_AppStores_Scoop";
 

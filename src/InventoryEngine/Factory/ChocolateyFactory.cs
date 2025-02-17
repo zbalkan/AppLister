@@ -9,7 +9,7 @@ using System.Text;
 
 namespace InventoryEngine.Factory
 {
-    public sealed class ChocolateyFactory : IIndependantUninstallerFactory
+    public sealed class ChocolateyFactory : IIndependentUninstallerFactory
     {
         private static bool GetChocoInfo(out string chocoLocation)
         {

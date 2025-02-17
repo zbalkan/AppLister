@@ -8,7 +8,7 @@ using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory
 {
-    public class ScriptFactory : IIndependantUninstallerFactory
+    public class ScriptFactory : IIndependentUninstallerFactory
     {
         private static readonly PropertyInfo[] EntryProps;
 
