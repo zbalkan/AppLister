@@ -76,6 +76,11 @@ namespace InventoryEngine.Factory
             {
                 manifest = powershellInstance.Invoke()[0];
             }
+            catch (CmdletInvocationException)
+            {
+                var message = $"Failed to call Get-AppxPackageManifest for package {packageName}";
+                Debug.WriteLine(message);
+            }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
@@ -131,20 +136,20 @@ namespace InventoryEngine.Factory
             try
             {
                 var il = props["InstallLocation"];
-                if (il == null)
-                {
-                    return string.Empty;
-                }
-                installLocation = il.Value as string;
+                installLocation = il.Value as string; // throws exception if value does not exist.
                 if (string.IsNullOrEmpty(installLocation))
                 {
                     installLocation = string.Empty;
                 }
             }
-            catch (Exception ex)
+            catch (GetValueInvocationException)
             {
-                Debug.WriteLine(ex);
                 installLocation = string.Empty;
+            }
+            catch(Exception ex)
+            {
+                installLocation = string.Empty;
+                Debug.WriteLine(ex);
             }
 
             return installLocation;
@@ -176,10 +181,6 @@ namespace InventoryEngine.Factory
                 }
             }
 
-            if (string.IsNullOrEmpty(displayName))
-            {
-                throw new Exception();
-            }
             return displayName;
         }
 
