@@ -20,28 +20,28 @@ namespace InventoryEngine.Junk.Finders.Registry
                 return results;
             }
 
-            using (var key = GetFirewallRulesKey())
-            {
-                if (key != null)
-                {
-                    foreach (var valueName in key.TryGetValueNames())
-                    {
-                        var value = key.GetStringSafe(valueName);
-                        if (string.IsNullOrEmpty(value))
-                        {
-                            continue;
-                        }
+            using var key = GetFirewallRulesKey();
 
-                        var start = value.IndexOf("|App=", StringComparison.InvariantCultureIgnoreCase) + 5;
-                        var charCount = value.IndexOf('|', start) - start;
-                        var fullPath = Environment.ExpandEnvironmentVariables(value.Substring(start, charCount));
-                        if (fullPath.StartsWith(target.InstallLocation, StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            var node = new RegistryValueJunk(FirewallRulesKey, valueName,
-                                target, this);
-                            node.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                            results.Add(node);
-                        }
+            if (key != null)
+            {
+                foreach (var valueName in key.TryGetValueNames())
+                {
+                    var value = key.GetStringSafe(valueName);
+                    if (string.IsNullOrEmpty(value)) continue;
+
+                    var appIndex = value.IndexOf("|App=", StringComparison.InvariantCultureIgnoreCase);
+                    var start = appIndex + 5;
+                    if (appIndex == -1 || start >= value.Length) continue;
+
+                    var charCount = value.IndexOf('|', start) - start;
+                    if (charCount <= 0) continue;
+
+                    var fullPath = Environment.ExpandEnvironmentVariables(value.Substring(start, charCount));
+                    if (fullPath.StartsWith(target.InstallLocation, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        var node = new RegistryValueJunk(FirewallRulesKey, valueName, target, this);
+                        node.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                        results.Add(node);
                     }
                 }
             }
