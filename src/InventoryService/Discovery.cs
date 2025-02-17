@@ -28,10 +28,6 @@ namespace InventoryService
             var packages = new List<Package>();
             foreach (var app in apps)
             {
-                if (app.DisplayName.Contains("Python"))
-                {
-                    Debug.WriteLine("test");
-                }
                 try
                 {
                     packages.Add(new Package()
