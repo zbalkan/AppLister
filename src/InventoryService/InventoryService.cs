@@ -21,10 +21,7 @@ namespace InventoryService
 
         public void Refresh()
         {
-            if(!Publisher.Check())
-            {
-                throw new Exception("WMI Provider is not registered.");
-            }
+            Publisher.CheckDependency();
 
             _logger?.WriteEntry("Reading packages from WMI.", EventLogEntryType.Information);
             var publishedPackages = wmiScanner.GetAll();

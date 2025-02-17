@@ -7,7 +7,7 @@ namespace InventoryService
 {
     public static class Publisher
     {
-        public static bool Check()
+        public static void CheckDependency()
         {
             try
             {
@@ -17,11 +17,10 @@ namespace InventoryService
                 };
                 InstrumentationManager.Publish(package);
                 InstrumentationManager.Revoke(package);
-                return true;
             }
             catch
             {
-                return false;
+                throw new Exception("The WMI Provider assembly is not registered.");
             }
         }
 
