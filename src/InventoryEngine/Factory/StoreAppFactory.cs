@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
 using System.Xml;
 using InventoryEngine.Shared;
@@ -15,10 +14,10 @@ namespace InventoryEngine.Factory
     {
         public string DisplayName => "Progress_AppStores_WinStore";
 
-        private static readonly string appRoot = $"{WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_PROGRAM_FILES)}\\WindowsApps";
         private static readonly PowerShell powershellInstance = PowerShell.Create();
 
         private static readonly string windowsPath = WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_WINDOWS);
+
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
         {
             var results = new List<ApplicationUninstallerEntry>();
@@ -62,9 +61,7 @@ namespace InventoryEngine.Factory
             {
                 return Array.Empty<string>();
             }
-            executableName = executableName.Split('\\').Last();
-
-            return Directory.GetFiles(appRoot, executableName, SearchOption.AllDirectories).ToArray();
+            return new[] { executableName };
         }
 
         private static PSObject GetAppxManifest(string packageName)
@@ -133,7 +130,7 @@ namespace InventoryEngine.Factory
             string installLocation;
             try
             {
-                var il = props.SingleOrDefault(p => p.Name.Equals("InstallLocation"));
+                var il = props["InstallLocation"];
                 if (il == null)
                 {
                     return string.Empty;
@@ -153,19 +150,12 @@ namespace InventoryEngine.Factory
             return installLocation;
         }
 
-        private static MachineType ResolveArchitecture(PSMemberInfoCollection<PSPropertyInfo> props)
+        private static MachineType ResolveArchitecture(PSMemberInfoCollection<PSPropertyInfo> props) => props["Architecture"].Value.ToString() switch
         {
-            switch (props["Architecture"].Value.ToString())
-            {
-                case "X64":
-                    return MachineType.X64;
-                case "X86":
-                    return MachineType.X86;
-                case "Neutral":
-                default:
-                    return MachineType.Unknown;
-            }
-        }
+            "X64" => MachineType.X64,
+            "X86" => MachineType.X86,
+            _ => MachineType.Unknown,
+        };
 
         private static string ResolveDisplayName(PSMemberInfoCollection<PSPropertyInfo> props, PSObject manifest)
         {
@@ -258,6 +248,7 @@ namespace InventoryEngine.Factory
 
             return newName;
         }
+
         private static string ResolveVersion(PSMemberInfoCollection<PSPropertyInfo> props) => props["Version"].Value.ToString();
 
         private static bool SetSystemComponent(string installLocation)
