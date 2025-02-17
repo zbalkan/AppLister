@@ -3,11 +3,11 @@
 
 #define MyAppShortName "InventorySvc"
 #define MyAppDisplayName "Inventory Service"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "Zafer Balkan"
 #define MyAppURL "https://github.com/zbalkan/InventoryService"
 #define ParentKey "Software\zb"
-#define Copyright "Zafer Balkan 2023"
+#define Copyright "Zafer Balkan 2025"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
