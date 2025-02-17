@@ -7,6 +7,24 @@ namespace InventoryService
 {
     public static class Publisher
     {
+        public static bool Check()
+        {
+            try
+            {
+                var package = new Package
+                {
+                    Id = "Test"
+                };
+                InstrumentationManager.Publish(package);
+                InstrumentationManager.Revoke(package);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static void Publish(IEnumerable<Package> packages)
         {
             try
