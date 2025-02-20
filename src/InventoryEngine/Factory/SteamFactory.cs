@@ -18,19 +18,21 @@ namespace InventoryEngine.Factory
         {
             steamLocation = null;
 
-            if (File.Exists(SteamHelperPath))
+            if (!File.Exists(SteamHelperPath))
             {
-                var output = FactoryTools.StartHelperAndReadOutput(SteamHelperPath, "steam");
-                if (!string.IsNullOrEmpty(output)
-                    && !output.Contains("error", StringComparison.InvariantCultureIgnoreCase)
-                    && Directory.Exists(output = output.Trim().TrimEnd('\\', '/')))
-                {
-                    steamLocation = output;
-                    return true;
-                }
+                return false;
             }
 
-            return false;
+            var output = FactoryTools.StartHelperAndReadOutput(SteamHelperPath, "steam");
+            if (string.IsNullOrEmpty(output)
+                || output.Contains("error", StringComparison.InvariantCultureIgnoreCase)
+                || !Directory.Exists(output = output.Trim().TrimEnd('\\', '/')))
+            {
+                return false;
+            }
+
+            steamLocation = output;
+            return true;
         }
 
         internal static string SteamHelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "SteamHelper.exe");
@@ -123,13 +125,15 @@ namespace InventoryEngine.Factory
                     foreach (var cacheFolderName in TempFolderNames)
                     {
                         var subpath = Path.Combine(libraryDir, cacheFolderName, appIdStr);
-                        if (Directory.Exists(subpath))
+                        if (!Directory.Exists(subpath))
                         {
-                            var junk = new FileSystemJunk(new DirectoryInfo(subpath), target, this);
-                            junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                            junk.Confidence.Add(4);
-                            results.Add(junk);
+                            continue;
                         }
+
+                        var junk = new FileSystemJunk(new DirectoryInfo(subpath), target, this);
+                        junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                        junk.Confidence.Add(4);
+                        results.Add(junk);
                     }
                 }
                 else

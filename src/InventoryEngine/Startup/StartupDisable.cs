@@ -45,13 +45,14 @@ namespace InventoryEngine.Startup
 
         public bool StillExists(StartupEntry startupEntry)
         {
-            if (startupEntry.IsRegKey)
+            if (!startupEntry.IsRegKey)
             {
-                using var key = RegistryTools.OpenRegistryKey(startupEntry.ParentLongName);
-                return !string.IsNullOrEmpty(key.GetStringSafe(startupEntry.EntryLongName));
+                return File.Exists(startupEntry.FullLongName);
             }
 
-            return File.Exists(startupEntry.FullLongName);
+            using var key = RegistryTools.OpenRegistryKey(startupEntry.ParentLongName);
+            return !string.IsNullOrEmpty(key.GetStringSafe(startupEntry.EntryLongName));
+
         }
 
         private static bool GetDisabled(StartupEntry startupEntry)

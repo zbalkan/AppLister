@@ -131,16 +131,18 @@ namespace InventoryEngine.Junk.Finders.Misc
 
             foreach (var source in _links)
             {
-                if (source.LinkTarget.Contains(target, StringComparison.InvariantCultureIgnoreCase))
+                if (!source.LinkTarget.Contains(target, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var result = CreateJunkNode(source, entry);
-                    if (!targetIsSafe)
-                    {
-                        result.Confidence.Add(ConfidenceRecords.DirectoryStillUsed);
-                    }
-
-                    yield return result;
+                    continue;
                 }
+
+                var result = CreateJunkNode(source, entry);
+                if (!targetIsSafe)
+                {
+                    result.Confidence.Add(ConfidenceRecords.DirectoryStillUsed);
+                }
+
+                yield return result;
             }
         }
 
@@ -158,12 +160,13 @@ namespace InventoryEngine.Junk.Finders.Misc
             {
                 foreach (var source in _links)
                 {
-                    if (source.LinkTarget.Contains(appId, StringComparison.Ordinal)
-                        && source.LinkTarget.Contains("steam", StringComparison.OrdinalIgnoreCase))
+                    if (!source.LinkTarget.Contains(appId, StringComparison.Ordinal)
+                        || !source.LinkTarget.Contains("steam", StringComparison.OrdinalIgnoreCase))
                     {
-                        var result = CreateJunkNode(source, target);
-                        yield return result;
+                        continue;
                     }
+
+                    yield return CreateJunkNode(source, target);
                 }
             }
             else

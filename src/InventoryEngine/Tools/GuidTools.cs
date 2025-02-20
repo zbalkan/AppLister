@@ -37,13 +37,15 @@ namespace InventoryEngine.Tools
             }
 
             var braceIndex = source.IndexOfAny(new[] { '{', '(' });
-            if (braceIndex >= 0)
+            if (braceIndex < 0)
             {
-                var endingBraceIndex = source.IndexOfAny(new[] { '}', ')' });
-                source = endingBraceIndex > braceIndex
-                    ? source.Substring(braceIndex, endingBraceIndex - braceIndex + 1)
-                    : source.Substring(braceIndex + 1);
+                return GuidTryParse(source, out result);
             }
+
+            var endingBraceIndex = source.IndexOfAny(new[] { '}', ')' });
+            source = endingBraceIndex > braceIndex
+                ? source.Substring(braceIndex, endingBraceIndex - braceIndex + 1)
+                : source.Substring(braceIndex + 1);
 
             return GuidTryParse(source, out result);
         }

@@ -98,12 +98,15 @@ namespace InventoryEngine.Shared
                             c2--;
                             break;
                         }
-                        if ((c2 + i < l2) && s1[c1] == s2[c2 + i])
+
+                        if ((c2 + i >= l2) || s1[c1] != s2[c2 + i])
                         {
-                            c1--;
-                            c2 += i - 1;
-                            break;
+                            continue;
                         }
+
+                        c1--;
+                        c2 += i - 1;
+                        break;
                     }
                 }
                 c1++;
@@ -118,12 +121,14 @@ namespace InventoryEngine.Shared
                 }
                 // this covers the case where the last match is on the last token in list, so that
                 // it can compute transpositions correctly
-                if ((c1 >= l1) || (c2 >= l2))
+                if ((c1 < l1) && (c2 < l2))
                 {
-                    lcss += localCs;
-                    localCs = 0;
-                    c1 = c2 = Math.Min(c1, c2);
+                    continue;
                 }
+
+                lcss += localCs;
+                localCs = 0;
+                c1 = c2 = Math.Min(c1, c2);
             }
             lcss += localCs;
             return Math.Max(l1, l2) - (lcss - trans); //apply transposition cost to the final result
@@ -180,12 +185,15 @@ namespace InventoryEngine.Shared
                             c2--;
                             break;
                         }
-                        if ((c2 + i < l2) && s1[c1] == s2[c2 + i])
+
+                        if ((c2 + i >= l2) || s1[c1] != s2[c2 + i])
                         {
-                            c1--;
-                            c2 += i - 1;
-                            break;
+                            continue;
                         }
+
+                        c1--;
+                        c2 += i - 1;
+                        break;
                     }
                 }
                 c1++;

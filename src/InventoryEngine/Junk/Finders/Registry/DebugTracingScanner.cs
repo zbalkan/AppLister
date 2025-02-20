@@ -58,14 +58,16 @@ namespace InventoryEngine.Junk.Finders.Registry
                                  .Select(name => new { name, trimmed = name.Substring(0, name.LastIndexOf('_')) })
                                  .GroupBy(x => x.trimmed))
                     {
-                        if (exeNames.Contains(keyGroup.Key, StringComparison.InvariantCultureIgnoreCase))
+                        if (!exeNames.Contains(keyGroup.Key, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            foreach (var keyName in keyGroup)
-                            {
-                                var junk = new RegistryKeyJunk(Path.Combine(key.Name, keyName.name), target, this);
-                                junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                                returnList.Add(junk);
-                            }
+                            continue;
+                        }
+
+                        foreach (var keyName in keyGroup)
+                        {
+                            var junk = new RegistryKeyJunk(Path.Combine(key.Name, keyName.name), target, this);
+                            junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                            returnList.Add(junk);
                         }
                     }
                 }

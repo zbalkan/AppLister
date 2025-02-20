@@ -111,35 +111,39 @@ namespace InventoryEngine.Tools
 
         internal static string ExtractDirectoryName(string uninstallerLocation)
         {
-            if (!string.IsNullOrEmpty(uninstallerLocation))
+            if (string.IsNullOrEmpty(uninstallerLocation))
             {
-                try
-                {
-                    return Path.GetDirectoryName(uninstallerLocation);
-                }
-                catch (ArgumentException) { }
-                catch (PathTooLongException) { }
+                return null;
             }
+
+            try
+            {
+                return Path.GetDirectoryName(uninstallerLocation);
+            }
+            catch (ArgumentException) { }
+            catch (PathTooLongException) { }
 
             return null;
         }
 
         internal static string ExtractFullFilename(string uninstallString)
         {
-            if (!string.IsNullOrEmpty(uninstallString))
+            if (string.IsNullOrEmpty(uninstallString))
             {
-                try
-                {
-                    var fileName = ProcessTools.SeparateArgsFromCommand(uninstallString).FileName;
-
-                    Debug.Assert(!string.IsNullOrEmpty(fileName?.Trim()),
-                        $"SeparateArgsFromCommand failed for {fileName}");
-
-                    return fileName;
-                }
-                catch (ArgumentException) { }
-                catch (FormatException) { }
+                return null;
             }
+
+            try
+            {
+                var fileName = ProcessTools.SeparateArgsFromCommand(uninstallString).FileName;
+
+                Debug.Assert(!string.IsNullOrEmpty(fileName?.Trim()),
+                    $"SeparateArgsFromCommand failed for {fileName}");
+
+                return fileName;
+            }
+            catch (ArgumentException) { }
+            catch (FormatException) { }
 
             return null;
         }

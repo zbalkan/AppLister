@@ -90,17 +90,21 @@ namespace InventoryEngine.Junk.Finders.Drive
                     // ReSharper disable once PossibleMultipleEnumeration
                     results = results.Concat(junkNodes);
 
-                    if (newNode != null)
+                    if (newNode == null)
                     {
-                        // Check if the directory will have nothing left after junk removal.
-                        if (!dir.GetFiles().Any())
-                        {
-                            var subDirs = dir.GetDirectories();
-                            if (!subDirs.Any() || subDirs.All(d => junkNodes.Any(y => PathTools.PathsEqual(d.FullName, y.Path.FullName))))
-                            {
-                                newNode.Confidence.Add(ConfidenceRecords.AllSubdirsMatched);
-                            }
-                        }
+                        continue;
+                    }
+
+                    // Check if the directory will have nothing left after junk removal.
+                    if (dir.GetFiles().Any())
+                    {
+                        continue;
+                    }
+
+                    var subDirs = dir.GetDirectories();
+                    if (!subDirs.Any() || subDirs.All(d => junkNodes.Any(y => PathTools.PathsEqual(d.FullName, y.Path.FullName))))
+                    {
+                        newNode.Confidence.Add(ConfidenceRecords.AllSubdirsMatched);
                     }
                 }
 

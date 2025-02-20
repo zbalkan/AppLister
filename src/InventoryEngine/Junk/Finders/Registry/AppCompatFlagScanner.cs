@@ -41,13 +41,15 @@ namespace InventoryEngine.Junk.Finders.Registry
                 foreach (var valueName in key.GetValueNames())
                 {
                     // Check for matches
-                    if (valueName.StartsWith(target.InstallLocation,
+                    if (!valueName.StartsWith(target.InstallLocation,
                             StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var junk = new RegistryValueJunk(key.Name, valueName, target, this);
-                        junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                        yield return junk;
+                        continue;
                     }
+
+                    var junk = new RegistryValueJunk(key.Name, valueName, target, this);
+                    junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                    yield return junk;
                 }
             }
         }

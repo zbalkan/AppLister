@@ -86,17 +86,19 @@ namespace InventoryEngine.Junk
 
             var knownFolderstype = Type.GetType("Windows.Storage.KnownFolders, Microsoft.Windows.SDK.NET", false);
             // Might not be available on some systems
-            if (knownFolderstype != null)
+            if (knownFolderstype == null)
             {
-                try
-                {
-                    //TODO: Add the dependency
-                    //AddRange(knownFolderstype.GetProperties().Attempt(p => ((Windows.Storage.StorageFolder)p.GetValue(null)).Path));
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Failed to collect KnownFolders: " + ex);
-                }
+                return results;
+            }
+
+            try
+            {
+                //TODO: Add the dependency
+                //AddRange(knownFolderstype.GetProperties().Attempt(p => ((Windows.Storage.StorageFolder)p.GetValue(null)).Path));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Failed to collect KnownFolders: " + ex);
             }
 
             return results;

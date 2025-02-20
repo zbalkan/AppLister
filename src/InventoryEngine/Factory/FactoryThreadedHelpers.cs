@@ -67,16 +67,18 @@ namespace InventoryEngine.Factory
             var dividedItems = SplitByPhysicalDrives(entries, entry =>
             {
                 var loc = entry.InstallLocation ?? entry.UninstallerLocation;
-                if (!string.IsNullOrEmpty(loc))
+                if (string.IsNullOrEmpty(loc))
                 {
-                    try
-                    {
-                        return new DirectoryInfo(loc);
-                    }
-                    catch (SystemException ex)
-                    {
-                        Debug.WriteLine(ex);
-                    }
+                    return cDrive;
+                }
+
+                try
+                {
+                    return new DirectoryInfo(loc);
+                }
+                catch (SystemException ex)
+                {
+                    Debug.WriteLine(ex);
                 }
                 return cDrive;
             });

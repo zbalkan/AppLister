@@ -65,13 +65,15 @@ namespace InventoryEngine.Junk.Finders.Registry
                                  comEntry.VersionIndependentProgId
                              })
                     {
-                        if (targetSubKeyPath != null)
+                        if (targetSubKeyPath == null)
                         {
-                            var result = TryGetFromPath(target, classesKey, targetSubKeyPath);
-                            if (result != null)
-                            {
-                                yield return result;
-                            }
+                            continue;
+                        }
+
+                        var result = TryGetFromPath(target, classesKey, targetSubKeyPath);
+                        if (result != null)
+                        {
+                            yield return result;
                         }
                     }
 
@@ -109,20 +111,24 @@ namespace InventoryEngine.Junk.Finders.Registry
                             }
                         }
 
-                        if (comEntry.ProgId != null || comEntry.VersionIndependentProgId != null)
+                        if (comEntry.ProgId == null && comEntry.VersionIndependentProgId == null)
                         {
-                            // Contains values with names corresponding to ProgIDs
-                            using var openWithProgidsKey = extensionKey.OpenSubKey("OpenWithProgIDs");
-                            if (openWithProgidsKey != null)
+                            continue;
+                        }
+
+                        // Contains values with names corresponding to ProgIDs
+                        using var openWithProgidsKey = extensionKey.OpenSubKey("OpenWithProgIDs");
+                        if (openWithProgidsKey == null)
+                        {
+                            continue;
+                        }
+
+                        foreach (var progIdName in openWithProgidsKey.GetValueNames())
+                        {
+                            if (string.Equals(progIdName, comEntry.ProgId, StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(progIdName, comEntry.VersionIndependentProgId, StringComparison.OrdinalIgnoreCase))
                             {
-                                foreach (var progIdName in openWithProgidsKey.GetValueNames())
-                                {
-                                    if (string.Equals(progIdName, comEntry.ProgId, StringComparison.OrdinalIgnoreCase) ||
-                                        string.Equals(progIdName, comEntry.VersionIndependentProgId, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        yield return JunkFromValue(target, openWithProgidsKey.Name, progIdName);
-                                    }
-                                }
+                                yield return JunkFromValue(target, openWithProgidsKey.Name, progIdName);
                             }
                         }
                     }

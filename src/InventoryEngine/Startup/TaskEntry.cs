@@ -65,14 +65,16 @@ namespace InventoryEngine.Startup
 
         private void Dispose(bool disposing)
         {
-            if (!_disposedValue)
+            if (_disposedValue)
             {
-                if (disposing)
-                {
-                    SourceTask.Dispose();
-                }
-                _disposedValue = true;
+                return;
             }
+
+            if (disposing)
+            {
+                SourceTask.Dispose();
+            }
+            _disposedValue = true;
         }
     }
 }

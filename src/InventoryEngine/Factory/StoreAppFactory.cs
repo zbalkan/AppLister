@@ -174,11 +174,13 @@ namespace InventoryEngine.Factory
                 var package = manifest.Members["Package"].Value as XmlElement;
                 displayName = package["Properties"]["DisplayName"].InnerText;
 
-                if (displayName.StartsWith("ms-resource"))
+                if (!displayName.StartsWith("ms-resource"))
                 {
-                    var identity = package["Identity"];
-                    displayName = identity.Attributes["Name"].Value;
+                    return displayName;
                 }
+
+                var identity = package["Identity"];
+                displayName = identity.Attributes["Name"].Value;
             }
 
             return displayName;

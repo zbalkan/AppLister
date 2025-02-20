@@ -96,13 +96,14 @@ namespace InventoryEngine.Tools
             }
             catch (Exception ex)
             {
-                if (ex is UnauthorizedAccessException || ex is System.Security.SecurityException || ex is IOException)
+                if (!(ex is UnauthorizedAccessException) && !(ex is System.Security.SecurityException) &&
+                    !(ex is IOException))
                 {
-                    Debug.WriteLine(ex);
-                    return null;
+                    throw;
                 }
 
-                throw;
+                Debug.WriteLine(ex);
+                return null;
             }
         }
 

@@ -77,16 +77,17 @@ namespace InventoryEngine.InfoAdders
                     return valIsDefault;
                 }
 
-                if (TargetProperties.TryGetValue(key, out var property))
+                if (!TargetProperties.TryGetValue(key, out var property))
                 {
-                    valIsDefault = Equals(property.CompiledGet(target), property.Tag);
-                    valueIsDefaultCache.Add(key, valIsDefault);
-
-                    return valIsDefault;
+                    return true;
                 }
 
+                valIsDefault = Equals(property.CompiledGet(target), property.Tag);
+                valueIsDefaultCache.Add(key, valIsDefault);
+
+                return valIsDefault;
+
                 // If we can't check if the value is default, assume that it is to be safe
-                return true;
             }
 
             for (var index = 0; index < adders.Count; index++)

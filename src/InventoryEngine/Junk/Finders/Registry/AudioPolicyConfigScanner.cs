@@ -62,12 +62,14 @@ namespace InventoryEngine.Junk.Finders.Registry
                 }
 
                 var defVal = subKey.GetStringSafe(null);
-                if (defVal?.Contains(unrootedLocation, StringComparison.InvariantCultureIgnoreCase) == true)
+                if (defVal?.Contains(unrootedLocation, StringComparison.InvariantCultureIgnoreCase) != true)
                 {
-                    var junk = new RegistryKeyJunk(subKey.Name, target, this);
-                    junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                    returnList.Add(junk);
+                    continue;
                 }
+
+                var junk = new RegistryKeyJunk(subKey.Name, target, this);
+                junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                returnList.Add(junk);
             }
 
             return returnList;

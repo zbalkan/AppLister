@@ -71,7 +71,12 @@ namespace InventoryEngine.Startup
                     }
 
                     var uninLoc = uninstaller.UninstallerLocation;
-                    if (!string.IsNullOrEmpty(uninLoc) && startup.CommandFilePath.StartsWith(uninLoc, StringComparison.OrdinalIgnoreCase))
+                    if (string.IsNullOrEmpty(uninLoc) ||
+                        !startup.CommandFilePath.StartsWith(uninLoc, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false;
+                    }
+
                     {
                         // Don't assign if there are any applications with more specific/deep
                         // install locations (same depth is fine)

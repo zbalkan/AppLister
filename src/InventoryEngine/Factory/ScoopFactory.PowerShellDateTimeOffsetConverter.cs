@@ -32,13 +32,15 @@ namespace InventoryEngine.Factory
                     reader.Skip();
                     while (clone.Read() && clone.TokenType != JsonTokenType.EndObject)
                     {
-                        if (clone.TokenType == JsonTokenType.PropertyName && clone.GetString() == "value")
+                        if (clone.TokenType != JsonTokenType.PropertyName || clone.GetString() != "value")
                         {
-                            _ = clone.Read();
-                            var value = clone.GetString();
-                            var timestamp = long.Parse(value.Substring(6, value.Length - 8));
-                            return DateTimeOffset.FromUnixTimeMilliseconds(timestamp);
+                            continue;
                         }
+
+                        _ = clone.Read();
+                        var value = clone.GetString();
+                        var timestamp = long.Parse(value.Substring(6, value.Length - 8));
+                        return DateTimeOffset.FromUnixTimeMilliseconds(timestamp);
                     }
                 }
 

@@ -152,16 +152,18 @@ namespace InventoryEngine.Factory
         private static void AddInfo(ApplicationUninstallerEntry target, Dictionary<string, string> source,
             string key, Action<ApplicationUninstallerEntry, string> setter)
         {
-            if (source.TryGetValue(key, out var val))
+            if (!source.TryGetValue(key, out var val))
             {
-                try
-                {
-                    setter(target, val);
-                }
-                catch (SystemException ex)
-                {
-                    Debug.WriteLine("Exception while extracting info from choco: " + ex.Message);
-                }
+                return;
+            }
+
+            try
+            {
+                setter(target, val);
+            }
+            catch (SystemException ex)
+            {
+                Debug.WriteLine("Exception while extracting info from choco: " + ex.Message);
             }
         }
 

@@ -33,12 +33,14 @@ namespace InventoryEngine.Junk.Finders.Registry
                         var str = subKeyName.Substring(0, i);
 
                         var conf = ConfidenceGenerators.GenerateConfidence(str, Path.Combine(FullTracingKey, subKeyName), 0, target).ToList();
-                        if (conf.Any())
+                        if (!conf.Any())
                         {
-                            var node = new RegistryKeyJunk(Path.Combine(FullTracingKey, subKeyName), target, this);
-                            node.Confidence.AddRange(conf);
-                            results.Add(node);
+                            continue;
                         }
+
+                        var node = new RegistryKeyJunk(Path.Combine(FullTracingKey, subKeyName), target, this);
+                        node.Confidence.AddRange(conf);
+                        results.Add(node);
                     }
                 }
             }

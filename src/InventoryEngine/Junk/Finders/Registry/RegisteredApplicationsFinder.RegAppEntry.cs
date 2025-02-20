@@ -29,18 +29,22 @@ namespace InventoryEngine.Junk.Finders.Registry
 
                 AppName = AppKey = null;
 
-                if (valueName.Length == 36 && valueName.StartsWith("App", StringComparison.Ordinal))
+                if (valueName.Length != 36 || !valueName.StartsWith("App", StringComparison.Ordinal))
                 {
-                    var pathParts = targetSubKeyPath.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
-                    for (var i = pathParts.Length - 2; i >= 8; i--)
+                    return;
+                }
+
+                var pathParts = targetSubKeyPath.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
+                for (var i = pathParts.Length - 2; i >= 8; i--)
+                {
+                    if (pathParts[i] != "Packages")
                     {
-                        if (pathParts[i] == "Packages")
-                        {
-                            AppName = pathParts[i + 1];
-                            AppKey = string.Join("\\", pathParts, 0, i + 2);
-                            break;
-                        }
+                        continue;
                     }
+
+                    AppName = pathParts[i + 1];
+                    AppKey = string.Join("\\", pathParts, 0, i + 2);
+                    break;
                 }
             }
         }

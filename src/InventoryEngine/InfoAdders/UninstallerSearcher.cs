@@ -46,30 +46,34 @@ namespace InventoryEngine.InfoAdders
                     continue;
                 }
 
-                if (UninstallerFilters.Any(filter =>
-                    name.StartsWith(filter, StringComparison.InvariantCultureIgnoreCase) ||
-                    name.EndsWith(filter, StringComparison.InvariantCultureIgnoreCase)))
+                if (!UninstallerFilters.Any(filter =>
+                        name.StartsWith(filter, StringComparison.InvariantCultureIgnoreCase) ||
+                        name.EndsWith(filter, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    target.UninstallString = file;
-                    return;
+                    continue;
                 }
+
+                target.UninstallString = file;
+                return;
             }
         }
 
         private static IEnumerable<string> FindExtraExecutables(string directoryPath)
         {
-            if (Directory.Exists(directoryPath))
+            if (!Directory.Exists(directoryPath))
             {
-                try
-                {
-                    return Directory.GetFiles(directoryPath, "*.bat", SearchOption.TopDirectoryOnly);
-                }
-                catch (IOException)
-                {
-                }
-                catch (UnauthorizedAccessException)
-                {
-                }
+                return Enumerable.Empty<string>();
+            }
+
+            try
+            {
+                return Directory.GetFiles(directoryPath, "*.bat", SearchOption.TopDirectoryOnly);
+            }
+            catch (IOException)
+            {
+            }
+            catch (UnauthorizedAccessException)
+            {
             }
             return Enumerable.Empty<string>();
         }

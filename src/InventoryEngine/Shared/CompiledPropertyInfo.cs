@@ -49,14 +49,16 @@ namespace InventoryEngine.Shared
                 CompiledGet = getLambda.Compile();
             }
 
-            if (propertyInfo.CanWrite)
+            if (!propertyInfo.CanWrite)
             {
-                var valueParam = Expression.Parameter(typeof(object), "value");
-                var convertedValue = Expression.Convert(valueParam, propertyInfo.PropertyType);
-                var setCall = Expression.Call(instanceParam, propertyInfo.GetSetMethod(true), convertedValue);
-                var setLambda = Expression.Lambda<Action<TInstance, object>>(setCall, instanceParam, valueParam);
-                CompiledSet = setLambda.Compile();
+                return;
             }
+
+            var valueParam = Expression.Parameter(typeof(object), "value");
+            var convertedValue = Expression.Convert(valueParam, propertyInfo.PropertyType);
+            var setCall = Expression.Call(instanceParam, propertyInfo.GetSetMethod(true), convertedValue);
+            var setLambda = Expression.Lambda<Action<TInstance, object>>(setCall, instanceParam, valueParam);
+            CompiledSet = setLambda.Compile();
         }
     }
 }

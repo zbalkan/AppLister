@@ -59,19 +59,21 @@ namespace InventoryEngine.Junk.Finders.Registry
                         continue;
                     }
 
-                    if (string.Equals(regAppEntry.AppName, target.RatingId, StringComparison.OrdinalIgnoreCase))
+                    if (!string.Equals(regAppEntry.AppName, target.RatingId, StringComparison.OrdinalIgnoreCase))
                     {
-                        // Handle the value under RegisteredApps itself
-                        var regAppResult = new RegistryValueJunk(regAppEntry.RegAppFullPath, regAppEntry.ValueName, target, this);
-                        regAppResult.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                        yield return regAppResult;
-
-                        // Handle the key pointed at by the value
-                        var appEntryKey = new RegistryKeyJunk(regAppEntry.AppKey, target, this);
-                        appEntryKey.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                        appEntryKey.Confidence.Add(ConfidenceRecords.IsStoreApp);
-                        yield return appEntryKey;
+                        continue;
                     }
+
+                    // Handle the value under RegisteredApps itself
+                    var regAppResult = new RegistryValueJunk(regAppEntry.RegAppFullPath, regAppEntry.ValueName, target, this);
+                    regAppResult.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                    yield return regAppResult;
+
+                    // Handle the key pointed at by the value
+                    var appEntryKey = new RegistryKeyJunk(regAppEntry.AppKey, target, this);
+                    appEntryKey.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                    appEntryKey.Confidence.Add(ConfidenceRecords.IsStoreApp);
+                    yield return appEntryKey;
                 }
             }
             else
@@ -85,34 +87,40 @@ namespace InventoryEngine.Junk.Finders.Registry
 
                     var generatedConfidence = ConfidenceGenerators.GenerateConfidence(regAppEntry.ValueName, target).ToList();
 
-                    if (generatedConfidence.Count > 0)
+                    if (generatedConfidence.Count <= 0)
                     {
-                        // Handle the value under RegisteredApps itself
-                        var regAppResult = new RegistryValueJunk(regAppEntry.RegAppFullPath, regAppEntry.ValueName, target, this);
-                        regAppResult.Confidence.AddRange(generatedConfidence);
-                        yield return regAppResult;
-
-                        // Handle the key pointed at by the value
-                        const string capabilitiesSubkeyName = "\\Capabilities";
-                        if (regAppEntry.TargetSubKeyPath.EndsWith(capabilitiesSubkeyName, StringComparison.Ordinal))
-                        {
-                            var capabilitiesKeyResult = new RegistryKeyJunk(regAppEntry.TargetFullPath, target, this);
-                            capabilitiesKeyResult.Confidence.AddRange(generatedConfidence);
-                            yield return capabilitiesKeyResult;
-
-                            var ownerKey = regAppEntry.TargetFullPath.Substring(0,
-                                regAppEntry.TargetFullPath.Length - capabilitiesSubkeyName.Length);
-
-                            var subConfidence = ConfidenceGenerators.GenerateConfidence(Path.GetFileName(ownerKey),
-                                target).ToList();
-                            if (subConfidence.Count > 0)
-                            {
-                                var subResult = new RegistryKeyJunk(ownerKey, target, this);
-                                subResult.Confidence.AddRange(subConfidence);
-                                yield return subResult;
-                            }
-                        }
+                        continue;
                     }
+
+                    // Handle the value under RegisteredApps itself
+                    var regAppResult = new RegistryValueJunk(regAppEntry.RegAppFullPath, regAppEntry.ValueName, target, this);
+                    regAppResult.Confidence.AddRange(generatedConfidence);
+                    yield return regAppResult;
+
+                    // Handle the key pointed at by the value
+                    const string capabilitiesSubkeyName = "\\Capabilities";
+                    if (!regAppEntry.TargetSubKeyPath.EndsWith(capabilitiesSubkeyName, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    var capabilitiesKeyResult = new RegistryKeyJunk(regAppEntry.TargetFullPath, target, this);
+                    capabilitiesKeyResult.Confidence.AddRange(generatedConfidence);
+                    yield return capabilitiesKeyResult;
+
+                    var ownerKey = regAppEntry.TargetFullPath.Substring(0,
+                        regAppEntry.TargetFullPath.Length - capabilitiesSubkeyName.Length);
+
+                    var subConfidence = ConfidenceGenerators.GenerateConfidence(Path.GetFileName(ownerKey),
+                        target).ToList();
+                    if (subConfidence.Count <= 0)
+                    {
+                        continue;
+                    }
+
+                    var subResult = new RegistryKeyJunk(ownerKey, target, this);
+                    subResult.Confidence.AddRange(subConfidence);
+                    yield return subResult;
                 }
             }
         }

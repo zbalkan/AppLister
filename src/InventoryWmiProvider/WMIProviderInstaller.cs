@@ -19,14 +19,16 @@ namespace InventoryWmiProvider
             var asm = Assembly.GetExecutingAssembly();
             var rs = new RegistrationServices();
 
-            if (rs.RegisterAssembly(asm, AssemblyRegistrationFlags.SetCodeBase))
+            if (!rs.RegisterAssembly(asm, AssemblyRegistrationFlags.SetCodeBase))
             {
-                try
-                {
-                    new Publish().GacInstall(Assembly.GetExecutingAssembly().Location);
-                }
-                catch { }
+                return;
             }
+
+            try
+            {
+                new Publish().GacInstall(Assembly.GetExecutingAssembly().Location);
+            }
+            catch { }
         }
 
         public override void Uninstall(IDictionary savedState)

@@ -58,12 +58,14 @@ namespace InventoryEngine.Junk.Finders.Drive
 
                 var filename = reportPath.Substring(startIndex, count);
 
-                if (appExecutables.Any(x => x.StartsWith(filename, StringComparison.InvariantCultureIgnoreCase)))
+                if (!appExecutables.Any(x => x.StartsWith(filename, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    var node = new FileSystemJunk(new DirectoryInfo(reportPath), target, this);
-                    node.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                    yield return node;
+                    continue;
                 }
+
+                var node = new FileSystemJunk(new DirectoryInfo(reportPath), target, this);
+                node.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                yield return node;
             }
         }
 

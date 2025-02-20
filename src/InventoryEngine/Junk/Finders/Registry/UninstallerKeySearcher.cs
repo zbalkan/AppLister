@@ -70,20 +70,22 @@ namespace InventoryEngine.Junk.Finders.Registry
                 yield return regKeyNode;
             }
 
-            if (target.UninstallerKind == UninstallerType.Msiexec && target.BundleProviderKey == Guid.Empty)
+            if (target.UninstallerKind != UninstallerType.Msiexec || target.BundleProviderKey != Guid.Empty)
             {
-                var upgradeKey = MsiTools.ConvertBetweenUpgradeAndProductCode(target.BundleProviderKey).ToString("N");
+                yield break;
+            }
 
-                var matchedKeyPaths = _targetKeys
-                    .Where(x => x.Value.Equals(upgradeKey, StringComparison.OrdinalIgnoreCase));
+            var upgradeKey = MsiTools.ConvertBetweenUpgradeAndProductCode(target.BundleProviderKey).ToString("N");
 
-                foreach (var keyPath in matchedKeyPaths)
-                {
-                    var fullKeyPath = Path.Combine(keyPath.Key, keyPath.Value);
-                    var result = new RegistryKeyJunk(fullKeyPath, target, this);
-                    result.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                    yield return result;
-                }
+            var matchedKeyPaths = _targetKeys
+                .Where(x => x.Value.Equals(upgradeKey, StringComparison.OrdinalIgnoreCase));
+
+            foreach (var keyPath in matchedKeyPaths)
+            {
+                var fullKeyPath = Path.Combine(keyPath.Key, keyPath.Value);
+                var result = new RegistryKeyJunk(fullKeyPath, target, this);
+                result.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                yield return result;
             }
         }
 

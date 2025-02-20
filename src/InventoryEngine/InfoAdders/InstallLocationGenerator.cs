@@ -19,12 +19,14 @@
 
         public void AddMissingInformation(ApplicationUninstallerEntry target)
         {
-            if (target.UninstallerKind == UninstallerType.Nsis || target.UninstallerKind == UninstallerType.InnoSetup)
+            if (target.UninstallerKind != UninstallerType.Nsis && target.UninstallerKind != UninstallerType.InnoSetup)
             {
-                if (!string.IsNullOrEmpty(target.UninstallerLocation))
-                {
-                    target.InstallLocation = target.UninstallerLocation;
-                }
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(target.UninstallerLocation))
+            {
+                target.InstallLocation = target.UninstallerLocation;
             }
         }
     }

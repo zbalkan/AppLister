@@ -119,15 +119,13 @@ namespace InventoryEngine.Tools
         internal static string GetDirectory(string fullPath)
         {
             var trimmed = fullPath.TrimEnd('"', ' ', '\\').TrimStart('"', ' ');
-            if (trimmed.Contains('\\'))
+            if (!trimmed.Contains('\\'))
             {
-                var index = trimmed.LastIndexOf('\\');
-                if (index < trimmed.Length)
-                {
-                    return trimmed.Substring(0, index);
-                }
+                return string.Empty;
             }
-            return string.Empty;
+
+            var index = trimmed.LastIndexOf('\\');
+            return index < trimmed.Length ? trimmed.Substring(0, index) : string.Empty;
         }
 
         /// <summary>
@@ -136,15 +134,13 @@ namespace InventoryEngine.Tools
         internal static string GetName(string fullPath)
         {
             var trimmed = fullPath.TrimEnd('"', ' ', '\\');
-            if (trimmed.Contains('\\'))
+            if (!trimmed.Contains('\\'))
             {
-                var index = trimmed.LastIndexOf('\\') + 1;
-                if (index < trimmed.Length)
-                {
-                    return trimmed.Substring(index);
-                }
+                return string.Empty;
             }
-            return string.Empty;
+
+            var index = trimmed.LastIndexOf('\\') + 1;
+            return index < trimmed.Length ? trimmed.Substring(index) : string.Empty;
         }
 
         // Try to get the windows directory, returns null if failed
@@ -270,11 +266,13 @@ namespace InventoryEngine.Tools
                 return false;
             }
 
-            if (normalizeFilesystemPath)
+            if (!normalizeFilesystemPath)
             {
-                try { subPath = Path.GetFullPath(subPath).Replace('\\', '/'); }
-                catch (SystemException) { }
+                return subPath.StartsWith(basePath + '/', StringComparison.InvariantCultureIgnoreCase);
             }
+
+            try { subPath = Path.GetFullPath(subPath).Replace('\\', '/'); }
+            catch (SystemException) { }
 
             return subPath.StartsWith(basePath + '/', StringComparison.InvariantCultureIgnoreCase);
         }

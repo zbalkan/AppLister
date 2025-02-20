@@ -53,16 +53,18 @@ namespace InventoryEngine.Junk.Finders.Registry
                     }
 
                     // Check for matches
-                    if (convertedName.StartsWith(target.InstallLocation,
+                    if (!convertedName.StartsWith(target.InstallLocation,
                             StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var junk = new RegistryValueJunk(key.Name, valueName, target, this)
-                        {
-                            DisplayValueName = convertedName
-                        };
-                        junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                        yield return junk;
+                        continue;
                     }
+
+                    var junk = new RegistryValueJunk(key.Name, valueName, target, this)
+                    {
+                        DisplayValueName = convertedName
+                    };
+                    junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                    yield return junk;
                 }
             }
         }

@@ -58,38 +58,40 @@ namespace InventoryEngine.InfoAdders
                 return UninstallerType.PowerShell;
             }
 
-            if (ProcessStartCommand.TryParse(uninstallString, out var ps)
-                && Path.IsPathRooted(ps.FileName)
-                && File.Exists(ps.FileName))
+            if (!ProcessStartCommand.TryParse(uninstallString, out var ps)
+                || !Path.IsPathRooted(ps.FileName)
+                || !File.Exists(ps.FileName))
             {
-                try
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(ps.FileName);
-                    // Detect Inno Setup
-                    if (fileName != null && InnoSetupFilenameRegex.IsMatch(fileName))
-                    {
-                        // Check if Inno Setup Uninstall Log exists
-                        if (File.Exists(ps.FileName.Substring(0, ps.FileName.Length - 3) + "dat"))
-                        {
-                            return UninstallerType.InnoSetup;
-                        }
-                    }
+                return UninstallerType.Unknown;
+            }
 
-                    // Detect NSIS Nullsoft.NSIS. Slow, but there's no other way than to scan the file
-                    using var reader = new StreamReader(ps.FileName, Encoding.ASCII);
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
+            try
+            {
+                var fileName = Path.GetFileNameWithoutExtension(ps.FileName);
+                // Detect Inno Setup
+                if (fileName != null && InnoSetupFilenameRegex.IsMatch(fileName))
+                {
+                    // Check if Inno Setup Uninstall Log exists
+                    if (File.Exists(ps.FileName.Substring(0, ps.FileName.Length - 3) + "dat"))
                     {
-                        if (line.Contains("Nullsoft", StringComparison.Ordinal))
-                        {
-                            return UninstallerType.Nsis;
-                        }
+                        return UninstallerType.InnoSetup;
                     }
                 }
-                catch (IOException) { }
-                catch (UnauthorizedAccessException) { }
-                catch (SecurityException) { }
+
+                // Detect NSIS Nullsoft.NSIS. Slow, but there's no other way than to scan the file
+                using var reader = new StreamReader(ps.FileName, Encoding.ASCII);
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (line.Contains("Nullsoft", StringComparison.Ordinal))
+                    {
+                        return UninstallerType.Nsis;
+                    }
+                }
             }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+            catch (SecurityException) { }
             return UninstallerType.Unknown;
         }
 

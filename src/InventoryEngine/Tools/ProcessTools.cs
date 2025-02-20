@@ -111,7 +111,11 @@ namespace InventoryEngine.Tools
 
             // If quotation marks were missing, check for any invalid characters after last dot in
             // case of eg: c:\test.dir thing\filename.exe?0 used to get icons
-            if (pathEnd < 0)
+            if (pathEnd >= 0)
+            {
+                return SeparateCommand(fullCommand, pathEnd);
+            }
+
             {
                 var endIndex = 0;
                 while (true)

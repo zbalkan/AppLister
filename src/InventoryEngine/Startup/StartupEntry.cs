@@ -34,19 +34,21 @@ namespace InventoryEngine.Startup
             get { return DisabledStore; }
             set
             {
-                if (value != DisabledStore)
+                if (value == DisabledStore)
                 {
-                    if (value)
-                    {
-                        StartupEntryManager.Disable(this);
-                    }
-                    else
-                    {
-                        StartupEntryManager.Enable(this);
-                    }
-
-                    DisabledStore = value;
+                    return;
                 }
+
+                if (value)
+                {
+                    StartupEntryManager.Disable(this);
+                }
+                else
+                {
+                    StartupEntryManager.Enable(this);
+                }
+
+                DisabledStore = value;
             }
         }
 

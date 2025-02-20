@@ -59,17 +59,21 @@ namespace InventoryEngine.Factory
                 foreach (var queryObj in searcher.Get())
                 {
                     // Skip drivers and adapters
-                    if (queryObj["ServiceType"] is string serviceType && serviceType.Contains("Process"))
+                    if (!(queryObj["ServiceType"] is string serviceType) || !serviceType.Contains("Process"))
                     {
-                        // Don't show system services
-                        if (queryObj["PathName"] is string filename && !filename.Contains(
+                        continue;
+                    }
+
+                    // Don't show system services
+                    if (!(queryObj["PathName"] is string filename) || filename.Contains(
                             WindowsTools.GetEnvironmentPath(Csidl.CSIDL_WINDOWS),
                             StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            var e = new ServiceEntry((string)queryObj["Name"], queryObj["DisplayName"] as string, filename);
-                            results.Add(e);
-                        }
+                    {
+                        continue;
                     }
+
+                    var e = new ServiceEntry((string)queryObj["Name"], queryObj["DisplayName"] as string, filename);
+                    results.Add(e);
                 }
             }
             catch (Exception ex) when (ex is TypeInitializationException || ex is ManagementException || ex is ExternalException || ex is PlatformNotSupportedException)

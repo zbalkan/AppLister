@@ -96,17 +96,19 @@ namespace InventoryEngine.InfoAdders
         private static void FillInMissingInfoMsiHelper(Func<string> get, Action<string> set, Guid guid,
             params MsiWrapper.Installproperty[] properties)
         {
-            if (string.IsNullOrEmpty(get()))
+            if (!string.IsNullOrEmpty(get()))
             {
-                foreach (var item in properties)
-                {
-                    var temp = MsiTools.MsiGetProductInfo(guid, item);
+                return;
+            }
 
-                    //IMPORTANT: Do not assign empty strings, they will mess up automatic property creation later on.
-                    if (string.IsNullOrEmpty(temp))
-                    {
-                        set(temp);
-                    }
+            foreach (var item in properties)
+            {
+                var temp = MsiTools.MsiGetProductInfo(guid, item);
+
+                //IMPORTANT: Do not assign empty strings, they will mess up automatic property creation later on.
+                if (string.IsNullOrEmpty(temp))
+                {
+                    set(temp);
                 }
             }
         }

@@ -45,15 +45,17 @@ namespace InventoryService
 
         private void Dispose(bool disposing)
         {
-            if (!_disposedValue)
+            if (_disposedValue)
             {
-                if (disposing)
-                {
-                    _logger.Dispose();
-                }
-
-                _disposedValue = true;
+                return;
             }
+
+            if (disposing)
+            {
+                _logger.Dispose();
+            }
+
+            _disposedValue = true;
         }
 
         public void Dispose()

@@ -19,17 +19,18 @@ namespace InventoryEngine.Junk.Confidence
 
         public override bool Equals(object obj)
         {
-            if (obj is ConfidenceRecord casted)
+            if (!(obj is ConfidenceRecord casted))
             {
-                if (ReferenceEquals(this, obj))
-                {
-                    return true;
-                }
-
-                return casted.Change == Change && casted.Reason == Reason;
+                return false;
             }
 
-            return false;
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return casted.Change == Change && casted.Reason == Reason;
+
         }
 
         public override int GetHashCode() => Change.GetHashCode() ^ Reason.GetHashCode();

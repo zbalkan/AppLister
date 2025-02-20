@@ -150,37 +150,39 @@ namespace InventoryEngine.Factory
         private static DateTime GetInstallDate(RegistryKey uninstallerKey)
         {
             var dateString = uninstallerKey.GetStringSafe(RegistryNameInstallDate);
-            if (dateString?.Length == 8)
+            if (dateString?.Length != 8)
+            {
+                return DateTime.MinValue;
+            }
+
+            try
+            {
+                // Likely to be in YYYYMMDD format
+                return new DateTime(int.Parse(dateString.Substring(0, 4)),
+                    int.Parse(dateString.Substring(4, 2)),
+                    int.Parse(dateString.Substring(6, 2)));
+            }
+            catch (ArgumentOutOfRangeException)
             {
                 try
                 {
-                    // Likely to be in YYYYMMDD format
+                    // YYYYDDMM format instead of standard YYYYMMDD?
                     return new DateTime(int.Parse(dateString.Substring(0, 4)),
-                                    int.Parse(dateString.Substring(4, 2)),
-                                    int.Parse(dateString.Substring(6, 2)));
+                        int.Parse(dateString.Substring(6, 2)),
+                        int.Parse(dateString.Substring(4, 2)));
                 }
-                catch (ArgumentOutOfRangeException)
-                {
-                    try
-                    {
-                        // YYYYDDMM format instead of standard YYYYMMDD?
-                        return new DateTime(int.Parse(dateString.Substring(0, 4)),
-                                            int.Parse(dateString.Substring(6, 2)),
-                                            int.Parse(dateString.Substring(4, 2)));
-                    }
-                    catch (SystemException ex)
-                    {
-                        Debug.WriteLine(ex);
-                    }
-                }
-                catch (FormatException ex)
+                catch (SystemException ex)
                 {
                     Debug.WriteLine(ex);
                 }
-                catch (ArgumentException ex)
-                {
-                    Debug.WriteLine(ex);
-                }
+            }
+            catch (FormatException ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            catch (ArgumentException ex)
+            {
+                Debug.WriteLine(ex);
             }
 
             return DateTime.MinValue;

@@ -97,18 +97,20 @@ namespace InventoryEngine.InfoAdders
                 targetEntry.Comment = comment;
             }
 
-            if (unpopulatedCheck(targetEntry.DisplayVersion))
+            if (!unpopulatedCheck(targetEntry.DisplayVersion))
             {
-                var productVersion = verInfo.ProductVersion?.Trim();
-                if (string.IsNullOrEmpty(productVersion))
-                {
-                    productVersion = verInfo.FileVersion?.Trim();
-                }
+                return;
+            }
 
-                if (!string.IsNullOrEmpty(productVersion))
-                {
-                    targetEntry.DisplayVersion = ApplicationEntryTools.CleanupDisplayVersion(productVersion);
-                }
+            var productVersion = verInfo.ProductVersion?.Trim();
+            if (string.IsNullOrEmpty(productVersion))
+            {
+                productVersion = verInfo.FileVersion?.Trim();
+            }
+
+            if (!string.IsNullOrEmpty(productVersion))
+            {
+                targetEntry.DisplayVersion = ApplicationEntryTools.CleanupDisplayVersion(productVersion);
             }
         }
     }
