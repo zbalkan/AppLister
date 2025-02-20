@@ -142,14 +142,6 @@ namespace InventoryEngine.Startup
             }
         }
 
-        /// <summary>
-        ///     $"{ProgramName} | {Company} | {ParentLongName} | {Command}"
-        /// </summary>
-        public string ToLongString() => $"{ProgramName} | {Company} | {ParentLongName} | {Command}";
-
-        //TODO temporary hack
-        internal void SetParentFancyName(string newValue) => ParentShortName = newValue;
-
         //TODO temporary hack
         internal void SetParentLongName(string newValue) => ParentLongName = newValue;
     }
