@@ -50,7 +50,7 @@ namespace InventoryEngine.Factory
 
         private static string[] FindExecutables(PSObject manifest)
         {
-            if (manifest == default)
+            if (manifest == null)
             {
                 return Array.Empty<string>();
             }
@@ -66,7 +66,7 @@ namespace InventoryEngine.Factory
 
         private static PSObject GetAppxManifest(string packageName)
         {
-            PSObject manifest = default;
+            PSObject manifest = null;
             powershellInstance.Commands.Clear();
             powershellInstance
                 .AddCommand("Get-AppxPackageManifest")
@@ -165,7 +165,7 @@ namespace InventoryEngine.Factory
         private static string ResolveDisplayName(PSMemberInfoCollection<PSPropertyInfo> props, PSObject manifest)
         {
             string displayName;
-            if (manifest == default)
+            if (manifest == null)
             {
                 displayName = props["Name"].Value.ToString();
             }
@@ -186,7 +186,7 @@ namespace InventoryEngine.Factory
 
         private static string ResolveExecutableName(PSObject manifest)
         {
-            if (manifest == default)
+            if (manifest == null)
             {
                 return string.Empty;
             }
@@ -218,7 +218,7 @@ namespace InventoryEngine.Factory
 
         private static string ResolvePublisherDisplayName(PSObject manifest)
         {
-            if (manifest == default)
+            if (manifest == null)
             {
                 return string.Empty;
             }
