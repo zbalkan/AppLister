@@ -7,7 +7,7 @@ namespace InventoryEngine.Startup
 {
     internal sealed class BrowserHelperEntry : StartupEntryBase
     {
-        public override bool Disabled
+        public bool Disabled
         {
             get { return _disabled; }
             set
@@ -55,7 +55,7 @@ namespace InventoryEngine.Startup
             }
         }
 
-        public override void Delete()
+        public void Delete()
         {
             using var key = RegistryTools.OpenRegistryKey(GetRealParentPath(), true);
             key?.DeleteSubKey(EntryLongName);

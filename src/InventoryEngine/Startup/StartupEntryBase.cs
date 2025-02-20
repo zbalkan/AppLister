@@ -24,12 +24,6 @@ namespace InventoryEngine.Startup
         public virtual string Company { get; protected set; }
 
         /// <summary>
-        ///     True if the entry is not processed during startup. It is stored in the backup reg
-        ///     key and optionally backup directory if it's a link file.
-        /// </summary>
-        public abstract bool Disabled { get; set; }
-
-        /// <summary>
         ///     Name of the called program extracted from the link or the target executable (if possible)
         /// </summary>
         public virtual string ProgramName { get; protected set; }
@@ -62,19 +56,9 @@ namespace InventoryEngine.Startup
             : null;
 
         /// <summary>
-        ///     Delete this startup entry from the system
-        /// </summary>
-        public abstract void Delete();
-
-        /// <summary>
         ///     Check if this entry still exists in the system
         /// </summary>
         public abstract bool StillExists();
-
-        /// <summary>
-        ///     $"{ProgramName} | {Company} | {Command}"
-        /// </summary>
-        public virtual string ToLongString() => $"{ProgramName} | {Company} | {Command}";
 
         /// <summary>
         ///     Returns FullLongName, unless it's empty. In that case returns ProgramName, or

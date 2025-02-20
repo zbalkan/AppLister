@@ -6,7 +6,7 @@ namespace InventoryEngine.Startup
 {
     internal sealed class TaskEntry : StartupEntryBase, IDisposable
     {
-        public override bool Disabled
+        public bool Disabled
         {
             get
             {
@@ -52,7 +52,7 @@ namespace InventoryEngine.Startup
             FillInformationFromFile(CommandFilePath);
         }
 
-        public override void Delete() => SourceTask.Folder.DeleteTask(SourceTask.Name, false);
+        public void Delete() => SourceTask.Folder.DeleteTask(SourceTask.Name, false);
 
         public void Dispose()
         {

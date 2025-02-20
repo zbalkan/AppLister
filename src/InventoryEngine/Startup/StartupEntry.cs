@@ -29,7 +29,7 @@ namespace InventoryEngine.Startup
         ///     True if the entry is not processed during startup. It is stored in the backup reg
         ///     key and optionally backup directory if it's a link file.
         /// </summary>
-        public override bool Disabled
+        public bool Disabled
         {
             get { return DisabledStore; }
             set
@@ -113,7 +113,7 @@ namespace InventoryEngine.Startup
         /// <summary>
         ///     Delete this startup entry from the system
         /// </summary>
-        public override void Delete() => StartupEntryManager.Delete(this);
+        public void Delete() => StartupEntryManager.Delete(this);
 
         /// <summary>
         ///     Check if the startup entry still exists in registry or on disk. If the entry is
@@ -145,7 +145,7 @@ namespace InventoryEngine.Startup
         /// <summary>
         ///     $"{ProgramName} | {Company} | {ParentLongName} | {Command}"
         /// </summary>
-        public override string ToLongString() => $"{ProgramName} | {Company} | {ParentLongName} | {Command}";
+        public string ToLongString() => $"{ProgramName} | {Company} | {ParentLongName} | {Command}";
 
         //TODO temporary hack
         internal void SetParentFancyName(string newValue) => ParentShortName = newValue;
