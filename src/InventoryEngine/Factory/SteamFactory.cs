@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using InventoryEngine.Junk.Confidence;
-using InventoryEngine.Junk.Containers;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using UninstallTools.Junk.Finders;
-using InventoryEngine.Tools;
 using InventoryEngine.Extensions;
+using InventoryEngine.Junk.Confidence;
+using InventoryEngine.Junk.Containers;
+using InventoryEngine.Tools;
+using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Factory
 {
@@ -89,14 +89,18 @@ namespace InventoryEngine.Factory
         }
 
         public bool IsEnabled() => UninstallToolsGlobalConfig.ScanSteam;
+
         public string DisplayName => "Progress_AppStores_Steam";
 
-        #endregion
+        #endregion IIndependantUninstallerFactory
 
         #region IJunkCreator
 
         private static readonly string[] TempFolderNames = { "downloading", "shadercache", "temp" };
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers) { }
+
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        { }
+
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
             if (target.UninstallerKind != UninstallerType.Steam || string.IsNullOrEmpty(target.InstallLocation))
@@ -107,7 +111,8 @@ namespace InventoryEngine.Factory
             var results = new List<IJunkResult>();
             try
             {
-                // Look for this appID in steam library's temporary folders (game is inside "common" folder, temp folders are next to that)
+                // Look for this appID in steam library's temporary folders (game is inside "common"
+                // folder, temp folders are next to that)
                 var d = new DirectoryInfo(target.InstallLocation);
                 if (d.Exists && d.Parent?.Name == "common" && d.Parent.Parent != null)
                 {
@@ -140,6 +145,6 @@ namespace InventoryEngine.Factory
 
         public string CategoryName { get; } = "UninstallerType_Steam";
 
-        #endregion
+        #endregion IJunkCreator
     }
 }

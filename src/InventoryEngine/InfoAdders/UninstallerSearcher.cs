@@ -1,18 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System;
 
 namespace InventoryEngine.InfoAdders
 {
     public class UninstallerSearcher : IMissingInfoAdder
     {
         public bool AlwaysRun { get; } = false;
+
         public string[] CanProduceValueNames { get; } = {
             nameof(ApplicationUninstallerEntry.UninstallString)
         };
 
         public InfoAdderPriority Priority { get; } = InfoAdderPriority.RunLast;
+
         public string[] RequiredValueNames { get; } = {
             nameof(ApplicationUninstallerEntry.SortedExecutables)
         };

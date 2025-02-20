@@ -206,9 +206,7 @@ namespace InventoryEngine.Tools
         /// <param name="onlySystemTypes">
         ///     Should file types executed by third party applications be included?
         /// </param>
-        /// <param name="includeLibraries">
-        ///     Should library file types be included in the comparison?
-        /// </param>
+        /// <param name="includeLibraries"> Should library file types be included in the comparison? </param>
         internal static bool IsExecutable(string filename, bool onlySystemTypes, bool includeLibraries)
         {
             filename = filename.ExtendedTrimEndAny(new[] { "'", "\"" }, StringComparison.CurrentCultureIgnoreCase);

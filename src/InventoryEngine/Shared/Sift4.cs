@@ -12,16 +12,11 @@ namespace InventoryEngine.Shared
         ///     Static distance algorithm working on strings, computing transpositions as well as
         ///     stopping when maxDistance was reached.
         /// </summary>
-        /// <param name="s1">
-        /// </param>
-        /// <param name="s2">
-        /// </param>
-        /// <param name="maxOffset">
-        /// </param>
-        /// <param name="maxDistance">
-        /// </param>
-        /// <returns>
-        /// </returns>
+        /// <param name="s1"> </param>
+        /// <param name="s2"> </param>
+        /// <param name="maxOffset"> </param>
+        /// <param name="maxDistance"> </param>
+        /// <returns> </returns>
         internal static double CommonDistance(string s1, string s2, int maxOffset, int maxDistance = 0)
         {
             var l1 = (s1?.Length) ?? 0;
@@ -137,14 +132,10 @@ namespace InventoryEngine.Shared
         /// <summary>
         ///     Standard Sift algorithm, using strings and taking only maxOffset as a parameter
         /// </summary>
-        /// <param name="s1">
-        /// </param>
-        /// <param name="s2">
-        /// </param>
-        /// <param name="maxOffset">
-        /// </param>
-        /// <returns>
-        /// </returns>
+        /// <param name="s1"> </param>
+        /// <param name="s2"> </param>
+        /// <param name="maxOffset"> </param>
+        /// <returns> </returns>
         internal static int SimplestDistance(string s1, string s2, int maxOffset)
         {
             var l1 = (s1?.Length) ?? 0;

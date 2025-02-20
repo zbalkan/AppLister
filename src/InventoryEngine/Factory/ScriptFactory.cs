@@ -13,6 +13,7 @@ namespace InventoryEngine.Factory
         private static readonly PropertyInfo[] EntryProps;
 
         private static string HelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "ScriptHelper.exe");
+
         private static bool IsHelperAvailable() => File.Exists(HelperPath);
 
         static ScriptFactory()
@@ -79,6 +80,7 @@ namespace InventoryEngine.Factory
         }
 
         public bool IsEnabled() => UninstallToolsGlobalConfig.ScanPreDefined;
+
         public string DisplayName => "Progress_AppStores_Templates";
     }
 }

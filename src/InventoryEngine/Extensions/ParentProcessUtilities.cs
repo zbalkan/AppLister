@@ -26,13 +26,11 @@ namespace InventoryEngine.Extensions
         /// <summary>
         ///     Gets the parent process of a specified process.
         /// </summary>
-        /// <param name="handle">
-        ///     The process handle.
-        /// </param>
-        /// <returns>
-        ///     An instance of the Process class.
-        /// </returns>
-        /// <exception cref="Win32Exception">The status may not be obtained properly due to permissions.</exception>
+        /// <param name="handle"> The process handle. </param>
+        /// <returns> An instance of the Process class. </returns>
+        /// <exception cref="Win32Exception">
+        ///     The status may not be obtained properly due to permissions.
+        /// </exception>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Exceptions", "TI8110:Do not silently ignore exceptions", Justification = "Ignore invalid pointer as the parent may have been killed.")]
         internal static Process GetParentProcess(IntPtr handle)
         {

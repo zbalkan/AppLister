@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using InventoryEngine.Factory;
-using InventoryEngine.Tools;
-using Microsoft.Win32.TaskScheduler;
 
 namespace InventoryEngine.Startup
 {
@@ -26,12 +24,8 @@ namespace InventoryEngine.Startup
         ///     Fill in the ApplicationUninstallerEntry.StartupEntries property with a list of
         ///     related StartupEntry objects. Old data is not cleared, only overwritten if necessary.
         /// </summary>
-        /// <param name="allUninstallerEntries">
-        ///     Uninstaller entries to assign to
-        /// </param>
-        /// <param name="allStartupEntries">
-        ///     Startup entries to assign
-        /// </param>
+        /// <param name="allUninstallerEntries"> Uninstaller entries to assign to </param>
+        /// <param name="allStartupEntries"> Startup entries to assign </param>
         public static void AssignStartupEntries(IEnumerable<ApplicationUninstallerEntry> allUninstallerEntries,
             IEnumerable<StartupEntryBase> allStartupEntries)
         {

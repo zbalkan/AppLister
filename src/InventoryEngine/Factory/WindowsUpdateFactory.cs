@@ -10,6 +10,7 @@ namespace InventoryEngine.Factory
     internal class WindowsUpdateFactory : IIndependentUninstallerFactory
     {
         private static string HelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "WinUpdateHelper.exe");
+
         private static bool IsHelperAvailable() => File.Exists(HelperPath);
 
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
@@ -37,28 +38,36 @@ namespace InventoryEngine.Factory
                             if (GuidTools.TryExtractGuid(valuePair.Value, out var result))
                                 entry.BundleProviderKey = result;
                             break;
+
                         case "RevisionNumber":
                             entry.DisplayVersion = ApplicationEntryTools.CleanupDisplayVersion(valuePair.Value);
                             break;
+
                         case "Title":
                             entry.RawDisplayName = valuePair.Value;
                             break;
+
                         case "IsUninstallable":
                             if (bool.TryParse(valuePair.Value, out var isUnins))
                                 entry.IsProtected = !isUnins;
                             break;
+
                         case "SupportUrl":
                             entry.AboutUrl = valuePair.Value;
                             break;
+
                         case "MinDownloadSize":
                             break;
+
                         case "MaxDownloadSize":
                             break;
+
                         case "LastDeploymentChangeTime":
                             if (DateTime.TryParse(valuePair.Value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) &&
                                 !DateTime.MinValue.Equals(date))
                                 entry.InstallDate = date;
                             break;
+
                         default:
                             Debug.Fail("Unknown label");
                             break;
@@ -75,6 +84,7 @@ namespace InventoryEngine.Factory
         }
 
         public bool IsEnabled() => UninstallToolsGlobalConfig.ScanWinUpdates;
+
         public string DisplayName => "Progress_AppStores_WinUpdates";
     }
 }

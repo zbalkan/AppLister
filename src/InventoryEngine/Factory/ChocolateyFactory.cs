@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using InventoryEngine.Tools;
-using InventoryEngine.Shared;
 using System.Text;
+using InventoryEngine.Shared;
+using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory
 {
@@ -122,7 +122,8 @@ namespace InventoryEngine.Factory
                     entry.InstallLocation = GetChocoInstallLocation(chocoFullFilename);
                 }
 
-                // Prevent chocolatey from trying to run the original uninstaller (it's deleted by now), only remove the package
+                // Prevent chocolatey from trying to run the original uninstaller (it's deleted by
+                // now), only remove the package
                 psc.Arguments += " -n --skipautouninstaller";
                 var junk = new Junk.Containers.RunProcessJunk(entry, null, psc, "ChocolateyFactory_UninstallInChocolateyJunkName");
                 junk.Confidence.Add(Junk.Confidence.ConfidenceRecords.ExplicitConnection);
@@ -195,6 +196,7 @@ namespace InventoryEngine.Factory
         }
 
         public bool IsEnabled() => UninstallToolsGlobalConfig.ScanChocolatey;
+
         public string DisplayName => "Progress_AppStores_Chocolatey";
 
         private static string StartProcessAndReadOutput(string filename, string args)

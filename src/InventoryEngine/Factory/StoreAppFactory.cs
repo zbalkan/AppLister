@@ -146,7 +146,7 @@ namespace InventoryEngine.Factory
             {
                 installLocation = string.Empty;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 installLocation = string.Empty;
                 Debug.WriteLine(ex);

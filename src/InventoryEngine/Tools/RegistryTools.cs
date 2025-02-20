@@ -24,9 +24,7 @@ namespace InventoryEngine.Tools
         ///     Return registry key at supplied path. If the key or its parents don't exist, create
         ///     them before returning. The returned RegistryKey is writable.
         /// </summary>
-        /// <param name="fullPath">
-        ///     Path of the key to open or create. Not case-sensitive.
-        /// </param>
+        /// <param name="fullPath"> Path of the key to open or create. Not case-sensitive. </param>
         internal static RegistryKey CreateSubKeyRecursively(string fullPath)
         {
             if (fullPath == null)
@@ -73,21 +71,15 @@ namespace InventoryEngine.Tools
         ///     key can be named by either its long or short name. (long: "HKEY_LOCAL_MACHINE",
         ///     short: "HKLM")
         /// </summary>
-        /// <param name="fullPath">
-        ///     Full path of the requested registry key
-        /// </param>
+        /// <param name="fullPath"> Full path of the requested registry key </param>
         internal static RegistryKey OpenRegistryKey(string fullPath) => OpenRegistryKey(fullPath, false);
 
         /// <summary>
         ///     Open registry key using its fully qualified path. Root key can be named by either
         ///     its long or short name. (long: "HKEY_LOCAL_MACHINE", short: "HKLM")
         /// </summary>
-        /// <param name="fullPath">
-        ///     Full path of the requested registry key
-        /// </param>
-        /// <param name="writable">
-        ///     If false, key is opened read-only
-        /// </param>
+        /// <param name="fullPath"> Full path of the requested registry key </param>
+        /// <param name="writable"> If false, key is opened read-only </param>
         /// <param name="ignoreAccessExceptions">
         ///     If true, return null instead of throwin an exception if the key is inaccessible
         /// </param>
@@ -117,9 +109,7 @@ namespace InventoryEngine.Tools
         /// <summary>
         ///     Check if entry has not been uninstalled already (check registry key)
         /// </summary>
-        /// <returns>
-        ///     True if key exists
-        /// </returns>
+        /// <returns> True if key exists </returns>
         internal static bool RegKeyStillExists(string registryPath)
         {
             if (string.IsNullOrEmpty(registryPath))
@@ -277,12 +267,8 @@ namespace InventoryEngine.Tools
         ///     Open registry key using its fully qualified path. Root key can be named by either
         ///     its long or short name. (long: "HKEY_LOCAL_MACHINE", short: "HKLM")
         /// </summary>
-        /// <param name="fullPath">
-        ///     Full path of the requested registry key
-        /// </param>
-        /// <param name="writable">
-        ///     If false, key is opened read-only
-        /// </param>
+        /// <param name="fullPath"> Full path of the requested registry key </param>
+        /// <param name="writable"> If false, key is opened read-only </param>
         private static RegistryKey OpenRegistryKey(string fullPath, bool writable)
         {
             if (fullPath == null)
@@ -299,6 +285,7 @@ namespace InventoryEngine.Tools
 
             return rootKey.OpenSubKey(StripKeyRoot(fullPath), writable);
         }
+
         private static void RecurseCopyKey(RegistryKey sourceKey, RegistryKey destinationKey)
         {
             foreach (var valueName in sourceKey.GetValueNames())

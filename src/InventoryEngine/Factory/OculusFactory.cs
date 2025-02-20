@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using InventoryEngine.Tools;
-using InventoryEngine.InfoAdders;
 using InventoryEngine.Extensions;
+using InventoryEngine.InfoAdders;
+using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory
 {
@@ -11,6 +11,7 @@ namespace InventoryEngine.Factory
     {
         public string DisplayName => "Progress_AppStores_Oculus";
         private static string HelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "OculusHelper.exe");
+
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
         {
             var results = new List<ApplicationUninstallerEntry>();

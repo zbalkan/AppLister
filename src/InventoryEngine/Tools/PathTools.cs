@@ -69,10 +69,11 @@ namespace InventoryEngine.Tools
         };
 
         /// <summary>
-        /// Get full path of an application available in current environment. Same as writing it's name in CMD.
+        ///     Get full path of an application available in current environment. Same as writing
+        ///     it's name in CMD.
         /// </summary>
-        /// <param name="filename">Name of the exectuable, including the extension</param>
-        /// <returns></returns>
+        /// <param name="filename"> Name of the exectuable, including the extension </param>
+        /// <returns> </returns>
         public static string GetFullPathOfExecutable(string filename)
         {
             IEnumerable<string> paths = new[] { Environment.CurrentDirectory };
@@ -277,7 +278,8 @@ namespace InventoryEngine.Tools
 
             return subPath.StartsWith(basePath + '/', StringComparison.InvariantCultureIgnoreCase);
         }
-        /// <param name="exename">name of the exectuable, including .exe</param>
+
+        /// <param name="exename"> name of the exectuable, including .exe </param>
         private static string GetExecutablePathFromAppPaths(string exename)
         {
             const string appPaths = @"Software\Microsoft\Windows\CurrentVersion\App Paths";

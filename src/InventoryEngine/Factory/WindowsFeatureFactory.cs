@@ -53,7 +53,7 @@ namespace InventoryEngine.Factory
                         featureName, silent ? "/quiet " : string.Empty);
 
         /// <summary>
-        /// Get information about enabled and disabled windows features. Works on Windows 7 and newer.
+        ///     Get information about enabled and disabled windows features. Works on Windows 7 and newer.
         /// </summary>
         private static IEnumerable<WindowsFeatureInfo> GetWindowsFeatures()
         {

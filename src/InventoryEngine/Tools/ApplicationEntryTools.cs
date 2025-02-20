@@ -147,10 +147,8 @@ namespace InventoryEngine.Tools
         /// <summary>
         ///     Check if path points to the windows installer program or to a .msi package
         /// </summary>
-        /// <param name="path">
-        /// </param>
-        /// <returns>
-        /// </returns>
+        /// <param name="path"> </param>
+        /// <returns> </returns>
         internal static bool PathPointsToMsiExec(string path)
         {
             if (string.IsNullOrEmpty(path))

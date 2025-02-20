@@ -294,12 +294,8 @@ namespace InventoryEngine.Factory
         ///     passed uninstallerKey is null. If there are any problems while reading the registry
         ///     an exception will be thrown as well.
         /// </summary>
-        /// <param name="uninstallerKey">
-        ///     Registry key which contains the uninstaller information.
-        /// </param>
-        /// <param name="is64Bit">
-        ///     Is the registry key pointing to a 64 bit subkey?
-        /// </param>
+        /// <param name="uninstallerKey"> Registry key which contains the uninstaller information. </param>
+        /// <param name="is64Bit"> Is the registry key pointing to a 64 bit subkey? </param>
         private ApplicationUninstallerEntry TryCreateFromRegistry(RegistryKey uninstallerKey, bool is64Bit)
         {
             if (uninstallerKey == null)

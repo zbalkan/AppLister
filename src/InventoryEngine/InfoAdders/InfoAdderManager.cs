@@ -25,7 +25,9 @@ namespace InventoryEngine.InfoAdders
         /// <summary>
         ///     Static constructor to ensure this is initiated only once.
         /// </summary>
-        /// <exception cref="ReflectionTypeLoadException">If this exception is thrown, let the servoce die. It is a boken state.</exception>
+        /// <exception cref="ReflectionTypeLoadException">
+        ///     If this exception is thrown, let the servoce die. It is a boken state.
+        /// </exception>
         static InfoAdderManager()
         {
             InfoAdders = GetInfoAdders().ToArray();
@@ -140,12 +142,8 @@ namespace InventoryEngine.InfoAdders
         /// <summary>
         ///     Copy missing property values
         /// </summary>
-        /// <param name="baseEntry">
-        ///     Copy values to this object
-        /// </param>
-        /// <param name="entryToMerge">
-        ///     Copy from this object
-        /// </param>
+        /// <param name="baseEntry"> Copy values to this object </param>
+        /// <param name="entryToMerge"> Copy from this object </param>
         public void CopyMissingInformation(ApplicationUninstallerEntry baseEntry, ApplicationUninstallerEntry entryToMerge)
         {
             // If one of these is not null it will be merged by loop below. If both are not null
@@ -206,9 +204,12 @@ namespace InventoryEngine.InfoAdders
         }
 
         /// <summary>
-        ///    Get classes from assembly.
+        ///     Get classes from assembly.
         /// </summary>
-        /// <exception cref="ReflectionTypeLoadException">When using reflection to get the type, it is possible to get this exception. Yet, no proper way yto handle.</exception>
+        /// <exception cref="ReflectionTypeLoadException">
+        ///     When using reflection to get the type, it is possible to get this exception. Yet, no
+        ///     proper way yto handle.
+        /// </exception>
         private static IEnumerable<IMissingInfoAdder> GetInfoAdders()
         {
             var type = typeof(IMissingInfoAdder);

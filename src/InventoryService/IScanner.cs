@@ -8,9 +8,7 @@ namespace InventoryService
         /// <summary>
         ///     Reads all the packages from the source.
         /// </summary>
-        /// <returns>
-        ///     List of packages collected. Returns empty list of nothing found.
-        /// </returns>
+        /// <returns> List of packages collected. Returns empty list of nothing found. </returns>
         List<Package> GetAll();
     }
 }

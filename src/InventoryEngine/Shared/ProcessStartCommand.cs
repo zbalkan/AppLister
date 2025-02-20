@@ -18,12 +18,8 @@ namespace InventoryEngine.Shared
         /// <summary>
         ///     Cleans up process start command and parameters
         /// </summary>
-        /// <param name="filename">
-        ///     executable path
-        /// </param>
-        /// <param name="args">
-        ///     arguments to the executable
-        /// </param>
+        /// <param name="filename"> executable path </param>
+        /// <param name="args"> arguments to the executable </param>
         /// <exception cref="ArgumentNullException">
         ///     The values of 'filename' and 'args' cannot be null.
         /// </exception>

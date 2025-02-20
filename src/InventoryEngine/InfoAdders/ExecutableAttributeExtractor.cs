@@ -38,15 +38,9 @@ namespace InventoryEngine.InfoAdders
         /// <summary>
         ///     Add information from FileVersionInfo of specified file to the targetEntry
         /// </summary>
-        /// <param name="targetEntry">
-        ///     Entry to update
-        /// </param>
-        /// <param name="infoSourceFilename">
-        ///     Binary file to get the information from
-        /// </param>
-        /// <param name="onlyUnpopulated">
-        ///     Only update unpopulated fields of the targetEntry
-        /// </param>
+        /// <param name="targetEntry"> Entry to update </param>
+        /// <param name="infoSourceFilename"> Binary file to get the information from </param>
+        /// <param name="onlyUnpopulated"> Only update unpopulated fields of the targetEntry </param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1163:Unused parameter.", Justification = "<Pending>")]
         internal static void FillInformationFromFileAttribs(ApplicationUninstallerEntry targetEntry, string infoSourceFilename, bool onlyUnpopulated)
         {

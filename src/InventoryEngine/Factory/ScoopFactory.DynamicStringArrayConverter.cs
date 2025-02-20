@@ -8,7 +8,7 @@ namespace InventoryEngine.Factory
     internal sealed partial class ScoopFactory
     {
         /// <summary>
-        /// Handle JSON string array entry that has one dimension less or more.
+        ///     Handle JSON string array entry that has one dimension less or more.
         /// </summary>
         internal class DynamicStringArrayConverter : JsonConverter<string[]>
         {

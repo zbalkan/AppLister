@@ -168,7 +168,6 @@
     <Compile Include="Shared\ThreadedWorkSpreader.cs" />
     <Compile Include="Tools\GuidTools.cs" />
     <Compile Include="Tools\MsiTools.cs" />
-    <Compile Include="Tools\MsiWrapper.cs" />
     <Compile Include="Tools\WindowsTools.NativeMethods.cs" />
     <Compile Include="Tools\PathTools.cs" />
     <Compile Include="Tools\ProcessTools.cs" />

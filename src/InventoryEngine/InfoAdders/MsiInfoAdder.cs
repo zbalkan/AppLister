@@ -36,6 +36,7 @@ namespace InventoryEngine.InfoAdders
 
             ApplyMsiInfo(target, target.BundleProviderKey);
         }
+
         /// <summary>
         ///     A valid guid is REQUIRED. It doesn't have to be set on the entry, but should be.
         /// </summary>

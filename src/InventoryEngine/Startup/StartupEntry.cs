@@ -109,6 +109,7 @@ namespace InventoryEngine.Startup
                 ProgramNameTrimmed = ProgramName.StripStringFromVersionNumber();
             }
         }
+
         /// <summary>
         ///     Delete this startup entry from the system
         /// </summary>

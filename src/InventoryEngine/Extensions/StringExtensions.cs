@@ -15,46 +15,27 @@ namespace InventoryEngine.Extensions
         /// <summary>
         ///     Check if base string contains all of the supplied strings.
         /// </summary>
-        /// <param name="s">
-        /// </param>
-        /// <param name="items">
-        ///     Items to be compared to the base string
-        /// </param>
-        /// <param name="comparisonType">
-        ///     Rules of the comparison
-        /// </param>
-        /// <returns>
-        ///     True if any of the items were found in the base string, else false
-        /// </returns>
+        /// <param name="s"> </param>
+        /// <param name="items"> Items to be compared to the base string </param>
+        /// <param name="comparisonType"> Rules of the comparison </param>
+        /// <returns> True if any of the items were found in the base string, else false </returns>
         internal static bool ContainsAll(this string s, IEnumerable<string> items, StringComparison comparisonType) => items.All(item => s.Contains(item, comparisonType));
 
         /// <summary>
         ///     Check if base char array contains any of the supplied chars.
         /// </summary>
-        /// <param name="s">
-        /// </param>
-        /// <param name="items">
-        ///     Chars to be compared to the base array
-        /// </param>
-        /// <returns>
-        ///     True if any of the items were found in the base string, else false
-        /// </returns>
+        /// <param name="s"> </param>
+        /// <param name="items"> Chars to be compared to the base array </param>
+        /// <returns> True if any of the items were found in the base string, else false </returns>
         internal static bool ContainsAny(this IEnumerable<char> s, IEnumerable<char> items) => items.Any(s.Contains);
 
         /// <summary>
         ///     Check if base string contains any of the supplied strings.
         /// </summary>
-        /// <param name="s">
-        /// </param>
-        /// <param name="items">
-        ///     Items to be compared to the base string
-        /// </param>
-        /// <param name="comparisonType">
-        ///     Rules of the comparison
-        /// </param>
-        /// <returns>
-        ///     True if any of the items were found in the base string, else false
-        /// </returns>
+        /// <param name="s"> </param>
+        /// <param name="items"> Items to be compared to the base string </param>
+        /// <param name="comparisonType"> Rules of the comparison </param>
+        /// <returns> True if any of the items were found in the base string, else false </returns>
         internal static bool ContainsAny(this string s, IEnumerable<string> items, StringComparison comparisonType) => items.Any(item => s.Contains(item, comparisonType));
 
         /// <summary>
@@ -63,17 +44,10 @@ namespace InventoryEngine.Extensions
         ///     is greedy, it will remove the same item multiple times if possible. After every
         ///     successful removal whitespaces and ending pronounciations are trimmed again.
         /// </summary>
-        /// <param name="s">
-        /// </param>
-        /// <param name="trimmers">
-        ///     Items to be trimmed from base string
-        /// </param>
-        /// <param name="comparisonType">
-        ///     How the items are compared to the base string
-        /// </param>
-        /// <returns>
-        ///     Trimmed version of the base string
-        /// </returns>
+        /// <param name="s"> </param>
+        /// <param name="trimmers"> Items to be trimmed from base string </param>
+        /// <param name="comparisonType"> How the items are compared to the base string </param>
+        /// <returns> Trimmed version of the base string </returns>
         internal static string ExtendedTrimEndAny(this string s, IEnumerable<string> trimmers,
             StringComparison comparisonType)
         {
@@ -119,9 +93,7 @@ namespace InventoryEngine.Extensions
         ///     finally they are joined back.
         ///     Example: String("Tester") Pattern(1,3,2) -&gt; T est er -&gt; T tse re -&gt; Result("Ttsere")
         /// </summary>
-        /// <param name="value">
-        ///     String to reverse
-        /// </param>
+        /// <param name="value"> String to reverse </param>
         /// <param name="pattern">
         ///     Pattern used to reverse the string.
         ///     Warning: The pattern has to have identical total length to the length of the string.
@@ -185,26 +157,18 @@ namespace InventoryEngine.Extensions
         /// <summary>
         ///     Check if base string starts with any of the supplied strings.
         /// </summary>
-        /// <param name="s">
-        /// </param>
-        /// <param name="items">
-        ///     Items to be compared to the base string
-        /// </param>
-        /// <param name="comparisonType">
-        ///     Rules of the comparison
-        /// </param>
-        /// <returns>
-        ///     True if any of the items were found in the base string, else false
-        /// </returns>
+        /// <param name="s"> </param>
+        /// <param name="items"> Items to be compared to the base string </param>
+        /// <param name="comparisonType"> Rules of the comparison </param>
+        /// <returns> True if any of the items were found in the base string, else false </returns>
         internal static bool StartsWithAny(this string s, IEnumerable<string> items, StringComparison comparisonType) => items.Any(item => s.StartsWith(item, comparisonType));
+
         /// <summary>
         ///     Strip version number from the end of a string. "MyApp 1.023.1" -&gt; "MyApp" If
         ///     string is null or empty, string.Empty is returned.
         /// </summary>
-        /// <param name="input">
-        /// </param>
-        /// <returns>
-        /// </returns>
+        /// <param name="input"> </param>
+        /// <returns> </returns>
         internal static string StripStringFromVersionNumber(this string input)
         {
             if (input == null)
@@ -250,6 +214,7 @@ namespace InventoryEngine.Extensions
 
             return input;
         }
+
         /// <summary>
         ///     Convert to - PascalCase.
         /// </summary>
@@ -271,8 +236,8 @@ namespace InventoryEngine.Extensions
         }
 
         /// <summary>
-        ///     Convert to - Title Case
-        ///     Capitalize the first character and add a space before each capitalized letter (except the first character).
+        ///     Convert to - Title Case Capitalize the first character and add a space before each
+        ///     capitalized letter (except the first character).
         /// </summary>
         internal static string ToTitleCase(this string baseStr)
         {
@@ -285,6 +250,7 @@ namespace InventoryEngine.Extensions
             baseStr = Regex.Replace(baseStr.ToPascalCase(), pattern, " ", RegexOptions.None);
             return baseStr.Substring(0, 1).ToUpperInvariant() + baseStr.Substring(1);
         }
+
         #region Private helpers
 
         private static string ConvertToHexString(this byte[] ba) => BitConverter.ToString(ba).Replace("-", "");
@@ -325,6 +291,7 @@ namespace InventoryEngine.Extensions
             }
             return sb.ToString();
         }
+
         #endregion Private helpers
     }
 }

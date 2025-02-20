@@ -6,10 +6,10 @@ namespace InventoryEngine.Tools
     internal static class FilesystemTools
     {
         /// <summary>
-        /// Check the architecture of the executable. E.g. 64bit.
-        /// Returns Unknown if the architecture is unsupported or not specified.
+        ///     Check the architecture of the executable. E.g. 64bit. Returns Unknown if the
+        ///     architecture is unsupported or not specified.
         /// </summary>
-        /// <param name="filename">Full path to the executable file.</param>
+        /// <param name="filename"> Full path to the executable file. </param>
         public static MachineType CheckExecutableMachineType(string filename)
         {
             if (!filename.EndsWith(".exe", StringComparison.InvariantCultureIgnoreCase))
@@ -48,10 +48,13 @@ namespace InventoryEngine.Tools
                     {
                         case 0x8664:
                             return MachineType.X64;
+
                         case 0x14c:
                             return MachineType.X86;
+
                         case 0x200:
                             return MachineType.Ia64;
+
                         default:
                             return MachineType.Unknown;
                     }

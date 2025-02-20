@@ -38,6 +38,7 @@ namespace InventoryEngine.Startup
 
         private Task SourceTask { get; }
         private bool disposedValue;
+
         internal TaskEntry(string name, string command, string commandFilename, Task task)
         {
             ProgramName = name;
@@ -50,6 +51,7 @@ namespace InventoryEngine.Startup
 
             FillInformationFromFile(CommandFilePath);
         }
+
         public override void Delete() => SourceTask.Folder.DeleteTask(SourceTask.Name, false);
 
         public void Dispose()

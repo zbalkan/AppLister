@@ -8,6 +8,7 @@ namespace InventoryEngine.Factory
         private sealed class AppManifest
         {
             public IDictionary<string, AppManifestArchitecture> Architecture { get; set; }
+
             [JsonConverter(typeof(DynamicStringArrayConverter))]
             public string[] Bin { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿namespace InventoryEngine.Tools
 {
-    internal static partial class MsiWrapper
+    internal static class MsiWrapper
     {
         internal sealed class INSTALLPROPERTY
         {
@@ -29,6 +29,7 @@
 
             // Product info attributes: advertised information
             public static INSTALLPROPERTY PACKAGENAME = new INSTALLPROPERTY("PackageName");
+
             public static INSTALLPROPERTY PRODUCTICON = new INSTALLPROPERTY("ProductIcon");
             public static INSTALLPROPERTY PRODUCTNAME = new INSTALLPROPERTY("ProductName");
             public static INSTALLPROPERTY PUBLISHER = new INSTALLPROPERTY("Publisher");
@@ -39,10 +40,12 @@
             public static INSTALLPROPERTY VERSIONMAJOR = new INSTALLPROPERTY("VersionMajor");
             public static INSTALLPROPERTY VERSIONMINOR = new INSTALLPROPERTY("VersionMinor");
             public static INSTALLPROPERTY VERSIONSTRING = new INSTALLPROPERTY("VersionString");
+
             private INSTALLPROPERTY(string name)
             {
                 PropertyName = name;
             }
+
             public override string ToString() => PropertyName;
         }
     }

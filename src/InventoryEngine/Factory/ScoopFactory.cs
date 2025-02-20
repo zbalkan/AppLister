@@ -103,7 +103,8 @@ namespace InventoryEngine.Factory
 
                 if (executables.Any())
                 {
-                    // No need to sort, safe to assume the manifest has the most important executables in first positions
+                    // No need to sort, safe to assume the manifest has the most important
+                    // executables in first positions
                     entry.SortedExecutables = executables.ToArray();
                 }
                 else
@@ -183,9 +184,10 @@ namespace InventoryEngine.Factory
 
                 foreach (var str in result.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()))
                 {
-                    // Format should be "$app (v:$ver) $global_display $bucket $arch"
-                    // app has no spaces, $global_display is *global*, bucket is inside [] brackets like [main]
-                    // version should always be there but the check errored out for some users, everything after version is optional
+                    // Format should be "$app (v:$ver) $global_display $bucket $arch" app has no
+                    // spaces, $global_display is *global*, bucket is inside [] brackets like [main]
+                    // version should always be there but the check errored out for some users,
+                    // everything after version is optional
                     string name;
                     string version = null;
                     var isGlobal = false;

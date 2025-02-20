@@ -16,7 +16,9 @@ namespace InventoryService
         /// <summary>
         ///     Initiates the engine and scan in different stores
         /// </summary>
-        /// <returns>List of installed applciations as a list of <see cref="Package"/>instances.</returns>
+        /// <returns>
+        ///     List of installed applciations as a list of <see cref="Package" /> instances.
+        /// </returns>
         public List<Package> GetAll()
         {
             var apps = Inventory.QueryApps();

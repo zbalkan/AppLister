@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using InventoryEngine.Factory;
 using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 
@@ -243,9 +242,7 @@ namespace InventoryEngine
         ///     are added. The boolean value is true if the directory is confirmed to contain 64bit
         ///     applications, false if 32bit.
         /// </summary>
-        /// <param name="includeUserDirectories">
-        ///     Add user-defined directories.
-        /// </param>
+        /// <param name="includeUserDirectories"> Add user-defined directories. </param>
         internal static List<DirectoryInfo> GetProgramFilesDirectories(bool includeUserDirectories)
         {
             var pfDirectories = new List<string>(2)
