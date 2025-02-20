@@ -4,8 +4,8 @@
     {
         private class OffsetPair
         {
-            internal int C1 { get; set; }
-            internal int C2 { get; set; }
+            internal int C1 { get; }
+            internal int C2 { get; }
             internal bool IsTransposition { get; set; }
 
             internal OffsetPair(int c1, int c2)
