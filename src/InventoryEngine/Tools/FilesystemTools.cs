@@ -44,20 +44,13 @@ namespace InventoryEngine.Tools
 
                     // Join two bytes representing the architecture
                     var machineId = fileData[i + 5] << 8 | fileData[i + 4];
-                    switch (machineId)
+                    return machineId switch
                     {
-                        case 0x8664:
-                            return MachineType.X64;
-
-                        case 0x14c:
-                            return MachineType.X86;
-
-                        case 0x200:
-                            return MachineType.Ia64;
-
-                        default:
-                            return MachineType.Unknown;
-                    }
+                        0x8664 => MachineType.X64,
+                        0x14c => MachineType.X86,
+                        0x200 => MachineType.Ia64,
+                        _ => MachineType.Unknown
+                    };
                 }
             }
 
