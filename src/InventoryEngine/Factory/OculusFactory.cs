@@ -28,12 +28,11 @@ namespace InventoryEngine.Factory
 
             foreach (var data in FactoryTools.ExtractAppDataSetsFromHelperOutput(output))
             {
-                if (!data.ContainsKey("CanonicalName"))
+                if (!data.TryGetValue("CanonicalName", out var name))
                 {
                     continue;
                 }
 
-                var name = data["CanonicalName"];
                 if (string.IsNullOrEmpty(name))
                 {
                     continue;
