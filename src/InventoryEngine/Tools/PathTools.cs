@@ -229,7 +229,7 @@ namespace InventoryEngine.Tools
             for (var i = 0; i < directoryParts.Length; i++)
             {
                 var part = directoryParts[i].ToLower();
-                result = string.Concat(result, part.Substring(0, 1).ToUpperInvariant() + part.Substring(1), "\\");
+                result = $"{result}{part.Substring(0, 1).ToUpperInvariant() + part.Substring(1)}\\";
             }
 
             return result;
