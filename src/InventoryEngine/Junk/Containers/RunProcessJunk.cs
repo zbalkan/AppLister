@@ -1,5 +1,5 @@
-﻿using InventoryEngine.Shared;
-using UninstallTools.Junk.Finders;
+﻿using InventoryEngine.Junk.Finders;
+using InventoryEngine.Shared;
 
 namespace InventoryEngine.Junk.Containers
 {

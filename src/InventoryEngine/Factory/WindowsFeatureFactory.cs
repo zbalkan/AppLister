@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Threading;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory

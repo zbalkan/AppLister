@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 using Microsoft.Win32;
 

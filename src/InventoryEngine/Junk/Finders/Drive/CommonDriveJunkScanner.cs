@@ -6,6 +6,7 @@ using System.Linq;
 using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 
 namespace InventoryEngine.Junk.Finders.Drive

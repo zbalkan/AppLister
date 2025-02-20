@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {

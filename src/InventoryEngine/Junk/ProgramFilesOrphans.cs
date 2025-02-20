@@ -6,8 +6,9 @@ using System.Linq;
 using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
+using InventoryEngine.Junk.Finders;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk
 {

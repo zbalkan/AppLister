@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using InventoryEngine.Extensions;
 using InventoryEngine.InfoAdders;
+using InventoryEngine.Shared;
 using InventoryEngine.Startup;
 using InventoryEngine.Tools;
 

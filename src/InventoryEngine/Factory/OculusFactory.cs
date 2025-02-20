@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using InventoryEngine.Extensions;
 using InventoryEngine.InfoAdders;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory

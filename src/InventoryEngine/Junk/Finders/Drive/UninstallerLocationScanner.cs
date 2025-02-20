@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
+using InventoryEngine.Shared;
 
 namespace InventoryEngine.Junk.Finders.Drive
 {

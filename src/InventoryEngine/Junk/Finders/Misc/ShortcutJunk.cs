@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using InventoryEngine;
 using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
-using InventoryEngine.Junk.Finders;
 using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 
-namespace UninstallTools.Junk.Finders.Misc
+namespace InventoryEngine.Junk.Finders.Misc
 {
     internal partial class ShortcutJunk : JunkCreatorBase
     {

@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using InventoryEngine;
 using InventoryEngine.Junk.Containers;
 
-namespace UninstallTools.Junk.Finders
+namespace InventoryEngine.Junk.Finders
 {
     public interface IJunkCreator
     {

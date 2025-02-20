@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using InventoryEngine.Factory;
+using InventoryEngine.Shared;
 
 namespace InventoryEngine.InfoAdders
 {

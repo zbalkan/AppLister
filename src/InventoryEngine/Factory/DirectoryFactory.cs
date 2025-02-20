@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using InventoryEngine.Extensions;
 using InventoryEngine.InfoAdders;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory

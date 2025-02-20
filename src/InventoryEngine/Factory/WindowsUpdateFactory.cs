@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory

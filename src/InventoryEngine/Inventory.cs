@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using InventoryEngine.Factory;
+using InventoryEngine.Shared;
 
 namespace InventoryEngine
 {

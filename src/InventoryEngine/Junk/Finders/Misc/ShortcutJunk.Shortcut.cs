@@ -1,4 +1,4 @@
-﻿namespace UninstallTools.Junk.Finders.Misc
+﻿namespace InventoryEngine.Junk.Finders.Misc
 {
     internal partial class ShortcutJunk
     {

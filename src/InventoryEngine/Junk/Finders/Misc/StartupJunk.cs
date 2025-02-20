@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using InventoryEngine.Junk.Containers;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Misc
 {
