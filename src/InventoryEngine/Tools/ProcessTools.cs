@@ -23,12 +23,10 @@ namespace InventoryEngine.Tools
         {
             try
             {
-                using (var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid))
-                {
-                    var moc = searcher.Get();
-                    var childProcesses = moc.Cast<ManagementObject>().Select(mo => Convert.ToInt32(mo["ProcessID"])).ToList();
-                    return childProcesses;
-                }
+                using var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
+                var moc = searcher.Get();
+                var childProcesses = moc.Cast<ManagementObject>().Select(mo => Convert.ToInt32(mo["ProcessID"])).ToList();
+                return childProcesses;
             }
             catch
             {

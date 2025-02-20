@@ -47,10 +47,8 @@ namespace InventoryEngine.Startup
         {
             if (startupEntry.IsRegKey)
             {
-                using (var key = RegistryTools.OpenRegistryKey(startupEntry.ParentLongName))
-                {
-                    return !string.IsNullOrEmpty(key.GetStringSafe(startupEntry.EntryLongName));
-                }
+                using var key = RegistryTools.OpenRegistryKey(startupEntry.ParentLongName);
+                return !string.IsNullOrEmpty(key.GetStringSafe(startupEntry.EntryLongName));
             }
 
             return File.Exists(startupEntry.FullLongName);
@@ -60,12 +58,10 @@ namespace InventoryEngine.Startup
         {
             try
             {
-                using (var key = RegistryTools.CreateSubKeyRecursively(GetStartupApprovedKey(startupEntry)))
-                {
-                    return key.GetValue(startupEntry.EntryLongName) is byte[] bytes
-                        && bytes.Length > 0
-                        && !bytes[0].Equals(0x02);
-                }
+                using var key = RegistryTools.CreateSubKeyRecursively(GetStartupApprovedKey(startupEntry));
+                return key.GetValue(startupEntry.EntryLongName) is byte[] bytes
+                       && bytes.Length > 0
+                       && !bytes[0].Equals(0x02);
             }
             catch (SystemException ex)
             {
@@ -105,11 +101,9 @@ namespace InventoryEngine.Startup
 
         private static void SetDisabled(StartupEntry startupEntry, bool disabled)
         {
-            using (var key = RegistryTools.CreateSubKeyRecursively(GetStartupApprovedKey(startupEntry)))
-            {
-                key.SetValue(startupEntry.EntryLongName, disabled ? DisabledBytes : EnabledBytes,
-                    RegistryValueKind.Binary);
-            }
+            using var key = RegistryTools.CreateSubKeyRecursively(GetStartupApprovedKey(startupEntry));
+            key.SetValue(startupEntry.EntryLongName, disabled ? DisabledBytes : EnabledBytes,
+                RegistryValueKind.Binary);
         }
     }
 }

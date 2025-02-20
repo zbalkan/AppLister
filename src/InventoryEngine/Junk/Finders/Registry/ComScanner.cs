@@ -41,95 +41,85 @@ namespace InventoryEngine.Junk.Finders.Registry
             {
                 foreach (var interfacePath in comEntry.InterfaceNames)
                 {
-                    using (var interfaceKey = RegistryTools.OpenRegistryKey(interfacePath, false, true))
+                    using var interfaceKey = RegistryTools.OpenRegistryKey(interfacePath, false, true);
+                    if (interfaceKey != null)
                     {
-                        if (interfaceKey != null)
-                        {
-                            yield return JunkFromKey(target, interfaceKey);
-                        }
+                        yield return JunkFromKey(target, interfaceKey);
                     }
                 }
 
                 foreach (var classesKeyPath in _classesKeys)
                 {
-                    using (var classesKey = RegistryTools.OpenRegistryKey(classesKeyPath, false, true))
+                    using var classesKey = RegistryTools.OpenRegistryKey(classesKeyPath, false, true);
+                    if (classesKey == null)
                     {
-                        if (classesKey == null)
+                        continue;
+                    }
+
+                    foreach (var targetSubKeyPath in new[]
+                             {
+                                 Path.Combine("CLSID", comEntry.Guid),
+                                 Path.Combine("TypeLib", comEntry.Guid),
+                                 comEntry.ProgId,
+                                 comEntry.VersionIndependentProgId
+                             })
+                    {
+                        if (targetSubKeyPath != null)
+                        {
+                            var result = TryGetFromPath(target, classesKey, targetSubKeyPath);
+                            if (result != null)
+                            {
+                                yield return result;
+                            }
+                        }
+                    }
+
+                    foreach (var extensionKeyName in GetExtensionNames(classesKeyPath))
+                    {
+                        using var extensionKey = classesKey.OpenSubKey(extensionKeyName);
+                        if (extensionKey == null)
                         {
                             continue;
                         }
 
-                        foreach (var targetSubKeyPath in new[]
+                        // Contains subkeys with default values containing class guids of
+                        // the extensions
+                        using (var shellExKey = extensionKey.OpenSubKey("ShellEx"))
                         {
-                            Path.Combine("CLSID", comEntry.Guid),
-                            Path.Combine("TypeLib", comEntry.Guid),
-                            comEntry.ProgId,
-                            comEntry.VersionIndependentProgId
-                        })
-                        {
-                            if (targetSubKeyPath != null)
+                            if (shellExKey != null)
                             {
-                                var result = TryGetFromPath(target, classesKey, targetSubKeyPath);
-                                if (result != null)
+                                foreach (var shellSubKeyName in shellExKey.GetSubKeyNames())
                                 {
-                                    yield return result;
+                                    using var shellSubKey = shellExKey.OpenSubKey(shellSubKeyName);
+                                    if (string.Equals(shellSubKey?.GetValue(null, null) as string, comEntry.Guid, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        yield return JunkFromKey(target, shellSubKey);
+                                    }
                                 }
                             }
                         }
 
-                        foreach (var extensionKeyName in GetExtensionNames(classesKeyPath))
+                        // Contains default value pointing to a class guid
+                        using (var persistentHandlerKey = extensionKey.OpenSubKey("PersistentHandler"))
                         {
-                            using (var extensionKey = classesKey.OpenSubKey(extensionKeyName))
+                            if (string.Equals(persistentHandlerKey?.GetValue(null, null) as string, comEntry.Guid, StringComparison.OrdinalIgnoreCase))
                             {
-                                if (extensionKey == null)
-                                {
-                                    continue;
-                                }
+                                yield return JunkFromKey(target, persistentHandlerKey);
+                            }
+                        }
 
-                                // Contains subkeys with default values containing class guids of
-                                // the extensions
-                                using (var shellExKey = extensionKey.OpenSubKey("ShellEx"))
+                        if (comEntry.ProgId != null || comEntry.VersionIndependentProgId != null)
+                        {
+                            // Contains values with names corresponding to ProgIDs
+                            using var openWithProgidsKey = extensionKey.OpenSubKey("OpenWithProgIDs");
+                            if (openWithProgidsKey != null)
+                            {
+                                foreach (var progIdName in openWithProgidsKey.GetValueNames())
                                 {
-                                    if (shellExKey != null)
+                                    if (string.Equals(progIdName, comEntry.ProgId, StringComparison.OrdinalIgnoreCase) ||
+                                        string.Equals(progIdName, comEntry.VersionIndependentProgId, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        foreach (var shellSubKeyName in shellExKey.GetSubKeyNames())
-                                        {
-                                            using (var shellSubKey = shellExKey.OpenSubKey(shellSubKeyName))
-                                            {
-                                                if (string.Equals(shellSubKey?.GetValue(null, null) as string, comEntry.Guid, StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    yield return JunkFromKey(target, shellSubKey);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // Contains default value pointing to a class guid
-                                using (var persistentHandlerKey = extensionKey.OpenSubKey("PersistentHandler"))
-                                {
-                                    if (string.Equals(persistentHandlerKey?.GetValue(null, null) as string, comEntry.Guid, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        yield return JunkFromKey(target, persistentHandlerKey);
-                                    }
-                                }
-
-                                if (comEntry.ProgId != null || comEntry.VersionIndependentProgId != null)
-                                {
-                                    // Contains values with names corresponding to ProgIDs
-                                    using (var openWithProgidsKey = extensionKey.OpenSubKey("OpenWithProgIDs"))
-                                    {
-                                        if (openWithProgidsKey != null)
-                                        {
-                                            foreach (var progIdName in openWithProgidsKey.GetValueNames())
-                                            {
-                                                if (string.Equals(progIdName, comEntry.ProgId, StringComparison.OrdinalIgnoreCase) ||
-                                                    string.Equals(progIdName, comEntry.VersionIndependentProgId, StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    yield return JunkFromValue(target, openWithProgidsKey.Name, progIdName);
-                                                }
-                                            }
-                                        }
+                                        yield return JunkFromValue(target, openWithProgidsKey.Name, progIdName);
                                     }
                                 }
                             }
@@ -149,50 +139,44 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             foreach (var classesKeyPath in _classesKeys)
             {
-                using (var classesKey = RegistryTools.OpenRegistryKey(classesKeyPath, false, true))
+                using var classesKey = RegistryTools.OpenRegistryKey(classesKeyPath, false, true);
+                if (classesKey == null)
                 {
-                    if (classesKey == null)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    _extensionKeyNames.Add(classesKeyPath, classesKey.GetSubKeyNames().Where(x => x.Length > 0 && x[0] == '.').ToArray());
+                _extensionKeyNames.Add(classesKeyPath, classesKey.GetSubKeyNames().Where(x => x.Length > 0 && x[0] == '.').ToArray());
 
-                    try
-                    {
-                        GetClsidEntries(_comEntries, classesKey);
-                        GetTypeLibEntries(_comEntries, classesKey);
-                    }
-                    catch (SystemException ex)
-                    {
-                        Debug.WriteLine("Unexpected error while scanning COM entries, the registry might be corrupted. COM junk detection will not work. Error: " + ex);
-                    }
+                try
+                {
+                    GetClsidEntries(_comEntries, classesKey);
+                    GetTypeLibEntries(_comEntries, classesKey);
+                }
+                catch (SystemException ex)
+                {
+                    Debug.WriteLine("Unexpected error while scanning COM entries, the registry might be corrupted. COM junk detection will not work. Error: " + ex);
                 }
             }
 
             // Gather com interface info https://docs.microsoft.com/en-us/windows/desktop/com/interface-key
             foreach (var classesKeyPath in _classesKeys)
             {
-                using (var interfacesKey = RegistryTools.OpenRegistryKey(Path.Combine(classesKeyPath, "Interface"), false, true))
+                using var interfacesKey = RegistryTools.OpenRegistryKey(Path.Combine(classesKeyPath, "Interface"), false, true);
+                if (interfacesKey == null)
                 {
-                    if (interfacesKey == null)
+                    continue;
+                }
+
+                foreach (var singleInterfaceKey in interfacesKey.GetSubKeyNames())
+                {
+                    using var proxyKey = interfacesKey.OpenSubKey(Path.Combine(singleInterfaceKey, "ProxyStubClsid32"));
+                    if (!(proxyKey?.GetValue(null, null) is string proxyGuid))
                     {
                         continue;
                     }
 
-                    foreach (var singleInterfaceKey in interfacesKey.GetSubKeyNames())
-                    {
-                        using (var proxyKey = interfacesKey.OpenSubKey(Path.Combine(singleInterfaceKey, "ProxyStubClsid32")))
-                        {
-                            if (!(proxyKey?.GetValue(null, null) is string proxyGuid))
-                            {
-                                continue;
-                            }
-
-                            var matchClass = _comEntries.Find(x => string.Equals(x.Guid, proxyGuid, StringComparison.OrdinalIgnoreCase));
-                            matchClass?.InterfaceNames.Add(Path.Combine(interfacesKey.Name, singleInterfaceKey));
-                        }
-                    }
+                    var matchClass = _comEntries.Find(x => string.Equals(x.Guid, proxyGuid, StringComparison.OrdinalIgnoreCase));
+                    matchClass?.InterfaceNames.Add(Path.Combine(interfacesKey.Name, singleInterfaceKey));
                 }
             }
         }
@@ -200,127 +184,119 @@ namespace InventoryEngine.Junk.Finders.Registry
         private static void GetClsidEntries(ICollection<ComEntry> results, RegistryKey classes)
         {
             // https://docs.microsoft.com/en-us/windows/desktop/com/clsid-key-hklm
-            using (var clsid = RegistryTools.OpenRegistryKey(Path.Combine(classes.Name, "CLSID"), false, true))
+            using var clsid = RegistryTools.OpenRegistryKey(Path.Combine(classes.Name, "CLSID"), false, true);
+            if (clsid == null)
             {
-                if (clsid == null)
+                return;
+            }
+
+            foreach (var clsidGuid in clsid.GetSubKeyNames())
+            {
+                // This catches most system classes, rest is caught by IsSystemDirectory check later
+                if (IsSystemGuid(clsidGuid))
                 {
-                    return;
+                    continue;
                 }
 
-                foreach (var clsidGuid in clsid.GetSubKeyNames())
+                RegistryKey guidKey = null;
+                try
                 {
-                    // This catches most system classes, rest is caught by IsSystemDirectory check later
-                    if (IsSystemGuid(clsidGuid))
+                    guidKey = clsid.OpenSubKey(clsidGuid);
+                    if (guidKey == null)
                     {
                         continue;
                     }
 
-                    RegistryKey guidKey = null;
-                    try
+                    var result = results.FirstOrDefault(x => string.Equals(x.Guid, clsidGuid, StringComparison.OrdinalIgnoreCase)) ?? new ComEntry(clsidGuid);
+
+                    using (var inprocKey = guidKey.OpenSubKey("InprocServer32"))
                     {
-                        guidKey = clsid.OpenSubKey(clsidGuid);
-                        if (guidKey == null)
+                        var path = inprocKey?.GetValue(null, null) as string;
+                        if (string.IsNullOrEmpty(path))
                         {
                             continue;
                         }
 
-                        var result = results.FirstOrDefault(x => string.Equals(x.Guid, clsidGuid, StringComparison.OrdinalIgnoreCase)) ?? new ComEntry(clsidGuid);
-
-                        using (var inprocKey = guidKey.OpenSubKey("InprocServer32"))
+                        path = PathTools.NormalizePath(path);
+                        if (UninstallToolsGlobalConfig.IsSystemDirectory(path))
                         {
-                            var path = inprocKey?.GetValue(null, null) as string;
-                            if (string.IsNullOrEmpty(path))
-                            {
-                                continue;
-                            }
-
-                            path = PathTools.NormalizePath(path);
-                            if (UninstallToolsGlobalConfig.IsSystemDirectory(path))
-                            {
-                                continue;
-                            }
-
-                            result.FullFilename = PathTools.NormalizePath(Environment.ExpandEnvironmentVariables(path));
+                            continue;
                         }
 
-                        using (var progIdKey = guidKey.OpenSubKey("ProgID"))
-                        {
-                            if (progIdKey != null)
-                            {
-                                result.ProgId = progIdKey.GetValue(null, null) as string;
-                            }
-                        }
-
-                        using (var indepProgIdKey = guidKey.OpenSubKey("VersionIndependentProgID"))
-                        {
-                            if (indepProgIdKey != null)
-                            {
-                                result.VersionIndependentProgId = indepProgIdKey.GetValue(null, null) as string;
-                            }
-                        }
-
-                        results.Add(result);
+                        result.FullFilename = PathTools.NormalizePath(Environment.ExpandEnvironmentVariables(path));
                     }
-                    catch (SystemException ex)
+
+                    using (var progIdKey = guidKey.OpenSubKey("ProgID"))
                     {
-                        Debug.WriteLine($"Crash while processing COM GUID: {clsidGuid} - {ex}");
+                        if (progIdKey != null)
+                        {
+                            result.ProgId = progIdKey.GetValue(null, null) as string;
+                        }
                     }
-                    finally
+
+                    using (var indepProgIdKey = guidKey.OpenSubKey("VersionIndependentProgID"))
                     {
-                        guidKey?.Close();
+                        if (indepProgIdKey != null)
+                        {
+                            result.VersionIndependentProgId = indepProgIdKey.GetValue(null, null) as string;
+                        }
                     }
+
+                    results.Add(result);
+                }
+                catch (SystemException ex)
+                {
+                    Debug.WriteLine($"Crash while processing COM GUID: {clsidGuid} - {ex}");
+                }
+                finally
+                {
+                    guidKey?.Close();
                 }
             }
         }
 
         private static void GetTypeLibEntries(ICollection<ComEntry> results, RegistryKey classes)
         {
-            using (var typeLibKey = RegistryTools.OpenRegistryKey(Path.Combine(classes.Name, "TypeLib"), false, true))
+            using var typeLibKey = RegistryTools.OpenRegistryKey(Path.Combine(classes.Name, "TypeLib"), false, true);
+            if (typeLibKey == null)
             {
-                if (typeLibKey == null)
+                return;
+            }
+
+            foreach (var typeLibKeyGuid in typeLibKey.GetSubKeyNames())
+            {
+                if (IsSystemGuid(typeLibKeyGuid))
                 {
-                    return;
+                    continue;
                 }
 
-                foreach (var typeLibKeyGuid in typeLibKey.GetSubKeyNames())
+                using var guidKey = typeLibKey.OpenSubKey(typeLibKeyGuid);
+                var versionKeyName = guidKey?.GetSubKeyNames().FirstOrDefault();
+                if (versionKeyName == null)
                 {
-                    if (IsSystemGuid(typeLibKeyGuid))
+                    continue;
+                }
+
+                var result = results.FirstOrDefault(x => string.Equals(x.Guid, typeLibKeyGuid, StringComparison.OrdinalIgnoreCase)) ?? new ComEntry(typeLibKeyGuid);
+
+                foreach (var fileKeyPath in new[] { Path.Combine(versionKeyName, "0\\win32"), Path.Combine(versionKeyName, "0\\win64") })
+                {
+                    using var fileKey = guidKey.OpenSubKey(fileKeyPath);
+                    var path = fileKey?.GetValue(null, null) as string;
+                    if (string.IsNullOrEmpty(path))
                     {
                         continue;
                     }
 
-                    using (var guidKey = typeLibKey.OpenSubKey(typeLibKeyGuid))
+                    path = PathTools.NormalizePath(path);
+                    if (UninstallToolsGlobalConfig.IsSystemDirectory(path))
                     {
-                        var versionKeyName = guidKey?.GetSubKeyNames().FirstOrDefault();
-                        if (versionKeyName == null)
-                        {
-                            continue;
-                        }
-
-                        var result = results.FirstOrDefault(x => string.Equals(x.Guid, typeLibKeyGuid, StringComparison.OrdinalIgnoreCase)) ?? new ComEntry(typeLibKeyGuid);
-
-                        foreach (var fileKeyPath in new[] { Path.Combine(versionKeyName, "0\\win32"), Path.Combine(versionKeyName, "0\\win64") })
-                        {
-                            using (var fileKey = guidKey.OpenSubKey(fileKeyPath))
-                            {
-                                var path = fileKey?.GetValue(null, null) as string;
-                                if (string.IsNullOrEmpty(path))
-                                {
-                                    continue;
-                                }
-
-                                path = PathTools.NormalizePath(path);
-                                if (UninstallToolsGlobalConfig.IsSystemDirectory(path))
-                                {
-                                    continue;
-                                }
-
-                                result.FullFilename = PathTools.NormalizePath(Environment.ExpandEnvironmentVariables(path));
-                                results.Add(result);
-                                break;
-                            }
-                        }
+                        continue;
                     }
+
+                    result.FullFilename = PathTools.NormalizePath(Environment.ExpandEnvironmentVariables(path));
+                    results.Add(result);
+                    break;
                 }
             }
         }
@@ -343,15 +319,13 @@ namespace InventoryEngine.Junk.Finders.Registry
 
         private RegistryKeyJunk TryGetFromPath(ApplicationUninstallerEntry target, RegistryKey classesKey, string targetSubKeyPath)
         {
-            using (var targetKey = classesKey.OpenSubKey(targetSubKeyPath))
+            using var targetKey = classesKey.OpenSubKey(targetSubKeyPath);
+            if (targetKey == null)
             {
-                if (targetKey == null)
-                {
-                    return null;
-                }
-
-                return JunkFromKey(target, targetKey);
+                return null;
             }
+
+            return JunkFromKey(target, targetKey);
         }
 
         private IEnumerable<string> GetExtensionNames(string classesKey)

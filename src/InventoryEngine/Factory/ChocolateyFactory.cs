@@ -201,20 +201,18 @@ namespace InventoryEngine.Factory
 
         private static string StartProcessAndReadOutput(string filename, string args)
         {
-            using (var process = Process.Start(new ProcessStartInfo(filename, args)
+            using var process = Process.Start(new ProcessStartInfo(filename, args)
             {
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = false,
                 CreateNoWindow = true,
                 StandardOutputEncoding = Encoding.Default
-            }))
-            {
-                var sw = Stopwatch.StartNew();
-                var output = process?.StandardOutput.ReadToEnd();
-                Debug.WriteLine($"[Performance] Running command {filename} {args} took {sw.ElapsedMilliseconds}ms");
-                return output;
-            }
+            });
+            var sw = Stopwatch.StartNew();
+            var output = process?.StandardOutput.ReadToEnd();
+            Debug.WriteLine($"[Performance] Running command {filename} {args} took {sw.ElapsedMilliseconds}ms");
+            return output;
         }
     }
 }

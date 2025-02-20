@@ -23,24 +23,20 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             foreach (var targetRootName in TargetRoots)
             {
-                using (var rootKey = RegistryTools.OpenRegistryKey(targetRootName))
+                using var rootKey = RegistryTools.OpenRegistryKey(targetRootName);
+                using var regAppsKey = rootKey.OpenSubKey(RegAppsSubKeyPath);
+                if (regAppsKey == null)
                 {
-                    using (var regAppsKey = rootKey.OpenSubKey(RegAppsSubKeyPath))
-                    {
-                        if (regAppsKey == null)
-                        {
-                            continue;
-                        }
-
-                        var names = regAppsKey.GetValueNames();
-
-                        var results = names.Attempt(n => new { name = n, value = regAppsKey.GetStringSafe(n) })
-                                .Where(x => !string.IsNullOrEmpty(x.value))
-                                .ToList();
-
-                        _regAppsValueCache.AddRange(results.Select(x => new RegAppEntry(x.name, targetRootName, x.value.Trim('\\', ' ', '"', '\''))));
-                    }
+                    continue;
                 }
+
+                var names = regAppsKey.GetValueNames();
+
+                var results = names.Attempt(n => new { name = n, value = regAppsKey.GetStringSafe(n) })
+                    .Where(x => !string.IsNullOrEmpty(x.value))
+                    .ToList();
+
+                _regAppsValueCache.AddRange(results.Select(x => new RegAppEntry(x.name, targetRootName, x.value.Trim('\\', ' ', '"', '\''))));
             }
         }
 

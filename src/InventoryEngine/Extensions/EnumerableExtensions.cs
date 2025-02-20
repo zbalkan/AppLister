@@ -107,21 +107,19 @@ namespace InventoryEngine.Extensions
         // Reference: https://github.com/dotnet/runtime/blob/main/src/libraries/System.Linq/src/System/Linq/Distinct.cs#L48
         private static IEnumerable<TSource> DistinctByIterator<TSource, TKey>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {
-            using (var enumerator = source.GetEnumerator())
+            using var enumerator = source.GetEnumerator();
+            if (enumerator.MoveNext())
             {
-                if (enumerator.MoveNext())
+                var set = new HashSet<TKey>(DefaultInternalSetCapacity, null);
+                do
                 {
-                    var set = new HashSet<TKey>(DefaultInternalSetCapacity, null);
-                    do
+                    var element = enumerator.Current;
+                    if (set.Add(keySelector(element)))
                     {
-                        var element = enumerator.Current;
-                        if (set.Add(keySelector(element)))
-                        {
-                            yield return element;
-                        }
+                        yield return element;
                     }
-                    while (enumerator.MoveNext());
                 }
+                while (enumerator.MoveNext());
             }
         }
     }

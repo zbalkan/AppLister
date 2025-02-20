@@ -19,42 +19,38 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             var otherUninstallers = GetOtherUninstallers(target).ToList();
 
-            using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(
-                @"SYSTEM\CurrentControlSet\Services\EventLog\Application"))
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(
+                @"SYSTEM\CurrentControlSet\Services\EventLog\Application");
+            if (key == null)
             {
-                if (key == null)
+                yield break;
+            }
+
+            var query = from name in key.GetSubKeyNames()
+                let m = ConfidenceGenerators.MatchStringToProductName(target, name)
+                where m >= 0 && m < 3
+                //orderby m ascending
+                select name;
+
+            foreach (var result in query)
+            {
+                using var subkey = key.OpenSubKey(result);
+                var exePath = subkey?.GetStringSafe("EventMessageFile");
+                if (string.IsNullOrEmpty(exePath) || !PathTools.SubPathIsInsideBasePath(target.InstallLocation, Path.GetDirectoryName(exePath), true))
                 {
-                    yield break;
+                    continue;
                 }
 
-                var query = from name in key.GetSubKeyNames()
-                            let m = ConfidenceGenerators.MatchStringToProductName(target, name)
-                            where m >= 0 && m < 3
-                            //orderby m ascending
-                            select name;
+                var node = new RegistryKeyJunk(subkey.Name, target, this);
+                // Already matched names above
+                node.Confidence.Add(ConfidenceRecords.ProductNamePerfectMatch);
 
-                foreach (var result in query)
+                if (otherUninstallers.Any(x => PathTools.SubPathIsInsideBasePath(x.InstallLocation, Path.GetDirectoryName(exePath), true)))
                 {
-                    using (var subkey = key.OpenSubKey(result))
-                    {
-                        var exePath = subkey?.GetStringSafe("EventMessageFile");
-                        if (string.IsNullOrEmpty(exePath) || !PathTools.SubPathIsInsideBasePath(target.InstallLocation, Path.GetDirectoryName(exePath), true))
-                        {
-                            continue;
-                        }
-
-                        var node = new RegistryKeyJunk(subkey.Name, target, this);
-                        // Already matched names above
-                        node.Confidence.Add(ConfidenceRecords.ProductNamePerfectMatch);
-
-                        if (otherUninstallers.Any(x => PathTools.SubPathIsInsideBasePath(x.InstallLocation, Path.GetDirectoryName(exePath), true)))
-                        {
-                            node.Confidence.Add(ConfidenceRecords.DirectoryStillUsed);
-                        }
-
-                        yield return node;
-                    }
+                    node.Confidence.Add(ConfidenceRecords.DirectoryStillUsed);
                 }
+
+                yield return node;
             }
         }
 

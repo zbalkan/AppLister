@@ -21,27 +21,25 @@ namespace InventoryEngine.Tools
                 return null;
             }
 
-            using (var process = Process.Start(new ProcessStartInfo(filename, args)
+            using var process = Process.Start(new ProcessStartInfo(filename, args)
             {
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = false,
                 CreateNoWindow = true,
                 StandardOutputEncoding = Encoding.Unicode
-            }))
+            });
+            try
             {
-                try
-                {
-                    var sw = Stopwatch.StartNew();
-                    var output = process?.StandardOutput.ReadToEnd();
-                    Debug.WriteLine($"[Performance] Running command {filename} {args} took {sw.ElapsedMilliseconds}ms");
-                    return process?.ExitCode == 0 ? output : null;
-                }
-                catch (Win32Exception ex)
-                {
-                    Debug.WriteLine(ex);
-                    return null;
-                }
+                var sw = Stopwatch.StartNew();
+                var output = process?.StandardOutput.ReadToEnd();
+                Debug.WriteLine($"[Performance] Running command {filename} {args} took {sw.ElapsedMilliseconds}ms");
+                return process?.ExitCode == 0 ? output : null;
+            }
+            catch (Win32Exception ex)
+            {
+                Debug.WriteLine(ex);
+                return null;
             }
         }
 

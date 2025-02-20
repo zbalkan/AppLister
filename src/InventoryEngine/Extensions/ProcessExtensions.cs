@@ -32,24 +32,22 @@ namespace InventoryEngine.Extensions
         private static void UseManagementObjectSearcherStrategy(Process process, List<Process> results)
         {
             var searchString = $"Select * From Win32_Process Where ParentProcessID={process.Id}";
-            using (var mos = new ManagementObjectSearcher(searchString))
+            using var mos = new ManagementObjectSearcher(searchString);
+            foreach (var mo in mos.Get())
             {
-                foreach (var mo in mos.Get())
+                Process resultProcess = null;
+                try
                 {
-                    Process resultProcess = null;
-                    try
-                    {
-                        resultProcess = Process.GetProcessById(Convert.ToInt32(mo["ProcessID"]));
-                    }
-                    catch (ArgumentException)
-                    {
-                        // Process exited by now
-                    }
+                    resultProcess = Process.GetProcessById(Convert.ToInt32(mo["ProcessID"]));
+                }
+                catch (ArgumentException)
+                {
+                    // Process exited by now
+                }
 
-                    if (resultProcess != null)
-                    {
-                        results.Add(resultProcess);
-                    }
+                if (resultProcess != null)
+                {
+                    results.Add(resultProcess);
                 }
             }
         }

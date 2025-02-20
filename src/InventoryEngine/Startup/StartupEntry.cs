@@ -133,10 +133,8 @@ namespace InventoryEngine.Startup
                     return File.Exists(FullLongName);
                 }
 
-                using (var key = RegistryTools.OpenRegistryKey(ParentLongName))
-                {
-                    return !string.IsNullOrEmpty(key.GetStringSafe(EntryLongName));
-                }
+                using var key = RegistryTools.OpenRegistryKey(ParentLongName);
+                return !string.IsNullOrEmpty(key.GetStringSafe(EntryLongName));
             }
             catch
             {

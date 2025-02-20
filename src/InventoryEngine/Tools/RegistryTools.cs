@@ -119,10 +119,8 @@ namespace InventoryEngine.Tools
 
             try
             {
-                using (var key = OpenRegistryKey(registryPath))
-                {
-                    return key != null;
-                }
+                using var key = OpenRegistryKey(registryPath);
+                return key != null;
             }
             catch
             {
@@ -150,10 +148,8 @@ namespace InventoryEngine.Tools
                     nameof(fullRegistryPath));
             }
 
-            using (var key = OpenRegistryKey(fullRegistryPath, true))
-            {
-                key?.DeleteValue(valueName);
-            }
+            using var key = OpenRegistryKey(fullRegistryPath, true);
+            key?.DeleteValue(valueName);
         }
 
         internal static string StripKeyRoot(string fullPath)
@@ -185,11 +181,9 @@ namespace InventoryEngine.Tools
         private static void CopySubKey(this RegistryKey parentKey,
             string subKeyName, RegistryKey newParentKey, string newSubKeyName)
         {
-            using (var destinationKey = newParentKey.CreateSubKey(newSubKeyName))
-            using (var sourceKey = parentKey.OpenSubKey(subKeyName, true))
-            {
-                RecurseCopyKey(sourceKey, destinationKey);
-            }
+            using var destinationKey = newParentKey.CreateSubKey(newSubKeyName);
+            using var sourceKey = parentKey.OpenSubKey(subKeyName, true);
+            RecurseCopyKey(sourceKey, destinationKey);
         }
 
         private static string GetKeyRoot(string fullPath, bool shortStyle)
@@ -297,11 +291,9 @@ namespace InventoryEngine.Tools
 
             foreach (var sourceSubKeyName in sourceKey.GetSubKeyNames())
             {
-                using (var destSubKey = destinationKey.CreateSubKey(sourceSubKeyName))
-                using (var sourceSubKey = sourceKey.OpenSubKey(sourceSubKeyName, true))
-                {
-                    RecurseCopyKey(sourceSubKey, destSubKey);
-                }
+                using var destSubKey = destinationKey.CreateSubKey(sourceSubKeyName);
+                using var sourceSubKey = sourceKey.OpenSubKey(sourceSubKeyName, true);
+                RecurseCopyKey(sourceSubKey, destSubKey);
             }
         }
     }

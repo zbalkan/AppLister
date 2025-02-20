@@ -57,10 +57,8 @@ namespace InventoryEngine.Startup
 
         public override void Delete()
         {
-            using (var key = RegistryTools.OpenRegistryKey(GetRealParentPath(), true))
-            {
-                key?.DeleteSubKey(EntryLongName);
-            }
+            using var key = RegistryTools.OpenRegistryKey(GetRealParentPath(), true);
+            key?.DeleteSubKey(EntryLongName);
         }
 
         public string GetRealParentPath(bool opposite = false) => (opposite ? !_disabled : _disabled)
@@ -69,10 +67,8 @@ namespace InventoryEngine.Startup
 
         public override bool StillExists()
         {
-            using (var key = RegistryTools.OpenRegistryKey(GetRealParentPath()))
-            {
-                return key?.GetSubKeyNames().Contains(EntryLongName) == true;
-            }
+            using var key = RegistryTools.OpenRegistryKey(GetRealParentPath());
+            return key?.GetSubKeyNames().Contains(EntryLongName) == true;
         }
     }
 }

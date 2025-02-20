@@ -133,10 +133,8 @@ namespace InventoryEngine.Startup
                 return;
             }
 
-            using (var runKey = RegistryTools.CreateSubKeyRecursively(startupEntry.ParentLongName))
-            {
-                runKey.SetValue(startupEntry.EntryLongName, startupEntry.Command, RegistryValueKind.String);
-            }
+            using var runKey = RegistryTools.CreateSubKeyRecursively(startupEntry.ParentLongName);
+            runKey.SetValue(startupEntry.EntryLongName, startupEntry.Command, RegistryValueKind.String);
         }
     }
 }

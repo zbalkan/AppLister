@@ -107,12 +107,10 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             foreach (var softwareKeyName in SoftwareRegKeys)
             {
-                using (var softwareKey = RegistryTools.OpenRegistryKey(softwareKeyName))
+                using var softwareKey = RegistryTools.OpenRegistryKey(softwareKeyName);
+                if (softwareKey != null)
                 {
-                    if (softwareKey != null)
-                    {
-                        output.AddRange(FindJunkRecursively(softwareKey));
-                    }
+                    output.AddRange(FindJunkRecursively(softwareKey));
                 }
             }
 
@@ -158,13 +156,11 @@ namespace InventoryEngine.Junk.Finders.Registry
                             continue;
                         }
 
-                        using (var subKey = softwareKey.OpenSubKey(subKeyName, false))
+                        using var subKey = softwareKey.OpenSubKey(subKeyName, false);
+                        if (subKey != null)
                         {
-                            if (subKey != null)
-                            {
-                                // ReSharper disable once PossibleMultipleEnumeration
-                                returnList = returnList.Concat(FindJunkRecursively(subKey, level + 1));
-                            }
+                            // ReSharper disable once PossibleMultipleEnumeration
+                            returnList = returnList.Concat(FindJunkRecursively(subKey, level + 1));
                         }
                     }
                 }
@@ -241,14 +237,12 @@ namespace InventoryEngine.Junk.Finders.Registry
                         try
                         {
                             // Check if the key acually exists
-                            using (var nodeKey = RegistryTools.OpenRegistryKey(nodePath, false))
+                            using var nodeKey = RegistryTools.OpenRegistryKey(nodePath, false);
+                            if (nodeKey != null)
                             {
-                                if (nodeKey != null)
-                                {
-                                    var newNode = new RegistryKeyJunk(nodePath, _uninstaller, this);
-                                    newNode.Confidence.AddRange(registryJunkNode.Confidence.ConfidenceParts);
-                                    output.Add(newNode);
-                                }
+                                var newNode = new RegistryKeyJunk(nodePath, _uninstaller, this);
+                                newNode.Confidence.AddRange(registryJunkNode.Confidence.ConfidenceParts);
+                                output.Add(newNode);
                             }
                         }
                         catch

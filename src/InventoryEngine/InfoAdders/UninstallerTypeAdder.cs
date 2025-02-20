@@ -77,15 +77,13 @@ namespace InventoryEngine.InfoAdders
                     }
 
                     // Detect NSIS Nullsoft.NSIS. Slow, but there's no other way than to scan the file
-                    using (var reader = new StreamReader(ps.FileName, Encoding.ASCII))
+                    using var reader = new StreamReader(ps.FileName, Encoding.ASCII);
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
                     {
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
+                        if (line.Contains("Nullsoft", StringComparison.Ordinal))
                         {
-                            if (line.Contains("Nullsoft", StringComparison.Ordinal))
-                            {
-                                return UninstallerType.Nsis;
-                            }
+                            return UninstallerType.Nsis;
                         }
                     }
                 }

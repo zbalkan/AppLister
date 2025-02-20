@@ -90,40 +90,38 @@ namespace InventoryEngine.Factory
             var output = new List<IList<TData>>();
             try
             {
-                using (var searcherDtp = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_DiskDriveToDiskPartition"))
-                using (var searcherLtp = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_LogicalDiskToPartition"))
+                using var searcherDtp = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_DiskDriveToDiskPartition");
+                using var searcherLtp = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_LogicalDiskToPartition");
+                var dtp = searcherDtp.Get().Cast<ManagementObject>().Select(queryObj => new
                 {
-                    var dtp = searcherDtp.Get().Cast<ManagementObject>().Select(queryObj => new
-                    {
-                        Drive = queryObj["Antecedent"] as string,
-                        Partition = queryObj["Dependent"] as string
-                    });
+                    Drive = queryObj["Antecedent"] as string,
+                    Partition = queryObj["Dependent"] as string
+                });
 
-                    var ltp = searcherLtp.Get().Cast<ManagementObject>().Select(queryObj => new
-                    {
-                        Partition = queryObj["Antecedent"] as string,
-                        LogicalDrive = queryObj["Dependent"] as string
-                    });
+                var ltp = searcherLtp.Get().Cast<ManagementObject>().Select(queryObj => new
+                {
+                    Partition = queryObj["Antecedent"] as string,
+                    LogicalDrive = queryObj["Dependent"] as string
+                });
 
-                    var correlatedDriveList = ltp.Join(dtp, arg => arg.Partition, arg => arg.Partition, (x, y) => new
-                    {
-                        LogicalName = x.LogicalDrive.Split(new[] { '"' }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault()?.Append('\\'),
-                        y.Drive
-                    }).Where(x => !string.IsNullOrEmpty(x.LogicalName.ToString())).GroupBy(x => x.Drive);
+                var correlatedDriveList = ltp.Join(dtp, arg => arg.Partition, arg => arg.Partition, (x, y) => new
+                {
+                    LogicalName = x.LogicalDrive.Split(new[] { '"' }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault()?.Append('\\'),
+                    y.Drive
+                }).Where(x => !string.IsNullOrEmpty(x.LogicalName.ToString())).GroupBy(x => x.Drive);
 
-                    var inputList = itemsToScan.Select(x => new { locationGetter(x).Root.Name, x }).ToList();
-                    foreach (var logicalDriveGroup in correlatedDriveList)
-                    {
-                        var filteredByPhysicalDrive = inputList.Where(x =>
-                            logicalDriveGroup.Any(y =>
-                                y.LogicalName.ToString().Equals(x.Name, StringComparison.OrdinalIgnoreCase))).ToList();
+                var inputList = itemsToScan.Select(x => new { locationGetter(x).Root.Name, x }).ToList();
+                foreach (var logicalDriveGroup in correlatedDriveList)
+                {
+                    var filteredByPhysicalDrive = inputList.Where(x =>
+                        logicalDriveGroup.Any(y =>
+                            y.LogicalName.ToString().Equals(x.Name, StringComparison.OrdinalIgnoreCase))).ToList();
 
-                        inputList.RemoveAll(filteredByPhysicalDrive);
-                        output.Add(filteredByPhysicalDrive.ConvertAll(x => x.x));
-                    }
-                    // Bundle leftovers as a single drive
-                    output.Add(inputList.ConvertAll(x => x.x));
+                    inputList.RemoveAll(filteredByPhysicalDrive);
+                    output.Add(filteredByPhysicalDrive.ConvertAll(x => x.x));
                 }
+                // Bundle leftovers as a single drive
+                output.Add(inputList.ConvertAll(x => x.x));
             }
             catch (SystemException ex)
             {

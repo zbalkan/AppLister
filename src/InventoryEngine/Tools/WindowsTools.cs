@@ -264,23 +264,19 @@ namespace InventoryEngine.Tools
                 @"SOFTWARE\WOW6432Node\Clients\StartMenuInternet"
             })
             {
-                using (var key = Registry.LocalMachine.OpenSubKey(internetKeyName))
+                using var key = Registry.LocalMachine.OpenSubKey(internetKeyName);
+                if (key == null)
                 {
-                    if (key == null)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    foreach (var registryKey in key.GetSubKeyNames())
+                foreach (var registryKey in key.GetSubKeyNames())
+                {
+                    using var commandKey = key.OpenSubKey(registryKey + @"\shell\open\command");
+                    var path = commandKey?.GetStringSafe(null);
+                    if (path != null)
                     {
-                        using (var commandKey = key.OpenSubKey(registryKey + @"\shell\open\command"))
-                        {
-                            var path = commandKey?.GetStringSafe(null);
-                            if (path != null)
-                            {
-                                results.Add(path.Trim('\"'));
-                            }
-                        }
+                        results.Add(path.Trim('\"'));
                     }
                 }
             }

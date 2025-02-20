@@ -48,30 +48,26 @@ namespace InventoryEngine.Junk.Finders.Registry
                 return returnList;
             }
 
-            using (var key = RegistryTools.OpenRegistryKey(Path.Combine(SoftwareRegKeyScanner.KeyCu, AudioPolicyConfigSubkey)))
+            using var key = RegistryTools.OpenRegistryKey(Path.Combine(SoftwareRegKeyScanner.KeyCu, AudioPolicyConfigSubkey));
+            if (key == null)
             {
-                if (key == null)
+                return returnList;
+            }
+
+            foreach (var subKeyName in key.GetSubKeyNames())
+            {
+                using var subKey = key.OpenSubKey(subKeyName);
+                if (subKey == null)
                 {
-                    return returnList;
+                    continue;
                 }
 
-                foreach (var subKeyName in key.GetSubKeyNames())
+                var defVal = subKey.GetStringSafe(null);
+                if (defVal?.Contains(unrootedLocation, StringComparison.InvariantCultureIgnoreCase) == true)
                 {
-                    using (var subKey = key.OpenSubKey(subKeyName))
-                    {
-                        if (subKey == null)
-                        {
-                            continue;
-                        }
-
-                        var defVal = subKey.GetStringSafe(null);
-                        if (defVal?.Contains(unrootedLocation, StringComparison.InvariantCultureIgnoreCase) == true)
-                        {
-                            var junk = new RegistryKeyJunk(subKey.Name, target, this);
-                            junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                            returnList.Add(junk);
-                        }
-                    }
+                    var junk = new RegistryKeyJunk(subKey.Name, target, this);
+                    junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                    returnList.Add(junk);
                 }
             }
 

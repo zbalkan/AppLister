@@ -16,31 +16,29 @@ namespace InventoryEngine.Junk.Finders.Registry
                 yield break;
             }
 
-            using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(
-                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\Folders"))
+            using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\Folders");
+            if (key == null)
             {
-                if (key == null)
+                yield break;
+            }
+
+            foreach (var valueName in key.GetValueNames())
+            {
+                if (!PathTools.SubPathIsInsideBasePath(installLocation, valueName, true))
                 {
-                    yield break;
+                    continue;
                 }
 
-                foreach (var valueName in key.GetValueNames())
+                var node = new RegistryValueJunk(key.Name, valueName, target, this);
+                node.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+
+                if (GetOtherInstallLocations(target).Any(x => PathTools.SubPathIsInsideBasePath(x, valueName, true)))
                 {
-                    if (!PathTools.SubPathIsInsideBasePath(installLocation, valueName, true))
-                    {
-                        continue;
-                    }
-
-                    var node = new RegistryValueJunk(key.Name, valueName, target, this);
-                    node.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-
-                    if (GetOtherInstallLocations(target).Any(x => PathTools.SubPathIsInsideBasePath(x, valueName, true)))
-                    {
-                        node.Confidence.Add(ConfidenceRecords.DirectoryStillUsed);
-                    }
-
-                    yield return node;
+                    node.Confidence.Add(ConfidenceRecords.DirectoryStillUsed);
                 }
+
+                yield return node;
             }
         }
 

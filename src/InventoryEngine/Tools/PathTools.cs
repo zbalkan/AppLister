@@ -284,10 +284,8 @@ namespace InventoryEngine.Tools
         {
             const string appPaths = @"Software\Microsoft\Windows\CurrentVersion\App Paths";
             var executableEntry = Path.Combine(appPaths, exename);
-            using (var key = Registry.CurrentUser.OpenSubKey(executableEntry) ?? Registry.LocalMachine.OpenSubKey(executableEntry))
-            {
-                return key?.GetStringSafe(null);
-            }
+            using var key = Registry.CurrentUser.OpenSubKey(executableEntry) ?? Registry.LocalMachine.OpenSubKey(executableEntry);
+            return key?.GetStringSafe(null);
         }
     }
 }

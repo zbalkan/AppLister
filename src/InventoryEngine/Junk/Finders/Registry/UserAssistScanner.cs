@@ -36,35 +36,33 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             foreach (var userAssistGuid in UserAssistGuids)
             {
-                using (var key = RegistryTools.OpenRegistryKey(
-                    $@"{SoftwareRegKeyScanner.KeyCu}\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{userAssistGuid}\Count"))
+                using var key = RegistryTools.OpenRegistryKey(
+                    $@"{SoftwareRegKeyScanner.KeyCu}\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{userAssistGuid}\Count");
+                if (key == null)
                 {
-                    if (key == null)
+                    continue;
+                }
+
+                foreach (var valueName in key.GetValueNames())
+                {
+                    // Convert the value name to a usable form
+                    var convertedName = Rot13(valueName);
+                    var guidEnd = convertedName.IndexOf('}') + 1;
+                    if (guidEnd > 0 && GuidTools.GuidTryParse(convertedName.Substring(0, guidEnd), out var g))
                     {
-                        continue;
+                        convertedName = NativeMethods.GetKnownFolderPath(g) + convertedName.Substring(guidEnd);
                     }
 
-                    foreach (var valueName in key.GetValueNames())
-                    {
-                        // Convert the value name to a usable form
-                        var convertedName = Rot13(valueName);
-                        var guidEnd = convertedName.IndexOf('}') + 1;
-                        if (guidEnd > 0 && GuidTools.GuidTryParse(convertedName.Substring(0, guidEnd), out var g))
-                        {
-                            convertedName = NativeMethods.GetKnownFolderPath(g) + convertedName.Substring(guidEnd);
-                        }
-
-                        // Check for matches
-                        if (convertedName.StartsWith(target.InstallLocation,
+                    // Check for matches
+                    if (convertedName.StartsWith(target.InstallLocation,
                             StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        var junk = new RegistryValueJunk(key.Name, valueName, target, this)
                         {
-                            var junk = new RegistryValueJunk(key.Name, valueName, target, this)
-                            {
-                                DisplayValueName = convertedName
-                            };
-                            junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                            yield return junk;
-                        }
+                            DisplayValueName = convertedName
+                        };
+                        junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                        yield return junk;
                     }
                 }
             }

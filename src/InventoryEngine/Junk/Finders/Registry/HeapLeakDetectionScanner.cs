@@ -21,13 +21,11 @@ namespace InventoryEngine.Junk.Finders.Registry
         {
             try
             {
-                using (var key = RegistryTools.OpenRegistryKey(RegKey))
+                using var key = RegistryTools.OpenRegistryKey(RegKey);
+                if (key != null)
                 {
-                    if (key != null)
-                    {
-                        // Reg key names are case insensitive so using tolower key is fine
-                        _lookup = key.GetSubKeyNames().ToDictionary(x => x.ToLower(), x => x);
-                    }
+                    // Reg key names are case insensitive so using tolower key is fine
+                    _lookup = key.GetSubKeyNames().ToDictionary(x => x.ToLower(), x => x);
                 }
             }
             catch (SystemException ex)

@@ -90,26 +90,24 @@ namespace InventoryEngine.Startup
             var results = new List<StartupEntry>();
             try
             {
-                using (var rKey = RegistryTools.OpenRegistryKey(point.Path))
+                using var rKey = RegistryTools.OpenRegistryKey(point.Path);
+                if (rKey != null)
                 {
-                    if (rKey != null)
+                    foreach (var name in rKey.GetValueNames())
                     {
-                        foreach (var name in rKey.GetValueNames())
+                        var result = rKey.GetStringSafe(name);
+                        if (string.IsNullOrEmpty(result))
                         {
-                            var result = rKey.GetStringSafe(name);
-                            if (string.IsNullOrEmpty(result))
-                            {
-                                continue;
-                            }
+                            continue;
+                        }
 
-                            try
-                            {
-                                results.Add(new StartupEntry(point, name, result));
-                            }
-                            catch (Exception)
-                            {
-                                // TODO
-                            }
+                        try
+                        {
+                            results.Add(new StartupEntry(point, name, result));
+                        }
+                        catch (Exception)
+                        {
+                            // TODO
                         }
                     }
                 }

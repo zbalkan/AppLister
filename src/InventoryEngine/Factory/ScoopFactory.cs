@@ -279,13 +279,11 @@ namespace InventoryEngine.Factory
             startInfo.CreateNoWindow = true;
             startInfo.StandardOutputEncoding = Encoding.Default;
 
-            using (var process = Process.Start(startInfo))
-            {
-                var sw = Stopwatch.StartNew();
-                var output = process?.StandardOutput.ReadToEnd();
-                Debug.WriteLine($"[Performance] Running command {startInfo.FileName} {startInfo.Arguments} took {sw.ElapsedMilliseconds}ms");
-                return output;
-            }
+            using var process = Process.Start(startInfo);
+            var sw = Stopwatch.StartNew();
+            var output = process?.StandardOutput.ReadToEnd();
+            Debug.WriteLine($"[Performance] Running command {startInfo.FileName} {startInfo.Arguments} took {sw.ElapsedMilliseconds}ms");
+            return output;
         }
     }
 }

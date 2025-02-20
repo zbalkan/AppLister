@@ -33,23 +33,21 @@ namespace InventoryEngine.Junk.Finders.Registry
                 compatKey + @"\Compatibility Assistant\Store"
             }))
             {
-                using (var key = RegistryTools.OpenRegistryKey(fullCompatKey))
+                using var key = RegistryTools.OpenRegistryKey(fullCompatKey);
+                if (key == null)
                 {
-                    if (key == null)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
 
-                    foreach (var valueName in key.GetValueNames())
-                    {
-                        // Check for matches
-                        if (valueName.StartsWith(target.InstallLocation,
+                foreach (var valueName in key.GetValueNames())
+                {
+                    // Check for matches
+                    if (valueName.StartsWith(target.InstallLocation,
                             StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            var junk = new RegistryValueJunk(key.Name, valueName, target, this);
-                            junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                            yield return junk;
-                        }
+                    {
+                        var junk = new RegistryValueJunk(key.Name, valueName, target, this);
+                        junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                        yield return junk;
                     }
                 }
             }

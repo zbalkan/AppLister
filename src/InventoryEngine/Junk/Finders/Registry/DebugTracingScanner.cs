@@ -49,25 +49,23 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             try
             {
-                using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Tracing", true))
+                using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Tracing", true);
+                if (key != null && target.SortedExecutables != null)
                 {
-                    if (key != null && target.SortedExecutables != null)
-                    {
-                        var exeNames = target.SortedExecutables.Select(Path.GetFileNameWithoutExtension).ToList();
+                    var exeNames = target.SortedExecutables.Select(Path.GetFileNameWithoutExtension).ToList();
 
-                        foreach (var keyGroup in key.GetSubKeyNames()
-                            .Where(x => x.EndsWith("_RASAPI32") || x.EndsWith("_RASMANCS"))
-                            .Select(name => new { name, trimmed = name.Substring(0, name.LastIndexOf('_')) })
-                            .GroupBy(x => x.trimmed))
+                    foreach (var keyGroup in key.GetSubKeyNames()
+                                 .Where(x => x.EndsWith("_RASAPI32") || x.EndsWith("_RASMANCS"))
+                                 .Select(name => new { name, trimmed = name.Substring(0, name.LastIndexOf('_')) })
+                                 .GroupBy(x => x.trimmed))
+                    {
+                        if (exeNames.Contains(keyGroup.Key, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            if (exeNames.Contains(keyGroup.Key, StringComparison.InvariantCultureIgnoreCase))
+                            foreach (var keyName in keyGroup)
                             {
-                                foreach (var keyName in keyGroup)
-                                {
-                                    var junk = new RegistryKeyJunk(Path.Combine(key.Name, keyName.name), target, this);
-                                    junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                                    returnList.Add(junk);
-                                }
+                                var junk = new RegistryKeyJunk(Path.Combine(key.Name, keyName.name), target, this);
+                                junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                                returnList.Add(junk);
                             }
                         }
                     }
