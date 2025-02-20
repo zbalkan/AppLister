@@ -279,14 +279,7 @@ namespace InventoryEngine.Extensions
                 else
                 {
                     var c = input[i];
-                    if (IsValidCodePoint(c))
-                    {
-                        sb.Append(c);
-                    }
-                    else
-                    {
-                        sb.Append(replacement);
-                    }
+                    sb.Append(IsValidCodePoint(c) ? c : replacement);
                 }
             }
             return sb.ToString();

@@ -231,15 +231,7 @@ namespace InventoryEngine.Factory
         {
             var raw = props["Publisher"].Value.ToString();
             var firstComma = raw.IndexOf(',');
-            string newName;
-            if (firstComma == -1)
-            {
-                newName = raw.Replace("CN=", string.Empty);
-            }
-            else
-            {
-                newName = raw.Substring(0, firstComma).Replace("CN=", string.Empty);
-            }
+            var newName = firstComma == -1 ? raw.Replace("CN=", string.Empty) : raw.Substring(0, firstComma).Replace("CN=", string.Empty);
 
             var isValidGuid = Guid.TryParse(newName, out _);
             if (isValidGuid)
