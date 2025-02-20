@@ -13,7 +13,7 @@ namespace InventoryEngine.Junk.Finders.Registry
 {
     internal partial class ComScanner : JunkCreatorBase
     {
-        private static readonly string[] _classesKeys =
+        private static readonly string[] ClassesKeys =
         {
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Classes",
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Classes\WOW6432Node",
@@ -49,7 +49,7 @@ namespace InventoryEngine.Junk.Finders.Registry
                     }
                 }
 
-                foreach (var classesKeyPath in _classesKeys)
+                foreach (var classesKeyPath in ClassesKeys)
                 {
                     using var classesKey = RegistryTools.OpenRegistryKey(classesKeyPath, false, true);
                     if (classesKey == null)
@@ -138,7 +138,7 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             _extensionKeyNames = new Dictionary<string, string[]>();
 
-            foreach (var classesKeyPath in _classesKeys)
+            foreach (var classesKeyPath in ClassesKeys)
             {
                 using var classesKey = RegistryTools.OpenRegistryKey(classesKeyPath, false, true);
                 if (classesKey == null)
@@ -160,7 +160,7 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
 
             // Gather com interface info https://docs.microsoft.com/en-us/windows/desktop/com/interface-key
-            foreach (var classesKeyPath in _classesKeys)
+            foreach (var classesKeyPath in ClassesKeys)
             {
                 using var interfacesKey = RegistryTools.OpenRegistryKey(Path.Combine(classesKeyPath, "Interface"), false, true);
                 if (interfacesKey == null)

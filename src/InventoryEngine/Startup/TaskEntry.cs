@@ -37,7 +37,7 @@ namespace InventoryEngine.Startup
         }
 
         private Task SourceTask { get; }
-        private bool disposedValue;
+        private bool _disposedValue;
 
         internal TaskEntry(string name, string command, string commandFilename, Task task)
         {
@@ -65,13 +65,13 @@ namespace InventoryEngine.Startup
 
         private void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
                     SourceTask.Dispose();
                 }
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
     }

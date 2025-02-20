@@ -8,7 +8,7 @@ namespace WindowsServiceProxy
 {
     public partial class WindowsBackgroundService : ServiceBase
     {
-        private readonly InventoryService.InventoryService internalService;
+        private readonly InventoryService.InventoryService _internalService;
         private readonly int _queryPeriodInMilliseconds;
 
         private const int DefaultQueryPeriodInMinutes = 600;  // Default period constant
@@ -31,7 +31,7 @@ namespace WindowsServiceProxy
                 _queryPeriodInMilliseconds = ToMillisecond(period);
             }
 
-            internalService = new InventoryService.InventoryService(EventLog);
+            _internalService = new InventoryService.InventoryService(EventLog);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Data types", "TI0301:Do not use 'magic numbers'", Justification = "Converting minutes to milliseconds")]
@@ -63,6 +63,6 @@ namespace WindowsServiceProxy
             }
         }
 
-        private void Refresh(object state) => internalService.Refresh();
+        private void Refresh(object state) => _internalService.Refresh();
     }
 }

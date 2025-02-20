@@ -64,7 +64,7 @@ namespace InventoryEngine.Junk.Finders.Drive
 
             try
             {
-                var prefetchDir = Path.Combine(WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_WINDOWS), "Prefetch");
+                var prefetchDir = Path.Combine(WindowsTools.GetEnvironmentPath(Csidl.CSIDL_WINDOWS), "Prefetch");
                 if (!Directory.Exists(prefetchDir))
                 {
                     return;

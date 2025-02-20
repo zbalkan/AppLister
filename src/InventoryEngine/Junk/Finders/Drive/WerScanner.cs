@@ -21,8 +21,8 @@ namespace InventoryEngine.Junk.Finders.Drive
         {
             Archives = new[]
             {
-                WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_COMMON_APPDATA),
-                WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_LOCAL_APPDATA)
+                WindowsTools.GetEnvironmentPath(Csidl.CSIDL_COMMON_APPDATA),
+                WindowsTools.GetEnvironmentPath(Csidl.CSIDL_LOCAL_APPDATA)
             }.SelectMany(x => new[]
             {
                 Path.Combine(x, @"Microsoft\Windows\WER\ReportArchive"),

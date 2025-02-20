@@ -81,7 +81,7 @@ namespace InventoryEngine.Junk
                 }
             }
 
-            AddRange((Enum.GetValues(typeof(CSIDL)) as CSIDL[])
+            AddRange((Enum.GetValues(typeof(Csidl)) as Csidl[])
                 .Attempt(WindowsTools.GetEnvironmentPath));
 
             var knownFolderstype = Type.GetType("Windows.Storage.KnownFolders, Microsoft.Windows.SDK.NET", false);

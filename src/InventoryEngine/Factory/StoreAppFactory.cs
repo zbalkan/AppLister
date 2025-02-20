@@ -14,9 +14,9 @@ namespace InventoryEngine.Factory
     {
         public string DisplayName => "Progress_AppStores_WinStore";
 
-        private static readonly PowerShell powershellInstance = PowerShell.Create();
+        private static readonly PowerShell PowershellInstance = PowerShell.Create();
 
-        private static readonly string windowsPath = WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_WINDOWS);
+        private static readonly string WindowsPath = WindowsTools.GetEnvironmentPath(Csidl.CSIDL_WINDOWS);
 
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
         {
@@ -67,14 +67,14 @@ namespace InventoryEngine.Factory
         private static PSObject GetAppxManifest(string packageName)
         {
             PSObject manifest = null;
-            powershellInstance.Commands.Clear();
-            powershellInstance
+            PowershellInstance.Commands.Clear();
+            PowershellInstance
                 .AddCommand("Get-AppxPackageManifest")
                 .AddParameter("Package", packageName);
 
             try
             {
-                manifest = powershellInstance.Invoke()[0];
+                manifest = PowershellInstance.Invoke()[0];
             }
             catch (CmdletInvocationException)
             {
@@ -91,9 +91,9 @@ namespace InventoryEngine.Factory
 
         private static Collection<PSObject> GetAppxPackages()
         {
-            powershellInstance.Commands.Clear();
-            powershellInstance.AddCommand("Get-AppxPackage");
-            return powershellInstance.Invoke();
+            PowershellInstance.Commands.Clear();
+            PowershellInstance.AddCommand("Get-AppxPackage");
+            return PowershellInstance.Invoke();
         }
 
         private static ApplicationUninstallerEntry MapToEntry(PSObject appxPackage)
@@ -259,7 +259,7 @@ namespace InventoryEngine.Factory
                 return false;
             }
 
-            return installLocation.StartsWith(windowsPath, StringComparison.InvariantCultureIgnoreCase);
+            return installLocation.StartsWith(WindowsPath, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

@@ -87,7 +87,7 @@ namespace InventoryEngine.Shared
 
         internal static string WindowsDirectory { get; }
 
-        private static readonly string _pf64, _pf32;
+        private static readonly string Pf64, Pf32;
 
         static UninstallToolsGlobalConfig()
         {
@@ -121,22 +121,22 @@ namespace InventoryEngine.Shared
                 "InstallShield Installation Information", "Installer", "winsxs", "WindowsApps", "DirectX", "DirectXRedist"
             }.AsEnumerable();
 
-            WindowsDirectory = WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_WINDOWS);
+            WindowsDirectory = WindowsTools.GetEnvironmentPath(Csidl.CSIDL_WINDOWS);
 
             StockProgramFiles = new[]
             {
-                WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_PROGRAM_FILES),
+                WindowsTools.GetEnvironmentPath(Csidl.CSIDL_PROGRAM_FILES),
                 WindowsTools.GetProgramFilesX86Path()
             }.Distinct().ToList().AsEnumerable();
 
             // JunkSearchDirs --------------
-            var localData = WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_LOCAL_APPDATA);
+            var localData = WindowsTools.GetEnvironmentPath(Csidl.CSIDL_LOCAL_APPDATA);
             var paths = new List<string>
             {
-                WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_PROGRAMS),
-                WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_COMMON_PROGRAMS),
-                WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_APPDATA),
-                WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_COMMON_APPDATA),
+                WindowsTools.GetEnvironmentPath(Csidl.CSIDL_PROGRAMS),
+                WindowsTools.GetEnvironmentPath(Csidl.CSIDL_COMMON_PROGRAMS),
+                WindowsTools.GetEnvironmentPath(Csidl.CSIDL_APPDATA),
+                WindowsTools.GetEnvironmentPath(Csidl.CSIDL_COMMON_APPDATA),
                 localData
             };
 
@@ -160,11 +160,11 @@ namespace InventoryEngine.Shared
 
             AppInfoCachePath = Path.Combine(AssemblyLocation, "InfoCache.xml");
 
-            _pf32 = WindowsTools.GetProgramFilesX86Path();
-            _pf64 = WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_PROGRAM_FILES);
-            if (string.IsNullOrWhiteSpace(_pf64) || PathTools.PathsEqual(_pf32, _pf64))
+            Pf32 = WindowsTools.GetProgramFilesX86Path();
+            Pf64 = WindowsTools.GetEnvironmentPath(Csidl.CSIDL_PROGRAM_FILES);
+            if (string.IsNullOrWhiteSpace(Pf64) || PathTools.PathsEqual(Pf32, Pf64))
             {
-                _pf64 = null;
+                Pf64 = null;
             }
         }
 
@@ -173,12 +173,12 @@ namespace InventoryEngine.Shared
         /// </summary>
         internal static MachineType IsPathInsideProgramFiles(string fullPath)
         {
-            if (fullPath.StartsWith(_pf32, StringComparison.InvariantCultureIgnoreCase))
+            if (fullPath.StartsWith(Pf32, StringComparison.InvariantCultureIgnoreCase))
             {
                 return MachineType.X86;
             }
 
-            if (_pf64 != null && fullPath.StartsWith(_pf64, StringComparison.InvariantCultureIgnoreCase))
+            if (Pf64 != null && fullPath.StartsWith(Pf64, StringComparison.InvariantCultureIgnoreCase))
             {
                 return MachineType.X64;
             }
@@ -246,11 +246,11 @@ namespace InventoryEngine.Shared
         {
             var pfDirectories = new List<string>(2)
             {
-                _pf32
+                Pf32
             };
-            if (_pf64 != null)
+            if (Pf64 != null)
             {
-                pfDirectories.Add(_pf64);
+                pfDirectories.Add(Pf64);
             }
 
             if (includeUserDirectories && CustomProgramFiles != null)
@@ -258,9 +258,9 @@ namespace InventoryEngine.Shared
                 pfDirectories.AddRange(CustomProgramFiles.Where(x => !pfDirectories.Any(y => PathTools.PathsEqual(x, y))));
             }
 
-            pfDirectories.Add(Path.Combine(WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_APPDATA), "Programs"));
-            pfDirectories.Add(Path.Combine(WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_LOCAL_APPDATA), "Programs"));
-            pfDirectories.Add(Path.Combine(WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_COMMON_APPDATA), "Programs"));
+            pfDirectories.Add(Path.Combine(WindowsTools.GetEnvironmentPath(Csidl.CSIDL_APPDATA), "Programs"));
+            pfDirectories.Add(Path.Combine(WindowsTools.GetEnvironmentPath(Csidl.CSIDL_LOCAL_APPDATA), "Programs"));
+            pfDirectories.Add(Path.Combine(WindowsTools.GetEnvironmentPath(Csidl.CSIDL_COMMON_APPDATA), "Programs"));
 
             var output = new List<DirectoryInfo>(pfDirectories.Count);
             foreach (var directory in pfDirectories)

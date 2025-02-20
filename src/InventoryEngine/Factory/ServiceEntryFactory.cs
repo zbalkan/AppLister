@@ -63,7 +63,7 @@ namespace InventoryEngine.Factory
                     {
                         // Don't show system services
                         if (queryObj["PathName"] is string filename && !filename.Contains(
-                            WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_WINDOWS),
+                            WindowsTools.GetEnvironmentPath(Csidl.CSIDL_WINDOWS),
                             StringComparison.InvariantCultureIgnoreCase))
                         {
                             var e = new ServiceEntry((string)queryObj["Name"], queryObj["DisplayName"] as string, filename);

@@ -177,7 +177,7 @@ namespace InventoryEngine.Tools
             "ZL9"
         };
 
-        internal static string GetEnvironmentPath(CSIDL target)
+        internal static string GetEnvironmentPath(Csidl target)
         {
             var path = new StringBuilder(260);
             NativeMethods.SHGetSpecialFolderPath(IntPtr.Zero, path, (int)target, false);
@@ -190,7 +190,7 @@ namespace InventoryEngine.Tools
         internal static string GetProgramFilesX86Path()
         {
             var result = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-            return string.IsNullOrEmpty(result) ? GetEnvironmentPath(CSIDL.CSIDL_PROGRAM_FILES) : result;
+            return string.IsNullOrEmpty(result) ? GetEnvironmentPath(Csidl.CSIDL_PROGRAM_FILES) : result;
         }
 
         internal static SecurityIdentifier GetUserSid() => WindowsIdentity.GetCurrent().User;
@@ -235,9 +235,9 @@ namespace InventoryEngine.Tools
         {
             var link = new NativeMethods.ShellLink();
             // ReSharper disable once SuspiciousTypeConversion.Global
-            ((NativeMethods.IPersistFile)link).Load(filename, NativeMethods.STGM_READ);
-            var sb = new StringBuilder(NativeMethods.MAX_PATH);
-            var data = new NativeMethods.WIN32_FIND_DATAW();
+            ((NativeMethods.IPersistFile)link).Load(filename, NativeMethods.StgmRead);
+            var sb = new StringBuilder(NativeMethods.MaxPath);
+            var data = new NativeMethods.Win32FindDataw();
             // ReSharper disable once SuspiciousTypeConversion.Global
             ((NativeMethods.IShellLinkW)link).GetPath(sb, sb.Capacity, ref data, 0);
             return sb.ToString();
@@ -252,9 +252,9 @@ namespace InventoryEngine.Tools
             var results = new List<string>(new[]
             {
                 Path.Combine(GetProgramFilesX86Path(), @"Internet Explorer\iexplore.exe"),
-                Path.Combine(GetEnvironmentPath(CSIDL.CSIDL_PROGRAM_FILES), @"Internet Explorer\iexplore.exe"),
-                Path.Combine(GetEnvironmentPath(CSIDL.CSIDL_WINDOWS), @"SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdgeCP.exe"),
-                Path.Combine(GetEnvironmentPath(CSIDL.CSIDL_WINDOWS), @"SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdge.exe")
+                Path.Combine(GetEnvironmentPath(Csidl.CSIDL_PROGRAM_FILES), @"Internet Explorer\iexplore.exe"),
+                Path.Combine(GetEnvironmentPath(Csidl.CSIDL_WINDOWS), @"SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdgeCP.exe"),
+                Path.Combine(GetEnvironmentPath(Csidl.CSIDL_WINDOWS), @"SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdge.exe")
             }.Where(File.Exists));
 
             // Check for 3rd party browsers in standard reg keys

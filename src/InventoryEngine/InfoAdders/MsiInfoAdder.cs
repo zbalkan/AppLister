@@ -43,39 +43,39 @@ namespace InventoryEngine.InfoAdders
         private static void ApplyMsiInfo(ApplicationUninstallerEntry entry, Guid guid)
         {
             //IMPORTANT: If MsiGetProductInfo returns null it means that the guid is invalid or app is not installed
-            if (MsiTools.MsiGetProductInfo(guid, MsiWrapper.INSTALLPROPERTY.PRODUCTNAME) == null)
+            if (MsiTools.MsiGetProductInfo(guid, MsiWrapper.Installproperty.Productname) == null)
             {
                 return;
             }
 
             FillInMissingInfoMsiHelper(() => entry.RawDisplayName, x => entry.RawDisplayName = x, guid,
-                MsiWrapper.INSTALLPROPERTY.INSTALLEDPRODUCTNAME, MsiWrapper.INSTALLPROPERTY.PRODUCTNAME);
+                MsiWrapper.Installproperty.Installedproductname, MsiWrapper.Installproperty.Productname);
 
             FillInMissingInfoMsiHelper(() => entry.DisplayVersion, x => entry.DisplayVersion = ApplicationEntryTools.CleanupDisplayVersion(x), guid,
-                MsiWrapper.INSTALLPROPERTY.VERSIONSTRING, MsiWrapper.INSTALLPROPERTY.VERSION);
+                MsiWrapper.Installproperty.Versionstring, MsiWrapper.Installproperty.Version);
 
             FillInMissingInfoMsiHelper(() => entry.Publisher, x => entry.Publisher = x, guid,
-                MsiWrapper.INSTALLPROPERTY.PUBLISHER);
+                MsiWrapper.Installproperty.Publisher);
 
             FillInMissingInfoMsiHelper(() => entry.InstallLocation, x => entry.InstallLocation = x, guid,
-                MsiWrapper.INSTALLPROPERTY.INSTALLLOCATION);
+                MsiWrapper.Installproperty.Installlocation);
 
             FillInMissingInfoMsiHelper(() => entry.InstallSource, x => entry.InstallSource = x, guid,
-                MsiWrapper.INSTALLPROPERTY.INSTALLSOURCE);
+                MsiWrapper.Installproperty.Installsource);
 
             FillInMissingInfoMsiHelper(() => entry.UninstallerFullFilename, x => entry.UninstallerFullFilename = x, guid,
-                MsiWrapper.INSTALLPROPERTY.LOCALPACKAGE);
+                MsiWrapper.Installproperty.Localpackage);
 
             FillInMissingInfoMsiHelper(() => entry.AboutUrl, x => entry.AboutUrl = x, guid,
-                MsiWrapper.INSTALLPROPERTY.HELPLINK, MsiWrapper.INSTALLPROPERTY.URLUPDATEINFO,
-                MsiWrapper.INSTALLPROPERTY.URLINFOABOUT);
+                MsiWrapper.Installproperty.Helplink, MsiWrapper.Installproperty.Urlupdateinfo,
+                MsiWrapper.Installproperty.Urlinfoabout);
 
             if (entry.InstallDate != default)
             {
                 return;
             }
 
-            var temp = MsiTools.MsiGetProductInfo(guid, MsiWrapper.INSTALLPROPERTY.INSTALLDATE);
+            var temp = MsiTools.MsiGetProductInfo(guid, MsiWrapper.Installproperty.Installdate);
             if (string.IsNullOrEmpty(temp))
             {
                 return;
@@ -94,7 +94,7 @@ namespace InventoryEngine.InfoAdders
         }
 
         private static void FillInMissingInfoMsiHelper(Func<string> get, Action<string> set, Guid guid,
-            params MsiWrapper.INSTALLPROPERTY[] properties)
+            params MsiWrapper.Installproperty[] properties)
         {
             if (string.IsNullOrEmpty(get()))
             {

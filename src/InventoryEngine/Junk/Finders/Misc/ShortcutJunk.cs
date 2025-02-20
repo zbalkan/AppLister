@@ -70,7 +70,7 @@ namespace InventoryEngine.Junk.Finders.Misc
             _links = GetShortcuts();
         }
 
-        private static IEnumerable<string> GetLnkFilesSafe(CSIDL directory, SearchOption option)
+        private static IEnumerable<string> GetLnkFilesSafe(Csidl directory, SearchOption option)
         {
             try
             {
@@ -86,14 +86,14 @@ namespace InventoryEngine.Junk.Finders.Misc
 
         private static List<Shortcut> GetShortcuts()
         {
-            var syspath = WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_WINDOWS);
+            var syspath = WindowsTools.GetEnvironmentPath(Csidl.CSIDL_WINDOWS);
 
             var results = new List<Shortcut>();
             foreach (var linkFilename in
-                GetLnkFilesSafe(CSIDL.CSIDL_PROGRAMS, SearchOption.AllDirectories)
-                .Concat(GetLnkFilesSafe(CSIDL.CSIDL_COMMON_PROGRAMS, SearchOption.AllDirectories))
-                .Concat(GetLnkFilesSafe(CSIDL.CSIDL_DESKTOPDIRECTORY, SearchOption.TopDirectoryOnly))
-                .Concat(GetLnkFilesSafe(CSIDL.CSIDL_COMMON_DESKTOPDIRECTORY, SearchOption.TopDirectoryOnly))
+                GetLnkFilesSafe(Csidl.CSIDL_PROGRAMS, SearchOption.AllDirectories)
+                .Concat(GetLnkFilesSafe(Csidl.CSIDL_COMMON_PROGRAMS, SearchOption.AllDirectories))
+                .Concat(GetLnkFilesSafe(Csidl.CSIDL_DESKTOPDIRECTORY, SearchOption.TopDirectoryOnly))
+                .Concat(GetLnkFilesSafe(Csidl.CSIDL_COMMON_DESKTOPDIRECTORY, SearchOption.TopDirectoryOnly))
                 .Distinct())
             {
                 try
