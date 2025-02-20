@@ -63,7 +63,7 @@ namespace InventoryService
 
         private static string ExtractId(ApplicationUninstallerEntry app) => Regex
             .Replace(
-            $"{string.Join("_", (new string[] { app.DisplayNameTrimmed, app.DisplayVersion }).Where(str => !string.IsNullOrEmpty(str)))}"
+            $"{string.Join("_", (new[] { app.DisplayNameTrimmed, app.DisplayVersion }).Where(str => !string.IsNullOrEmpty(str)))}"
             .ToLowerInvariant().Replace(" ", "_").Replace(".", "_").Replace("__", "_"),
             "[^a-zA-Z0-9.()_]", string.Empty);
 
