@@ -8,7 +8,7 @@ namespace InventoryEngine.Startup
     public static class StartupEntryManager
     {
         // 6.2 is windows 8 and 2012, they are using a new startup disable scheme
-        internal static IStartupDisable DisableFunctions => _disableFunctions ?? (_disableFunctions = new StartupDisable());
+        internal static IStartupDisable DisableFunctions => _disableFunctions ??= new StartupDisable();
 
         private static IStartupDisable _disableFunctions;
 
