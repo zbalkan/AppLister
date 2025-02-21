@@ -17,14 +17,11 @@ namespace InventoryEngine.Junk.Finders.Registry
             //GUIDs for Windows XP
             "{75048700-EF1F-11D0-9888-006097DEACF9}",
             "{5E6AB780-7743-11CF-A12B-00AA004AE837",
+
             //GUIDs for Windows 7
             "{CEBFF5CD-ACE2-4F4F-9178-9926F41749EA}",
             "{F4E57C4B-2036-45F0-A9AB-443BCFE33D9F}}"
         };
-
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-        }
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -67,6 +64,10 @@ namespace InventoryEngine.Junk.Finders.Registry
                     yield return junk;
                 }
             }
+        }
+
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
         }
 
         private static string Rot13(string input)

@@ -16,10 +16,13 @@ namespace InventoryEngine.InfoAdders
     internal class InfoAdderManager
     {
         private static readonly Type BoolType = typeof(bool);
+
         private static readonly IMissingInfoAdder[] InfoAdders;
 
         private static readonly ICollection<CompiledPropertyInfo<ApplicationUninstallerEntry>> NonUninstallerProperties;
+
         private static readonly Dictionary<string, CompiledPropertyInfo<ApplicationUninstallerEntry>> TargetProperties;
+
         private static readonly ICollection<CompiledPropertyInfo<ApplicationUninstallerEntry>> UninstallerProperties;
 
         /// <summary>
@@ -143,8 +146,12 @@ namespace InventoryEngine.InfoAdders
         /// <summary>
         ///     Copy missing property values
         /// </summary>
-        /// <param name="baseEntry"> Copy values to this object </param>
-        /// <param name="entryToMerge"> Copy from this object </param>
+        /// <param name="baseEntry">
+        ///     Copy values to this object
+        /// </param>
+        /// <param name="entryToMerge">
+        ///     Copy from this object
+        /// </param>
         public void CopyMissingInformation(ApplicationUninstallerEntry baseEntry, ApplicationUninstallerEntry entryToMerge)
         {
             // If one of these is not null it will be merged by loop below. If both are not null

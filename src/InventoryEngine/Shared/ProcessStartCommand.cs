@@ -18,8 +18,12 @@ namespace InventoryEngine.Shared
         /// <summary>
         ///     Cleans up process start command and parameters
         /// </summary>
-        /// <param name="filename"> executable path </param>
-        /// <param name="args"> arguments to the executable </param>
+        /// <param name="filename">
+        ///     executable path
+        /// </param>
+        /// <param name="args">
+        ///     arguments to the executable
+        /// </param>
         /// <exception cref="ArgumentNullException">
         ///     The values of 'filename' and 'args' cannot be null.
         /// </exception>
@@ -39,6 +43,8 @@ namespace InventoryEngine.Shared
             Arguments = args.Trim();
         }
 
+        public override string ToString() => string.IsNullOrEmpty(Arguments) ? $"\"{FileName}\"" : $"\"{FileName}\" {Arguments}";
+
         internal static bool TryParse(string command, out ProcessStartCommand result)
         {
             try
@@ -54,10 +60,8 @@ namespace InventoryEngine.Shared
             return result != null;
         }
 
-        internal ProcessStartInfo ToProcessStartInfo() => new ProcessStartInfo(FileName, Arguments) { UseShellExecute = true };
-
         internal string ToCommandLine() => ToString();
 
-        public override string ToString() => string.IsNullOrEmpty(Arguments) ? $"\"{FileName}\"" : $"\"{FileName}\" {Arguments}";
+        internal ProcessStartInfo ToProcessStartInfo() => new ProcessStartInfo(FileName, Arguments) { UseShellExecute = true };
     }
 }

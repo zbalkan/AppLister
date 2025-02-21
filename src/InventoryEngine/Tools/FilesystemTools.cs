@@ -9,7 +9,9 @@ namespace InventoryEngine.Tools
         ///     Check the architecture of the executable. E.g. 64bit. Returns Unknown if the
         ///     architecture is unsupported or not specified.
         /// </summary>
-        /// <param name="filename"> Full path to the executable file. </param>
+        /// <param name="filename">
+        ///     Full path to the executable file.
+        /// </param>
         public static MachineType CheckExecutableMachineType(string filename)
         {
             if (!filename.EndsWith(".exe", StringComparison.InvariantCultureIgnoreCase))

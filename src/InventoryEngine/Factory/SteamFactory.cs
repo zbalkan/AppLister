@@ -14,6 +14,8 @@ namespace InventoryEngine.Factory
 {
     internal class SteamFactory : IIndependentUninstallerFactory, IJunkCreator
     {
+        internal static string SteamHelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "SteamHelper.exe");
+
         private static bool GetSteamInfo(out string steamLocation)
         {
             steamLocation = null;
@@ -35,9 +37,9 @@ namespace InventoryEngine.Factory
             return true;
         }
 
-        internal static string SteamHelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "SteamHelper.exe");
-
         #region IIndependantUninstallerFactory
+
+        public string DisplayName => "Progress_AppStores_Steam";
 
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
         {
@@ -93,16 +95,13 @@ namespace InventoryEngine.Factory
 
         public bool IsEnabled() => UninstallToolsGlobalConfig.ScanSteam;
 
-        public string DisplayName => "Progress_AppStores_Steam";
-
         #endregion IIndependantUninstallerFactory
 
         #region IJunkCreator
 
-        private static readonly string[] TempFolderNames = { "downloading", "shadercache", "temp" };
+        public string CategoryName { get; } = "UninstallerType_Steam";
 
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        { }
+        private static readonly string[] TempFolderNames = { "downloading", "shadercache", "temp" };
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -148,7 +147,8 @@ namespace InventoryEngine.Factory
             return results;
         }
 
-        public string CategoryName { get; } = "UninstallerType_Steam";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        { }
 
         #endregion IJunkCreator
     }

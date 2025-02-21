@@ -16,6 +16,7 @@ namespace InventoryEngine.Factory
             public string[] EnvAddPath { get; set; }
 
             public string Homepage { get; set; }
+
             public string[][] Shortcuts { get; set; }
         }
     }

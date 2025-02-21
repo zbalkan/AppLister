@@ -34,6 +34,7 @@ namespace InventoryEngine.Startup
         }
 
         private bool IsWow { get; }
+
         private bool _disabled;
 
         public BrowserHelperEntry(string programName, string command, string parentKeyPath,

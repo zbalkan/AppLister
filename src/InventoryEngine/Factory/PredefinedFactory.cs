@@ -8,10 +8,10 @@ namespace InventoryEngine.Factory
     /// </summary>
     internal class PredefinedFactory : IIndependentUninstallerFactory
     {
+        public string DisplayName => "Progress_AppStores_Templates";
+
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries() => new List<ApplicationUninstallerEntry>();
 
         public bool IsEnabled() => UninstallToolsGlobalConfig.ScanPreDefined;
-
-        public string DisplayName => "Progress_AppStores_Templates";
     }
 }

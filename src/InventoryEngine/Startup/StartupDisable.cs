@@ -52,7 +52,6 @@ namespace InventoryEngine.Startup
 
             using var key = RegistryTools.OpenRegistryKey(startupEntry.ParentLongName);
             return !string.IsNullOrEmpty(key.GetStringSafe(startupEntry.EntryLongName));
-
         }
 
         private static bool GetDisabled(StartupEntry startupEntry)

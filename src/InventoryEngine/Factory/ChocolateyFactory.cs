@@ -11,6 +11,76 @@ namespace InventoryEngine.Factory
 {
     public sealed class ChocolateyFactory : IIndependentUninstallerFactory
     {
+        public string DisplayName => "Progress_AppStores_Chocolatey";
+
+        public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
+        {
+            // Check on every reload in case Chocolatey was uninstalled since last reload
+            if (!GetChocoInfo(out var chocoFullFilename))
+            {
+                return new List<ApplicationUninstallerEntry>().AsReadOnly();
+            }
+
+            var output = StartProcessAndReadOutput(chocoFullFilename, "list -lo -nocolor --detail");
+
+            if (string.IsNullOrEmpty(output))
+            {
+                return new List<ApplicationUninstallerEntry>().AsReadOnly();
+            }
+
+            return ParseChocolateyOutput(chocoFullFilename, output).AsReadOnly();
+        }
+
+        public bool IsEnabled() => UninstallToolsGlobalConfig.ScanChocolatey;
+
+        private static void AddInfo(ApplicationUninstallerEntry target, Dictionary<string, string> source,
+            string key, Action<ApplicationUninstallerEntry, string> setter)
+        {
+            if (!source.TryGetValue(key, out var val))
+            {
+                return;
+            }
+
+            try
+            {
+                setter(target, val);
+            }
+            catch (SystemException ex)
+            {
+                Debug.WriteLine("Exception while extracting info from choco: " + ex.Message);
+            }
+        }
+
+        private static Dictionary<string, string> ExtractPackageInformation(string result)
+        {
+            // Parse the console output into lines, then into key-value pairs
+            var lines = result.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(x => x.Length > 2 && x[0] == ' ' && x[1] != ' ' && x.Contains(": "))
+                .Select(x => x.TrimStart())
+                .SelectMany(x => x.Split(new[] { " | " }, StringSplitOptions.None));
+
+            var kvps = new Dictionary<string, string>();
+            foreach (var line in lines)
+            {
+                var i = line.IndexOf(": ", StringComparison.Ordinal);
+                if (i <= 0)
+                {
+                    continue;
+                }
+
+                var key = line.Substring(0, i);
+                var val = line.Substring(i + 2);
+                if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(val))
+                {
+                    continue;
+                }
+
+                kvps.Add(key, val);
+            }
+
+            return kvps;
+        }
+
         private static bool GetChocoInfo(out string chocoLocation)
         {
             chocoLocation = null;
@@ -36,22 +106,32 @@ namespace InventoryEngine.Factory
             return false;
         }
 
-        public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
+        private static string GetChocoInstallLocation(string chocoFullFilename)
         {
-            // Check on every reload in case Chocolatey was uninstalled since last reload
-            if (!GetChocoInfo(out var chocoFullFilename))
+            // The path is C:\ProgramData\chocolatey\bin\choco.exe OR C:\ProgramData\chocolatey\choco.exe
+            var chocoLocation = Path.GetDirectoryName(chocoFullFilename);
+            if (chocoLocation?.EndsWith(@"\bin", StringComparison.OrdinalIgnoreCase) == true)
             {
-                return new List<ApplicationUninstallerEntry>().AsReadOnly();
+                return chocoLocation.Substring(0, chocoLocation.Length - 4);
             }
 
-            var output = StartProcessAndReadOutput(chocoFullFilename, "list -lo -nocolor --detail");
+            return chocoLocation;
+        }
 
-            if (string.IsNullOrEmpty(output))
+        private static string StartProcessAndReadOutput(string filename, string args)
+        {
+            using var process = Process.Start(new ProcessStartInfo(filename, args)
             {
-                return new List<ApplicationUninstallerEntry>().AsReadOnly();
-            }
-
-            return ParseChocolateyOutput(chocoFullFilename, output).AsReadOnly();
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = false,
+                CreateNoWindow = true,
+                StandardOutputEncoding = Encoding.Default
+            });
+            var sw = Stopwatch.StartNew();
+            var output = process?.StandardOutput.ReadToEnd();
+            Debug.WriteLine($"[Performance] Running command {filename} {args} took {sw.ElapsedMilliseconds}ms");
+            return output;
         }
 
         private List<ApplicationUninstallerEntry> ParseChocolateyOutput(string chocoFullFilename, string output)
@@ -135,86 +215,6 @@ namespace InventoryEngine.Factory
             }
 
             return results;
-        }
-
-        private static string GetChocoInstallLocation(string chocoFullFilename)
-        {
-            // The path is C:\ProgramData\chocolatey\bin\choco.exe OR C:\ProgramData\chocolatey\choco.exe
-            var chocoLocation = Path.GetDirectoryName(chocoFullFilename);
-            if (chocoLocation?.EndsWith(@"\bin", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return chocoLocation.Substring(0, chocoLocation.Length - 4);
-            }
-
-            return chocoLocation;
-        }
-
-        private static void AddInfo(ApplicationUninstallerEntry target, Dictionary<string, string> source,
-            string key, Action<ApplicationUninstallerEntry, string> setter)
-        {
-            if (!source.TryGetValue(key, out var val))
-            {
-                return;
-            }
-
-            try
-            {
-                setter(target, val);
-            }
-            catch (SystemException ex)
-            {
-                Debug.WriteLine("Exception while extracting info from choco: " + ex.Message);
-            }
-        }
-
-        private static Dictionary<string, string> ExtractPackageInformation(string result)
-        {
-            // Parse the console output into lines, then into key-value pairs
-            var lines = result.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(x => x.Length > 2 && x[0] == ' ' && x[1] != ' ' && x.Contains(": "))
-                .Select(x => x.TrimStart())
-                .SelectMany(x => x.Split(new[] { " | " }, StringSplitOptions.None));
-
-            var kvps = new Dictionary<string, string>();
-            foreach (var line in lines)
-            {
-                var i = line.IndexOf(": ", StringComparison.Ordinal);
-                if (i <= 0)
-                {
-                    continue;
-                }
-
-                var key = line.Substring(0, i);
-                var val = line.Substring(i + 2);
-                if (string.IsNullOrEmpty(key) || string.IsNullOrEmpty(val))
-                {
-                    continue;
-                }
-
-                kvps.Add(key, val);
-            }
-
-            return kvps;
-        }
-
-        public bool IsEnabled() => UninstallToolsGlobalConfig.ScanChocolatey;
-
-        public string DisplayName => "Progress_AppStores_Chocolatey";
-
-        private static string StartProcessAndReadOutput(string filename, string args)
-        {
-            using var process = Process.Start(new ProcessStartInfo(filename, args)
-            {
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = false,
-                CreateNoWindow = true,
-                StandardOutputEncoding = Encoding.Default
-            });
-            var sw = Stopwatch.StartNew();
-            var output = process?.StandardOutput.ReadToEnd();
-            Debug.WriteLine($"[Performance] Running command {filename} {args} took {sw.ElapsedMilliseconds}ms");
-            return output;
         }
     }
 }

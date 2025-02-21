@@ -12,26 +12,11 @@ namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class HeapLeakDetectionScanner : IJunkCreator
     {
+        public string CategoryName => "HeapLeakDetection";
+
         private const string RegKey = @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\RADAR\HeapLeakDetection\DiagnosedApplications";
 
         private Dictionary<string, string> _lookup;
-
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-            try
-            {
-                using var key = RegistryTools.OpenRegistryKey(RegKey);
-                if (key != null)
-                {
-                    // Reg key names are case-insensitive so using ToLower key is fine
-                    _lookup = key.GetSubKeyNames().ToDictionary(x => x.ToLower(), x => x);
-                }
-            }
-            catch (SystemException ex)
-            {
-                Debug.WriteLine($"Failed to setup {CategoryName} junk scanner: {ex}");
-            }
-        }
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -54,6 +39,21 @@ namespace InventoryEngine.Junk.Finders.Registry
                 });
         }
 
-        public string CategoryName => "HeapLeakDetection";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
+            try
+            {
+                using var key = RegistryTools.OpenRegistryKey(RegKey);
+                if (key != null)
+                {
+                    // Reg key names are case-insensitive so using ToLower key is fine
+                    _lookup = key.GetSubKeyNames().ToDictionary(x => x.ToLower(), x => x);
+                }
+            }
+            catch (SystemException ex)
+            {
+                Debug.WriteLine($"Failed to setup {CategoryName} junk scanner: {ex}");
+            }
+        }
     }
 }

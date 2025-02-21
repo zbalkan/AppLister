@@ -11,36 +11,13 @@ namespace InventoryEngine.Junk.Finders.Registry
 {
     internal partial class RegisteredApplicationsFinder : JunkCreatorBase
     {
+        public override string CategoryName => "Registered app capabilities";
+
         private const string RegAppsSubKeyPath = @"Software\RegisteredApplications";
-        private List<RegAppEntry> _regAppsValueCache;
-
-        public override void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-            base.Setup(allUninstallers);
-
-            // Preload all values into a new cache
-            _regAppsValueCache = new List<RegAppEntry>();
-
-            foreach (var targetRootName in TargetRoots)
-            {
-                using var rootKey = RegistryTools.OpenRegistryKey(targetRootName);
-                using var regAppsKey = rootKey.OpenSubKey(RegAppsSubKeyPath);
-                if (regAppsKey == null)
-                {
-                    continue;
-                }
-
-                var names = regAppsKey.GetValueNames();
-
-                var results = names.Attempt(n => new { name = n, value = regAppsKey.GetStringSafe(n) })
-                    .Where(x => !string.IsNullOrEmpty(x.value))
-                    .ToList();
-
-                _regAppsValueCache.AddRange(results.Select(x => new RegAppEntry(x.name, targetRootName, x.value.Trim('\\', ' ', '"', '\''))));
-            }
-        }
 
         private static readonly string[] TargetRoots = { @"HKEY_CURRENT_USER\", @"HKEY_LOCAL_MACHINE\" };
+
+        private List<RegAppEntry> _regAppsValueCache;
 
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -125,6 +102,30 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
         }
 
-        public override string CategoryName => "Registered app capabilities";
+        public override void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
+            base.Setup(allUninstallers);
+
+            // Preload all values into a new cache
+            _regAppsValueCache = new List<RegAppEntry>();
+
+            foreach (var targetRootName in TargetRoots)
+            {
+                using var rootKey = RegistryTools.OpenRegistryKey(targetRootName);
+                using var regAppsKey = rootKey.OpenSubKey(RegAppsSubKeyPath);
+                if (regAppsKey == null)
+                {
+                    continue;
+                }
+
+                var names = regAppsKey.GetValueNames();
+
+                var results = names.Attempt(n => new { name = n, value = regAppsKey.GetStringSafe(n) })
+                    .Where(x => !string.IsNullOrEmpty(x.value))
+                    .ToList();
+
+                _regAppsValueCache.AddRange(results.Select(x => new RegAppEntry(x.name, targetRootName, x.value.Trim('\\', ' ', '"', '\''))));
+            }
+        }
     }
 }

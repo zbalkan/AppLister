@@ -18,9 +18,13 @@ namespace InventoryEngine.Factory
         public string DisplayName => "Progress_AppStores_Scoop";
 
         private static readonly JsonSerializerOptions JsonOptions;
+
         private static string _powershellPath;
+
         private static string _scoopGlobalPath;
+
         private static string _scoopUserPath;
+
         private static string _scriptPath;
 
         static ScoopFactory()
@@ -55,7 +59,6 @@ namespace InventoryEngine.Factory
                     {
                         throw new FormatException($"Failed to parse {currentDir}\\install.json");
                     }
-
 
                     if (!(JsonDocument.Parse(File.ReadAllText(Path.Combine(currentDir, "manifest.json")))
                         .Deserialize(typeof(AppManifest), options: JsonOptions) is AppManifest manifest))
@@ -183,6 +186,7 @@ namespace InventoryEngine.Factory
                     results.Add(entry);
                 }
             }
+
             // Fallback to plain text export format
             catch (JsonException e)
             {

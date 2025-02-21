@@ -11,6 +11,25 @@ namespace InventoryEngine.Tools
 {
     internal static class FactoryTools
     {
+        internal static IEnumerable<Dictionary<string, string>> ExtractAppDataSetsFromHelperOutput(string helperOutput)
+        {
+            ICollection<string> allParts = helperOutput.SplitNewlines(StringSplitOptions.None);
+            while (allParts.Count > 0)
+            {
+                var singleAppParts = allParts.TakeWhile(x => !string.IsNullOrEmpty(x)).ToList();
+                allParts = allParts.Skip(singleAppParts.Count + 1).ToList();
+
+                if (!singleAppParts.Any())
+                {
+                    continue;
+                }
+
+                yield return singleAppParts.Where(x => x.Contains(':')).ToDictionary(
+                    x => x.Substring(0, x.IndexOf(":", StringComparison.Ordinal)).Trim(),
+                    x => x.Substring(x.IndexOf(":", StringComparison.Ordinal) + 1).Trim());
+            }
+        }
+
         /// <summary>
         ///     Warning: only use with helpers that output unicode and use 0 as success return code.
         /// </summary>
@@ -40,25 +59,6 @@ namespace InventoryEngine.Tools
             {
                 Debug.WriteLine(ex);
                 return null;
-            }
-        }
-
-        internal static IEnumerable<Dictionary<string, string>> ExtractAppDataSetsFromHelperOutput(string helperOutput)
-        {
-            ICollection<string> allParts = helperOutput.SplitNewlines(StringSplitOptions.None);
-            while (allParts.Count > 0)
-            {
-                var singleAppParts = allParts.TakeWhile(x => !string.IsNullOrEmpty(x)).ToList();
-                allParts = allParts.Skip(singleAppParts.Count + 1).ToList();
-
-                if (!singleAppParts.Any())
-                {
-                    continue;
-                }
-
-                yield return singleAppParts.Where(x => x.Contains(':')).ToDictionary(
-                    x => x.Substring(0, x.IndexOf(":", StringComparison.Ordinal)).Trim(),
-                    x => x.Substring(x.IndexOf(":", StringComparison.Ordinal) + 1).Trim());
             }
         }
     }

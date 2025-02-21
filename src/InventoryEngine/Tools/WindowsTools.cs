@@ -185,65 +185,6 @@ namespace InventoryEngine.Tools
         }
 
         /// <summary>
-        ///     Return 32 bit program files directory.
-        /// </summary>
-        internal static string GetProgramFilesX86Path()
-        {
-            var result = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-            return string.IsNullOrEmpty(result) ? GetEnvironmentPath(Csidl.CSIDL_PROGRAM_FILES) : result;
-        }
-
-        internal static SecurityIdentifier GetUserSid() => WindowsIdentity.GetCurrent().User;
-
-        /// <summary>
-        ///     Check if the file can be executed and optionally if it's a library. Only the string
-        ///     is compared, the path or file doesn't have to exist.
-        /// </summary>
-        /// <param name="filename">
-        ///     Path containing the file name, it must contain the extension. The file doesn't have
-        ///     to exist.
-        /// </param>
-        /// <param name="onlySystemTypes">
-        ///     Should file types executed by third party applications be included?
-        /// </param>
-        /// <param name="includeLibraries"> Should library file types be included in the comparison? </param>
-        internal static bool IsExecutable(string filename, bool onlySystemTypes, bool includeLibraries)
-        {
-            filename = filename.ExtendedTrimEndAny(new[] { "'", "\"" }, StringComparison.CurrentCultureIgnoreCase);
-
-            if (includeLibraries &&
-                LibraryTypes.Any(x => filename.EndsWith(x, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                return true;
-            }
-
-            if (SystemExecutableTypes.Any(x => filename.EndsWith(x, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                return true;
-            }
-
-            if (!onlySystemTypes &&
-                ThirdPartyExecutableTypes.Any(x => filename.EndsWith(x, StringComparison.CurrentCultureIgnoreCase)))
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        internal static string ResolveShortcut(string filename)
-        {
-            var link = new NativeMethods.ShellLink();
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            ((NativeMethods.IPersistFile)link).Load(filename, NativeMethods.StgmRead);
-            var sb = new StringBuilder(NativeMethods.MaxPath);
-            var data = new NativeMethods.Win32FindDataw();
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            ((NativeMethods.IShellLinkW)link).GetPath(sb, sb.Capacity, ref data, 0);
-            return sb.ToString();
-        }
-
-        /// <summary>
         ///     Returns executable paths of all installed web browsers
         /// </summary>
         internal static IEnumerable<string> GetInstalledWebBrowsers()
@@ -282,6 +223,69 @@ namespace InventoryEngine.Tools
             }
 
             return results.Distinct((x, y) => x.Equals(y, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        /// <summary>
+        ///     Return 32 bit program files directory.
+        /// </summary>
+        internal static string GetProgramFilesX86Path()
+        {
+            var result = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+            return string.IsNullOrEmpty(result) ? GetEnvironmentPath(Csidl.CSIDL_PROGRAM_FILES) : result;
+        }
+
+        internal static SecurityIdentifier GetUserSid() => WindowsIdentity.GetCurrent().User;
+
+        /// <summary>
+        ///     Check if the file can be executed and optionally if it's a library. Only the string
+        ///     is compared, the path or file doesn't have to exist.
+        /// </summary>
+        /// <param name="filename">
+        ///     Path containing the file name, it must contain the extension. The file doesn't have
+        ///     to exist.
+        /// </param>
+        /// <param name="onlySystemTypes">
+        ///     Should file types executed by third party applications be included?
+        /// </param>
+        /// <param name="includeLibraries">
+        ///     Should library file types be included in the comparison?
+        /// </param>
+        internal static bool IsExecutable(string filename, bool onlySystemTypes, bool includeLibraries)
+        {
+            filename = filename.ExtendedTrimEndAny(new[] { "'", "\"" }, StringComparison.CurrentCultureIgnoreCase);
+
+            if (includeLibraries &&
+                LibraryTypes.Any(x => filename.EndsWith(x, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                return true;
+            }
+
+            if (SystemExecutableTypes.Any(x => filename.EndsWith(x, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                return true;
+            }
+
+            if (!onlySystemTypes &&
+                ThirdPartyExecutableTypes.Any(x => filename.EndsWith(x, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        internal static string ResolveShortcut(string filename)
+        {
+            var link = new NativeMethods.ShellLink();
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            ((NativeMethods.IPersistFile)link).Load(filename, NativeMethods.StgmRead);
+            var sb = new StringBuilder(NativeMethods.MaxPath);
+            var data = new NativeMethods.Win32FindDataw();
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            ((NativeMethods.IShellLinkW)link).GetPath(sb, sb.Capacity, ref data, 0);
+            return sb.ToString();
         }
     }
 }

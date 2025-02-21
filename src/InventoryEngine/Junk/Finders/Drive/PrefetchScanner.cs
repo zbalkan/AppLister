@@ -14,6 +14,7 @@ namespace InventoryEngine.Junk.Finders.Drive
     internal class PrefetchScanner : JunkCreatorBase
     {
         public override string CategoryName => "Prefetch";
+
         private ILookup<string, string> _pfFiles;
 
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)

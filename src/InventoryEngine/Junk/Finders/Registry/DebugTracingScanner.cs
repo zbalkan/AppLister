@@ -12,9 +12,7 @@ namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class DebugTracingScanner : IJunkCreator
     {
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-        }
+        public string CategoryName => "Junk_DebugTracing_GroupName";
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -80,6 +78,8 @@ namespace InventoryEngine.Junk.Finders.Registry
             return returnList;
         }
 
-        public string CategoryName => "Junk_DebugTracing_GroupName";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
+        }
     }
 }

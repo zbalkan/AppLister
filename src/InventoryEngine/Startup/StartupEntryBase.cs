@@ -24,26 +24,6 @@ namespace InventoryEngine.Startup
         public virtual string Company { get; protected set; }
 
         /// <summary>
-        ///     Name of the called program extracted from the link or the target executable (if possible)
-        /// </summary>
-        public virtual string ProgramName { get; protected set; }
-
-        /// <summary>
-        ///     Program name without version info and such
-        /// </summary>
-        public virtual string ProgramNameTrimmed { get; protected set; }
-
-        /// <summary>
-        ///     Custom name of the parent location
-        /// </summary>
-        public virtual string ParentShortName { get; protected set; }
-
-        /// <summary>
-        ///     Full name of the parent location
-        /// </summary>
-        public virtual string ParentLongName { get; protected set; }
-
-        /// <summary>
         ///     Full name of the entry
         /// </summary>
         public virtual string EntryLongName { get; protected set; }
@@ -54,6 +34,26 @@ namespace InventoryEngine.Startup
         public virtual string FullLongName => ParentLongName != null && EntryLongName != null
             ? PathTools.GenerousCombine(ParentLongName, EntryLongName)
             : null;
+
+        /// <summary>
+        ///     Full name of the parent location
+        /// </summary>
+        public virtual string ParentLongName { get; protected set; }
+
+        /// <summary>
+        ///     Custom name of the parent location
+        /// </summary>
+        public virtual string ParentShortName { get; protected set; }
+
+        /// <summary>
+        ///     Name of the called program extracted from the link or the target executable (if possible)
+        /// </summary>
+        public virtual string ProgramName { get; protected set; }
+
+        /// <summary>
+        ///     Program name without version info and such
+        /// </summary>
+        public virtual string ProgramNameTrimmed { get; protected set; }
 
         /// <summary>
         ///     Check if this entry still exists in the system

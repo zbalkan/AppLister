@@ -8,12 +8,13 @@ namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class TracingScanner : IJunkCreator
     {
-        private const string TracingKey = @"SOFTWARE\Microsoft\Tracing";
+        public string CategoryName => "Junk_Tracing_GroupName";
+
         private const string FullTracingKey = @"HKEY_LOCAL_MACHINE\" + TracingKey;
 
-        private ICollection<ApplicationUninstallerEntry> _allEntries;
+        private const string TracingKey = @"SOFTWARE\Microsoft\Tracing";
 
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers) => _allEntries = allUninstallers;
+        private ICollection<ApplicationUninstallerEntry> _allEntries;
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -50,6 +51,6 @@ namespace InventoryEngine.Junk.Finders.Registry
             return results;
         }
 
-        public string CategoryName => "Junk_Tracing_GroupName";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers) => _allEntries = allUninstallers;
     }
 }

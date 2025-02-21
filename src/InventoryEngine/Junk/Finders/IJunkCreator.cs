@@ -5,10 +5,10 @@ namespace InventoryEngine.Junk.Finders
 {
     public interface IJunkCreator
     {
-        void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers);
+        string CategoryName { get; }
 
         IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target);
 
-        string CategoryName { get; }
+        void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers);
     }
 }

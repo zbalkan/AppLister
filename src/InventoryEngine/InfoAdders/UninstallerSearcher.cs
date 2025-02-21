@@ -20,6 +20,7 @@ namespace InventoryEngine.InfoAdders
         };
 
         public bool RequiresAllValues { get; } = true;
+
         private static readonly string[] UninstallerFilters = { "unins0", "uninstall", "uninst", "uninstaller" };
 
         public void AddMissingInformation(ApplicationUninstallerEntry target)

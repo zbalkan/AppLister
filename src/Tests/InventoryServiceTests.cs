@@ -8,6 +8,7 @@ namespace Tests
     public class InventoryServiceTests
     {
         private Discovery _discovery;
+
         private WmiScanner _wmiScanner;
 
         [TestInitialize]

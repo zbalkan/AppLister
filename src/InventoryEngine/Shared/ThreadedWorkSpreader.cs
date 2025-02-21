@@ -9,9 +9,13 @@ namespace InventoryEngine.Shared
     internal class ThreadedWorkSpreader<TData, TState> where TState : class
     {
         internal Func<TData, string> DataNameGetter { get; }
+
         internal int MaxThreadsPerBucket { get; }
+
         internal Func<IList<TData>, TState> StateGenerator { get; }
+
         internal Action<TData, TState> WorkLogic { get; }
+
         private readonly List<WorkerData> _workers = new List<WorkerData>();
 
         internal ThreadedWorkSpreader(int maxThreadsPerBucket, Action<TData, TState> workLogic,

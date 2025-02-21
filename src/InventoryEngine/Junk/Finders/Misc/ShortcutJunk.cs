@@ -14,6 +14,7 @@ namespace InventoryEngine.Junk.Finders.Misc
     internal partial class ShortcutJunk : JunkCreatorBase
     {
         public override string CategoryName => "Junk_Shortcut_GroupName";
+
         private ICollection<Shortcut> _links;
 
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)

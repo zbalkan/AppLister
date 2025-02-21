@@ -12,13 +12,13 @@ namespace InventoryEngine.Factory
     {
         internal const string AutorunsDisabledKeyName = "AutorunsDisabled";
 
+        private const string ClsidPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\Classes\CLSID";
+
         private static readonly string[] RegistryStartupPoints =
-        {
+                {
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects",
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\explorer\Browser Helper Objects"
         };
-
-        private const string ClsidPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\Classes\CLSID";
 
         public static IEnumerable<BrowserHelperEntry> GetBrowserHelpers()
         {

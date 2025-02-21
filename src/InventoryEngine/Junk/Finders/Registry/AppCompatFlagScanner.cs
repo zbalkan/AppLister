@@ -9,15 +9,13 @@ namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class AppCompatFlagScanner : IJunkCreator
     {
+        public string CategoryName => "Junk_AppCompat_GroupName";
+
         private static readonly IEnumerable<string> AppCompatFlags = new[]
-        {
+                {
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags",
             @"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags"
         };
-
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-        }
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -54,6 +52,8 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
         }
 
-        public string CategoryName => "Junk_AppCompat_GroupName";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
+        }
     }
 }

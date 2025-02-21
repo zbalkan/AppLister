@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Containers;
@@ -85,6 +84,7 @@ namespace InventoryEngine.Junk
                 .Attempt(WindowsTools.GetEnvironmentPath));
 
             var knownFolderstype = Type.GetType("Windows.Storage.KnownFolders, Microsoft.Windows.SDK.NET", false);
+
             // Might not be available on some systems
             if (knownFolderstype == null)
             {

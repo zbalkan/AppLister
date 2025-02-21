@@ -12,6 +12,8 @@ namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class UninstallerKeySearcher : IJunkCreator
     {
+        public string CategoryName => "Junk_UninstallerKey_GroupName";
+
         private static readonly IEnumerable<string> InstallerSubkeyPaths;
 
         /// <summary>
@@ -52,15 +54,6 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
         }
 
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers) => _targetKeys = InstallerSubkeyPaths
-                .Using(x => Microsoft.Win32.Registry.LocalMachine.OpenSubKey(x))
-                .Where(k => k != null)
-                .SelectMany(k =>
-                {
-                    var parentPath = k.Name;
-                    return k.GetSubKeyNames().Select(n => new KeyValuePair<string, string>(parentPath, n));
-                }).ToList();
-
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
             if (RegistryTools.RegKeyStillExists(target.RegistryPath))
@@ -89,6 +82,13 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
         }
 
-        public string CategoryName => "Junk_UninstallerKey_GroupName";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers) => _targetKeys = InstallerSubkeyPaths
+                        .Using(x => Microsoft.Win32.Registry.LocalMachine.OpenSubKey(x))
+                .Where(k => k != null)
+                .SelectMany(k =>
+                {
+                    var parentPath = k.Name;
+                    return k.GetSubKeyNames().Select(n => new KeyValuePair<string, string>(parentPath, n));
+                }).ToList();
     }
 }

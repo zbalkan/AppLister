@@ -87,6 +87,36 @@ namespace InventoryEngine.Factory
             workSpreader.Join();
         }
 
+        private static bool CheckIsValid(ApplicationUninstallerEntry target, IEnumerable<Guid> msiProducts)
+        {
+            if (string.IsNullOrEmpty(target.UninstallerFullFilename))
+            {
+                return false;
+            }
+
+            bool isPathRooted;
+            try
+            {
+                isPathRooted = Path.IsPathRooted(target.UninstallerFullFilename);
+            }
+            catch (ArgumentException)
+            {
+                isPathRooted = false;
+            }
+
+            if (isPathRooted && File.Exists(target.UninstallerFullFilename))
+            {
+                return true;
+            }
+
+            if (target.UninstallerKind == UninstallerType.Msiexec)
+            {
+                return msiProducts.Contains(target.BundleProviderKey);
+            }
+
+            return !isPathRooted;
+        }
+
         private static IList<IList<TData>> SplitByPhysicalDrives<TData>(IReadOnlyCollection<TData> itemsToScan, Func<TData, DirectoryInfo> locationGetter)
         {
             var output = new List<IList<TData>>();
@@ -122,6 +152,7 @@ namespace InventoryEngine.Factory
                     inputList.RemoveAll(filteredByPhysicalDrive);
                     output.Add(filteredByPhysicalDrive.ConvertAll(x => x.x));
                 }
+
                 // Bundle leftovers as a single drive
                 output.Add(inputList.ConvertAll(x => x.x));
             }
@@ -132,36 +163,6 @@ namespace InventoryEngine.Factory
                 output.Add(itemsToScan.ToList());
             }
             return output;
-        }
-
-        private static bool CheckIsValid(ApplicationUninstallerEntry target, IEnumerable<Guid> msiProducts)
-        {
-            if (string.IsNullOrEmpty(target.UninstallerFullFilename))
-            {
-                return false;
-            }
-
-            bool isPathRooted;
-            try
-            {
-                isPathRooted = Path.IsPathRooted(target.UninstallerFullFilename);
-            }
-            catch (ArgumentException)
-            {
-                isPathRooted = false;
-            }
-
-            if (isPathRooted && File.Exists(target.UninstallerFullFilename))
-            {
-                return true;
-            }
-
-            if (target.UninstallerKind == UninstallerType.Msiexec)
-            {
-                return msiProducts.Contains(target.BundleProviderKey);
-            }
-
-            return !isPathRooted;
         }
     }
 }

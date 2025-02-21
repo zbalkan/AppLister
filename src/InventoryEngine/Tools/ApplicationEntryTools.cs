@@ -9,6 +9,7 @@ namespace InventoryEngine.Tools
     internal static class ApplicationEntryTools
     {
         private const int MaxHoursForHighConfidence = 1;
+
         private const int MaxHoursForReasonableConfidence = 40;
 
         /// <summary>
@@ -82,6 +83,7 @@ namespace InventoryEngine.Tools
             if (!nameSimilarity.HasValue || nameSimilarity == false)
             {
                 var trimmedSimilarity = CompareStrings(baseEntry.DisplayNameTrimmed, otherEntry.DisplayNameTrimmed);
+
                 // Don't risk it if names can't be compared at all
                 //if (!trimmedSimilarity.HasValue && !nameSimilarity.HasValue) return false;
                 AddScore(ref score, -5, -2, 8, trimmedSimilarity);
@@ -151,8 +153,10 @@ namespace InventoryEngine.Tools
         /// <summary>
         ///     Check if path points to the windows installer program or to a .msi package
         /// </summary>
-        /// <param name="path"> </param>
-        /// <returns> </returns>
+        /// <param name="path">
+        /// </param>
+        /// <returns>
+        /// </returns>
         internal static bool PathPointsToMsiExec(string path)
         {
             if (string.IsNullOrEmpty(path))

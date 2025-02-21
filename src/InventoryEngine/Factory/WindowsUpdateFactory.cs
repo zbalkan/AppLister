@@ -10,9 +10,9 @@ namespace InventoryEngine.Factory
 {
     internal class WindowsUpdateFactory : IIndependentUninstallerFactory
     {
-        private static string HelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "WinUpdateHelper.exe");
+        public string DisplayName => "Progress_AppStores_WinUpdates";
 
-        private static bool IsHelperAvailable() => File.Exists(HelperPath);
+        private static string HelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "WinUpdateHelper.exe");
 
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
         {
@@ -86,6 +86,6 @@ namespace InventoryEngine.Factory
 
         public bool IsEnabled() => UninstallToolsGlobalConfig.ScanWinUpdates;
 
-        public string DisplayName => "Progress_AppStores_WinUpdates";
+        private static bool IsHelperAvailable() => File.Exists(HelperPath);
     }
 }

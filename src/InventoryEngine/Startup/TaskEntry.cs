@@ -12,6 +12,7 @@ namespace InventoryEngine.Startup
         }
 
         private Task SourceTask { get; }
+
         private bool _disposedValue;
 
         internal TaskEntry(string name, string command, string commandFilename, Task task)

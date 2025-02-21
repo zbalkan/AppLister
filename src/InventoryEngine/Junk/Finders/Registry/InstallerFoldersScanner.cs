@@ -8,6 +8,8 @@ namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class InstallerFoldersScanner : JunkCreatorBase
     {
+        public override string CategoryName => "Junk_InstalledFolders_GroupName";
+
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
             var installLocation = target.InstallLocation;
@@ -41,7 +43,5 @@ namespace InventoryEngine.Junk.Finders.Registry
                 yield return node;
             }
         }
-
-        public override string CategoryName => "Junk_InstalledFolders_GroupName";
     }
 }

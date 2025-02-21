@@ -15,6 +15,14 @@ namespace InventoryEngine.Junk.Finders.Registry
     {
         public override string CategoryName => "Junk_Registry_GroupName";
 
+        internal static readonly string KeyCu = @"HKEY_CURRENT_USER\SOFTWARE";
+
+        internal static readonly string KeyCuWow = @"HKEY_CURRENT_USER\SOFTWARE\Wow6432Node";
+
+        internal static readonly string KeyLm = @"HKEY_LOCAL_MACHINE\SOFTWARE";
+
+        internal static readonly string KeyLmWow = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node";
+
         private const string KeynameRegisteredApps = "RegisteredApplications";
 
         private const string KeyVirtualStoreCu = @"HKEY_CURRENT_USER\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE";
@@ -28,11 +36,27 @@ namespace InventoryEngine.Junk.Finders.Registry
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE\Wow6432Node";
 
         /// <summary>
-        ///     Keys to step over when scanning
+        ///     Can point to programs executable or directory
         /// </summary>
-        private static readonly IEnumerable<string> KeyBlacklist = new[]
+        private static readonly IEnumerable<string> ExeOrDirPathKeyNames = new[]
         {
-            "Microsoft", "Wow6432Node", "Windows", "Classes", "Clients", KeynameRegisteredApps
+            "Path",
+            "Path64",
+            "pth",
+            "PlayerPath",
+            "AppPath"
+        };
+
+        /// <summary>
+        ///     Always points to program's main executable
+        /// </summary>
+        private static readonly IEnumerable<string> ExePathKeyNames = new[]
+        {
+            "exe64",
+            "exe32",
+            "Executable",
+            "PathToExe",
+            "ExePath"
         };
 
         /// <summary>
@@ -52,33 +76,12 @@ namespace InventoryEngine.Junk.Finders.Registry
         };
 
         /// <summary>
-        ///     Always points to program's main executable
+        ///     Keys to step over when scanning
         /// </summary>
-        private static readonly IEnumerable<string> ExePathKeyNames = new[]
+        private static readonly IEnumerable<string> KeyBlacklist = new[]
         {
-            "exe64",
-            "exe32",
-            "Executable",
-            "PathToExe",
-            "ExePath"
+            "Microsoft", "Wow6432Node", "Windows", "Classes", "Clients", KeynameRegisteredApps
         };
-
-        /// <summary>
-        ///     Can point to programs executable or directory
-        /// </summary>
-        private static readonly IEnumerable<string> ExeOrDirPathKeyNames = new[]
-        {
-            "Path",
-            "Path64",
-            "pth",
-            "PlayerPath",
-            "AppPath"
-        };
-
-        internal static readonly string KeyCu = @"HKEY_CURRENT_USER\SOFTWARE";
-        internal static readonly string KeyCuWow = @"HKEY_CURRENT_USER\SOFTWARE\Wow6432Node";
-        internal static readonly string KeyLm = @"HKEY_LOCAL_MACHINE\SOFTWARE";
-        internal static readonly string KeyLmWow = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node";
 
         private static readonly ICollection<string> SoftwareRegKeys;
 
@@ -167,6 +170,7 @@ namespace InventoryEngine.Junk.Finders.Registry
 
                 ConfidenceGenerators.TestForSimilarNames(_uninstaller, AllUninstallers, added.ConvertAll(x => new KeyValuePair<JunkResultBase, string>(x, x.RegKeyName)));
             }
+
             // Reg key invalid
             catch (ArgumentException)
             {
@@ -180,29 +184,6 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             // ReSharper disable once PossibleMultipleEnumeration
             return returnList;
-        }
-
-        private bool TestValueForMatches(RegistryKey softwareKey, string valueName)
-        {
-            if (InstallDirKeyNames.Contains(valueName, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, softwareKey.GetStringSafe(valueName), true);
-            }
-            else if (ExePathKeyNames.Contains(valueName, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return TestPathsMatchExe(softwareKey.GetStringSafe(valueName));
-            }
-            else if (ExeOrDirPathKeyNames.Contains(valueName, StringComparison.InvariantCultureIgnoreCase))
-            {
-                var path = softwareKey.GetStringSafe(valueName);
-                return File.Exists(path)
-                    ? TestPathsMatchExe(softwareKey.GetStringSafe(valueName))
-                    : PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, softwareKey.GetStringSafe(valueName), true);
-            }
-            else
-            {
-                return PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, softwareKey.GetStringSafe(null), true);
-            }
         }
 
         private IEnumerable<RegistryKeyJunk> ScanRelatedKeys(IEnumerable<RegistryKeyJunk> itemsToCompare)
@@ -223,6 +204,7 @@ namespace InventoryEngine.Junk.Finders.Registry
                 foreach (var keyToTest in SoftwareRegKeys.Except(new[] { softwareKey }))
                 {
                     var nodePath = Path.Combine(keyToTest, nodeName);
+
                     // Check if the same node exists in other root keys
                     var node = input.Find(x => PathTools.PathsEqual(x.FullRegKeyPath, nodePath));
 
@@ -257,5 +239,28 @@ namespace InventoryEngine.Junk.Finders.Registry
         }
 
         private bool TestPathsMatchExe(string keyValue) => PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, Path.GetDirectoryName(keyValue), true);
+
+        private bool TestValueForMatches(RegistryKey softwareKey, string valueName)
+        {
+            if (InstallDirKeyNames.Contains(valueName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, softwareKey.GetStringSafe(valueName), true);
+            }
+            else if (ExePathKeyNames.Contains(valueName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return TestPathsMatchExe(softwareKey.GetStringSafe(valueName));
+            }
+            else if (ExeOrDirPathKeyNames.Contains(valueName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                var path = softwareKey.GetStringSafe(valueName);
+                return File.Exists(path)
+                    ? TestPathsMatchExe(softwareKey.GetStringSafe(valueName))
+                    : PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, softwareKey.GetStringSafe(valueName), true);
+            }
+            else
+            {
+                return PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, softwareKey.GetStringSafe(null), true);
+            }
+        }
     }
 }

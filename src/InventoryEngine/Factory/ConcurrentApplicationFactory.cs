@@ -7,9 +7,9 @@ namespace InventoryEngine.Factory
 {
     internal sealed class ConcurrentApplicationFactory : IDisposable
     {
-        private bool _cancelled;
-
         private readonly Thread _thread;
+
+        private bool _cancelled;
 
         private List<ApplicationUninstallerEntry> _threadResults;
 
@@ -36,8 +36,6 @@ namespace InventoryEngine.Factory
 
         public void Dispose() => _cancelled = true;
 
-        public void Start() => _thread.Start();
-
         public List<ApplicationUninstallerEntry> GetResults()
         {
             Debug.Assert(_thread != null);
@@ -54,5 +52,7 @@ namespace InventoryEngine.Factory
 
             return _threadResults ?? new List<ApplicationUninstallerEntry>();
         }
+
+        public void Start() => _thread.Start();
     }
 }

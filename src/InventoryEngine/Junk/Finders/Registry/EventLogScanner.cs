@@ -10,6 +10,8 @@ namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class EventLogScanner : JunkCreatorBase
     {
+        public override string CategoryName => "Junk_EventLog_GroupName";
+
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
             if (string.IsNullOrEmpty(target.InstallLocation))
@@ -27,9 +29,9 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
 
             var query = from name in key.GetSubKeyNames()
-                let m = ConfidenceGenerators.MatchStringToProductName(target, name)
-                where m >= 0 && m < 3
-                select name;
+                        let m = ConfidenceGenerators.MatchStringToProductName(target, name)
+                        where m >= 0 && m < 3
+                        select name;
 
             foreach (var result in query)
             {
@@ -41,6 +43,7 @@ namespace InventoryEngine.Junk.Finders.Registry
                 }
 
                 var node = new RegistryKeyJunk(subkey.Name, target, this);
+
                 // Already matched names above
                 node.Confidence.Add(ConfidenceRecords.ProductNamePerfectMatch);
 
@@ -52,7 +55,5 @@ namespace InventoryEngine.Junk.Finders.Registry
                 yield return node;
             }
         }
-
-        public override string CategoryName => "Junk_EventLog_GroupName";
     }
 }

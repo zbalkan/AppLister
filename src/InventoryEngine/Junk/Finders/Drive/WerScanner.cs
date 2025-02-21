@@ -13,8 +13,11 @@ namespace InventoryEngine.Junk.Finders.Drive
     internal class WerScanner : JunkCreatorBase
     {
         public override string CategoryName => "Junk_WerReports_GroupName";
+
         private const string CrashLabel = "AppCrash_";
+
         private static readonly ICollection<string> Archives;
+
         private ICollection<string> _werReportPaths;
 
         static WerScanner()

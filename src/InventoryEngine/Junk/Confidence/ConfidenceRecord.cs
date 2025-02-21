@@ -30,7 +30,6 @@ namespace InventoryEngine.Junk.Confidence
             }
 
             return casted.Change == Change && casted.Reason == Reason;
-
         }
 
         public override int GetHashCode() => Change.GetHashCode() ^ Reason.GetHashCode();

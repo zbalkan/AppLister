@@ -11,11 +11,9 @@ namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class AudioPolicyConfigScanner : IJunkCreator
     {
-        private const string AudioPolicyConfigSubkey = @"Microsoft\Internet Explorer\LowRegistry\Audio\PolicyConfig\PropertyStore";
+        public string CategoryName => "Junk_AudioPolicy_GroupName";
 
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-        }
+        private const string AudioPolicyConfigSubkey = @"Microsoft\Internet Explorer\LowRegistry\Audio\PolicyConfig\PropertyStore";
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -75,6 +73,8 @@ namespace InventoryEngine.Junk.Finders.Registry
             return returnList;
         }
 
-        public string CategoryName => "Junk_AudioPolicy_GroupName";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
+        }
     }
 }

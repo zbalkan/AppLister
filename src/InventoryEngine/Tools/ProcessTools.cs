@@ -15,13 +15,19 @@ namespace InventoryEngine.Tools
         /// <summary>
         ///     Attempts to separate filename (or filename with path) from the supplied arguments.
         /// </summary>
-        /// <param name="fullCommand"> </param>
-        /// <returns> </returns>
+        /// <param name="fullCommand">
+        /// </param>
+        /// <returns>
+        /// </returns>
         /// <exception cref="ArgumentNullException">
         ///     The value of 'fullCommand' cannot be null.
         /// </exception>
-        /// <exception cref="ArgumentException"> fullCommand can't be empty </exception>
-        /// <exception cref="FormatException"> Filename is in invalid format </exception>
+        /// <exception cref="ArgumentException">
+        ///     fullCommand can't be empty
+        /// </exception>
+        /// <exception cref="FormatException">
+        ///     Filename is in invalid format
+        /// </exception>
         internal static ProcessStartCommand SeparateArgsFromCommand(string fullCommand)
         {
             if (fullCommand == null)

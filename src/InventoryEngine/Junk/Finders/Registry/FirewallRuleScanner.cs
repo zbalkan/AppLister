@@ -10,6 +10,8 @@ namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class FirewallRuleScanner : JunkCreatorBase
     {
+        public override string CategoryName => "Junk_FirewallRule_GroupName";
+
         private const string FirewallRulesKey = @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\FirewallRules";
 
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
@@ -65,7 +67,5 @@ namespace InventoryEngine.Junk.Finders.Registry
                 return null;
             }
         }
-
-        public override string CategoryName => "Junk_FirewallRule_GroupName";
     }
 }

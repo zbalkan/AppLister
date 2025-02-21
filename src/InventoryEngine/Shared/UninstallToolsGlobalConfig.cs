@@ -12,6 +12,13 @@ namespace InventoryEngine.Shared
     {
         internal static string AppInfoCachePath { get; }
 
+        internal static string AppLocation { get; }
+
+        /// <summary>
+        ///     Path to directory this assembly sits in.
+        /// </summary>
+        internal static string AssemblyLocation { get; }
+
         internal static bool AutoDetectCustomProgramFiles { get; set; }
 
         internal static bool AutoDetectScanRemovable { get; set; }
@@ -21,6 +28,21 @@ namespace InventoryEngine.Shared
         ///     applications to.
         /// </summary>
         internal static string[] CustomProgramFiles { get; set; }
+
+        /// <summary>
+        ///     Directory names that should be ignored for safety.
+        /// </summary>
+        internal static IEnumerable<string> DirectoryBlacklist { get; }
+
+        /// <summary>
+        ///     Directories that can contain program junk.
+        /// </summary>
+        internal static IEnumerable<string> JunkSearchDirs { get; }
+
+        /// <summary>
+        ///     Directory names that probably aren't top-level or contain applications.
+        /// </summary>
+        internal static IEnumerable<string> QuestionableDirectoryNames { get; }
 
         /// <summary>
         ///     Automatize non-quiet uninstallers.
@@ -52,38 +74,16 @@ namespace InventoryEngine.Shared
 
         internal static bool ScanWinUpdates { get; set; } = true;
 
+        /// <summary>
+        ///     Built-in program files paths.
+        /// </summary>
+        internal static IEnumerable<string> StockProgramFiles { get; }
+
         internal static bool UninstallerAutomatizerExists { get; }
 
         internal static string UninstallerAutomatizerPath { get; }
 
         internal static bool UseQuietUninstallDaemon { get; set; }
-
-        internal static string AppLocation { get; }
-
-        /// <summary>
-        ///     Path to directory this assembly sits in.
-        /// </summary>
-        internal static string AssemblyLocation { get; }
-
-        /// <summary>
-        ///     Directory names that should be ignored for safety.
-        /// </summary>
-        internal static IEnumerable<string> DirectoryBlacklist { get; }
-
-        /// <summary>
-        ///     Directories that can contain program junk.
-        /// </summary>
-        internal static IEnumerable<string> JunkSearchDirs { get; }
-
-        /// <summary>
-        ///     Directory names that probably aren't top-level or contain applications.
-        /// </summary>
-        internal static IEnumerable<string> QuestionableDirectoryNames { get; }
-
-        /// <summary>
-        ///     Built-in program files paths.
-        /// </summary>
-        internal static IEnumerable<string> StockProgramFiles { get; }
 
         internal static string WindowsDirectory { get; }
 
@@ -169,6 +169,70 @@ namespace InventoryEngine.Shared
         }
 
         /// <summary>
+        ///     Directories containing programs, both built in "Program Files" and user-defined
+        ///     ones. Fast.
+        /// </summary>
+        internal static IEnumerable<string> GetAllProgramFiles()
+        {
+            if (CustomProgramFiles == null || CustomProgramFiles.Length == 0)
+            {
+                return StockProgramFiles;
+            }
+
+            // Create copy of custom dirs in case they change
+            return StockProgramFiles.Concat(CustomProgramFiles).ToList();
+        }
+
+        /// <summary>
+        ///     Get a list of directories containing programs. Optionally user-defined directories
+        ///     are added. The boolean value is true if the directory is confirmed to contain 64bit
+        ///     applications, false if 32bit.
+        /// </summary>
+        /// <param name="includeUserDirectories">
+        ///     Add user-defined directories.
+        /// </param>
+        internal static List<DirectoryInfo> GetProgramFilesDirectories(bool includeUserDirectories)
+        {
+            var pfDirectories = new List<string>(2)
+            {
+                Pf32
+            };
+            if (Pf64 != null)
+            {
+                pfDirectories.Add(Pf64);
+            }
+
+            if (includeUserDirectories && CustomProgramFiles != null)
+            {
+                pfDirectories.AddRange(CustomProgramFiles.Where(x => !pfDirectories.Any(y => PathTools.PathsEqual(x, y))));
+            }
+
+            pfDirectories.Add(Path.Combine(WindowsTools.GetEnvironmentPath(Csidl.CSIDL_APPDATA), "Programs"));
+            pfDirectories.Add(Path.Combine(WindowsTools.GetEnvironmentPath(Csidl.CSIDL_LOCAL_APPDATA), "Programs"));
+            pfDirectories.Add(Path.Combine(WindowsTools.GetEnvironmentPath(Csidl.CSIDL_COMMON_APPDATA), "Programs"));
+
+            var output = new List<DirectoryInfo>(pfDirectories.Count);
+            foreach (var directory in pfDirectories)
+            {
+                // Ignore missing or inaccessible directories
+                try
+                {
+                    var di = new DirectoryInfo(directory);
+                    if (di.Exists)
+                    {
+                        output.Add(di);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.Fail("Failed to open dir", ex.Message);
+                }
+            }
+
+            return output;
+        }
+
+        /// <summary>
         ///     Check if the path is inside of 64 or 32 bit program files
         /// </summary>
         internal static MachineType IsPathInsideProgramFiles(string fullPath)
@@ -210,77 +274,17 @@ namespace InventoryEngine.Shared
             catch (ArgumentException ex)
             {
                 Debug.WriteLine(ex);
+
                 // Treat this as a no-touch directory just to be safe
                 return true;
             }
             catch (IOException ex)
             {
                 Debug.WriteLine(ex);
+
                 // Treat this as a no-touch directory just to be safe
                 return true;
             }
-        }
-
-        /// <summary>
-        ///     Directories containing programs, both built in "Program Files" and user-defined
-        ///     ones. Fast.
-        /// </summary>
-        internal static IEnumerable<string> GetAllProgramFiles()
-        {
-            if (CustomProgramFiles == null || CustomProgramFiles.Length == 0)
-            {
-                return StockProgramFiles;
-            }
-
-            // Create copy of custom dirs in case they change
-            return StockProgramFiles.Concat(CustomProgramFiles).ToList();
-        }
-
-        /// <summary>
-        ///     Get a list of directories containing programs. Optionally user-defined directories
-        ///     are added. The boolean value is true if the directory is confirmed to contain 64bit
-        ///     applications, false if 32bit.
-        /// </summary>
-        /// <param name="includeUserDirectories"> Add user-defined directories. </param>
-        internal static List<DirectoryInfo> GetProgramFilesDirectories(bool includeUserDirectories)
-        {
-            var pfDirectories = new List<string>(2)
-            {
-                Pf32
-            };
-            if (Pf64 != null)
-            {
-                pfDirectories.Add(Pf64);
-            }
-
-            if (includeUserDirectories && CustomProgramFiles != null)
-            {
-                pfDirectories.AddRange(CustomProgramFiles.Where(x => !pfDirectories.Any(y => PathTools.PathsEqual(x, y))));
-            }
-
-            pfDirectories.Add(Path.Combine(WindowsTools.GetEnvironmentPath(Csidl.CSIDL_APPDATA), "Programs"));
-            pfDirectories.Add(Path.Combine(WindowsTools.GetEnvironmentPath(Csidl.CSIDL_LOCAL_APPDATA), "Programs"));
-            pfDirectories.Add(Path.Combine(WindowsTools.GetEnvironmentPath(Csidl.CSIDL_COMMON_APPDATA), "Programs"));
-
-            var output = new List<DirectoryInfo>(pfDirectories.Count);
-            foreach (var directory in pfDirectories)
-            {
-                // Ignore missing or inaccessible directories
-                try
-                {
-                    var di = new DirectoryInfo(directory);
-                    if (di.Exists)
-                    {
-                        output.Add(di);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.Fail("Failed to open dir", ex.Message);
-                }
-            }
-
-            return output;
         }
     }
 }

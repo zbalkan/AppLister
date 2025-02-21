@@ -15,9 +15,13 @@ namespace InventoryEngine.Extensions
         internal IntPtr Reserved1;
 
         internal IntPtr PebBaseAddress;
+
         internal IntPtr Reserved2_0;
+
         internal IntPtr Reserved2_1;
+
         internal IntPtr UniqueProcessId;
+
         internal IntPtr InheritedFromUniqueProcessId;
 
         [DllImport("ntdll.dll")]
@@ -26,8 +30,12 @@ namespace InventoryEngine.Extensions
         /// <summary>
         ///     Gets the parent process of a specified process.
         /// </summary>
-        /// <param name="handle"> The process handle. </param>
-        /// <returns> An instance of the Process class. </returns>
+        /// <param name="handle">
+        ///     The process handle.
+        /// </param>
+        /// <returns>
+        ///     An instance of the Process class.
+        /// </returns>
         /// <exception cref="Win32Exception">
         ///     The status may not be obtained properly due to permissions.
         /// </exception>

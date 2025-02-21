@@ -5,10 +5,14 @@ namespace InventoryService
 {
     public sealed class InventoryService : IDisposable
     {
-        private readonly EventLog _logger;
         private readonly Discovery _discovery;
+
+        private readonly EventLog _logger;
+
         private readonly Stopwatch _stopwatch;
+
         private readonly WmiScanner _wmiScanner;
+
         private bool _disposedValue;
 
         public InventoryService(EventLog logger)
@@ -17,6 +21,13 @@ namespace InventoryService
             _wmiScanner = new WmiScanner();
             _discovery = new Discovery();
             _stopwatch = new Stopwatch();
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
 
         public void Refresh()
@@ -56,13 +67,6 @@ namespace InventoryService
             }
 
             _disposedValue = true;
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
     }
 }

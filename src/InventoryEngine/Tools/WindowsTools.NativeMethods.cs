@@ -238,12 +238,19 @@ namespace InventoryEngine.Tools
             internal readonly struct Win32FindDataw
             {
                 internal readonly uint dwFileAttributes;
+
                 internal readonly long ftCreationTime;
+
                 internal readonly long ftLastAccessTime;
+
                 internal readonly long ftLastWriteTime;
+
                 internal readonly uint nFileSizeHigh;
+
                 internal readonly uint nFileSizeLow;
+
                 internal readonly uint dwReserved0;
+
                 internal readonly uint dwReserved1;
 
                 [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]

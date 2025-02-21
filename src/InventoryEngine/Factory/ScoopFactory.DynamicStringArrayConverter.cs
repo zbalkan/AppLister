@@ -32,6 +32,7 @@ namespace InventoryEngine.Factory
                             results.Add(clone.GetString()); // take first value of nested array only
                             reader.Skip();
                         }
+
                         // normal
                         else if (reader.TokenType == JsonTokenType.String)
                         {

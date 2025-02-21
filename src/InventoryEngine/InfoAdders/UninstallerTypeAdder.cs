@@ -27,6 +27,7 @@ namespace InventoryEngine.InfoAdders
         };
 
         public bool RequiresAllValues { get; }
+
         private static readonly Regex InnoSetupFilenameRegex = new Regex(@"unins\d\d\d", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static UninstallerType GetUninstallerType(string uninstallString)
@@ -68,6 +69,7 @@ namespace InventoryEngine.InfoAdders
             try
             {
                 var fileName = Path.GetFileNameWithoutExtension(ps.FileName);
+
                 // Detect Inno Setup
                 if (fileName != null && InnoSetupFilenameRegex.IsMatch(fileName))
                 {

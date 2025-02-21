@@ -13,8 +13,10 @@ namespace InventoryEngine.Junk.Finders.Registry
 {
     internal partial class ComScanner : JunkCreatorBase
     {
+        public override string CategoryName => "Junk_Clsid_GroupName";
+
         private static readonly string[] ClassesKeys =
-        {
+                {
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Classes",
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Classes\WOW6432Node",
             @"HKEY_CURRENT_USER\SOFTWARE\Classes",
@@ -22,9 +24,10 @@ namespace InventoryEngine.Junk.Finders.Registry
         };
 
         private List<ComEntry> _comEntries;
+
         private Dictionary<string, string[]> _extensionKeyNames;
 
-        public override string CategoryName => "Junk_Clsid_GroupName"; // "COM Objects";
+        // "COM Objects";
 
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -85,8 +88,7 @@ namespace InventoryEngine.Junk.Finders.Registry
                             continue;
                         }
 
-                        // Contains subkeys with default values containing class guids of
-                        // the extensions
+                        // Contains subkeys with default values containing class guids of the extensions
                         using (var shellExKey = extensionKey.OpenSubKey("ShellEx"))
                         {
                             if (shellExKey != null)
@@ -310,6 +312,12 @@ namespace InventoryEngine.Junk.Finders.Registry
 
         private static bool IsSystemGuid(string guid) => guid.Contains("-0000-") || guid[0] != '{';
 
+        private IEnumerable<string> GetExtensionNames(string classesKey)
+        {
+            _extensionKeyNames.TryGetValue(classesKey, out var result);
+            return result ?? Enumerable.Empty<string>();
+        }
+
         private RegistryKeyJunk JunkFromKey(ApplicationUninstallerEntry target, RegistryKey targetKey)
         {
             var junk = new RegistryKeyJunk(targetKey.Name, target, this);
@@ -333,12 +341,6 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
 
             return JunkFromKey(target, targetKey);
-        }
-
-        private IEnumerable<string> GetExtensionNames(string classesKey)
-        {
-            _extensionKeyNames.TryGetValue(classesKey, out var result);
-            return result ?? Enumerable.Empty<string>();
         }
     }
 }

@@ -11,6 +11,7 @@ namespace InventoryEngine.Factory
     public class OculusFactory : IIndependentUninstallerFactory
     {
         public string DisplayName => "Progress_AppStores_Oculus";
+
         private static string HelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "OculusHelper.exe");
 
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
@@ -44,6 +45,7 @@ namespace InventoryEngine.Factory
                 var entry = new ApplicationUninstallerEntry
                 {
                     RatingId = name,
+
                     //RegistryKeyName = name,
                     UninstallString = uninstallStr,
                     QuietUninstallString = uninstallStr,
@@ -60,6 +62,8 @@ namespace InventoryEngine.Factory
             }
             return results.AsReadOnly();
         }
+
+        public bool IsEnabled() => UninstallToolsGlobalConfig.ScanOculus;
 
         private static void Enrich(Dictionary<string, string> data, string name, ApplicationUninstallerEntry entry)
         {
@@ -79,8 +83,6 @@ namespace InventoryEngine.Factory
                 entry.RawDisplayName = name.Replace('-', ' ').ToTitleCase();
             }
         }
-
-        public bool IsEnabled() => UninstallToolsGlobalConfig.ScanOculus;
 
         private static bool IsHelperAvailable() => File.Exists(HelperPath);
     }

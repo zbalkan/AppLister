@@ -68,6 +68,7 @@ namespace InventoryEngine.Startup
         public bool IsRunOnce { get; internal set; }
 
         internal bool AllUsersStore;
+
         internal bool DisabledStore;
 
         internal StartupEntry(StartupPointData dataPoint, string fileName, string targetString)

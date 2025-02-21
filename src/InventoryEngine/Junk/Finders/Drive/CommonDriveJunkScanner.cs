@@ -14,6 +14,7 @@ namespace InventoryEngine.Junk.Finders.Drive
     internal class CommonDriveJunkScanner : JunkCreatorBase
     {
         public override string CategoryName => "Junk_Drive_GroupName";
+
         private static IEnumerable<DirectoryInfo> _foldersToCheck;
 
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target) => _foldersToCheck.SelectMany(x => FindJunkRecursively(x, target));
@@ -87,6 +88,7 @@ namespace InventoryEngine.Junk.Finders.Drive
                     }
 
                     var junkNodes = FindJunkRecursively(dir, uninstaller, level + 1).ToList();
+
                     // ReSharper disable once PossibleMultipleEnumeration
                     results = results.Concat(junkNodes);
 

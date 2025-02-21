@@ -31,14 +31,23 @@
             public static Installproperty Packagename = new Installproperty("PackageName");
 
             public static Installproperty Producticon = new Installproperty("ProductIcon");
+
             public static Installproperty Productname = new Installproperty("ProductName");
+
             public static Installproperty Publisher = new Installproperty("Publisher");
+
             public static Installproperty Transforms = new Installproperty("Transforms");
+
             public static Installproperty Urlinfoabout = new Installproperty("URLInfoAbout");
+
             public static Installproperty Urlupdateinfo = new Installproperty("URLUpdateInfo");
+
             public static Installproperty Version = new Installproperty("Version");
+
             public static Installproperty Versionmajor = new Installproperty("VersionMajor");
+
             public static Installproperty Versionminor = new Installproperty("VersionMinor");
+
             public static Installproperty Versionstring = new Installproperty("VersionString");
 
             private Installproperty(string name)
