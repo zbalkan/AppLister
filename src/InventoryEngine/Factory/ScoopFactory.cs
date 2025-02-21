@@ -50,12 +50,18 @@ namespace InventoryEngine.Factory
 
                 try
                 {
-                    var install = JsonDocument.Parse(File.ReadAllText(Path.Combine(currentDir, "install.json")))
-                        .Deserialize(typeof(AppInstall), JsonOptions) as AppInstall;
+                    if (!(JsonDocument.Parse(File.ReadAllText(Path.Combine(currentDir, "install.json")))
+                        .Deserialize(typeof(AppInstall), JsonOptions) is AppInstall install))
+                    {
+                        throw new FormatException($"Failed to parse {currentDir}\\install.json");
+                    }
 
-                    var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(currentDir, "manifest.json")))
-                        .Deserialize(typeof(AppManifest), options: JsonOptions) as AppManifest;
 
+                    if (!(JsonDocument.Parse(File.ReadAllText(Path.Combine(currentDir, "manifest.json")))
+                        .Deserialize(typeof(AppManifest), options: JsonOptions) is AppManifest manifest))
+                    {
+                        throw new FormatException($"Failed to parse {currentDir}\\manifest.json");
+                    }
                     entry.AboutUrl = manifest.Homepage;
 
                     var shortcuts = manifest.Architecture?[install.Architecture]?.Shortcuts ?? manifest.Shortcuts;

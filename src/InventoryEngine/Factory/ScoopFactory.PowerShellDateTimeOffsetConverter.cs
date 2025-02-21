@@ -12,7 +12,7 @@ namespace InventoryEngine.Factory
             {
                 if (reader.TokenType == JsonTokenType.String)
                 {
-                    var value = reader.GetString();
+                    var value = reader.GetString()!;
                     // Windows PowerShell: /Date(1640995200000)/
                     if (value.StartsWith("/", StringComparison.Ordinal))
                     {

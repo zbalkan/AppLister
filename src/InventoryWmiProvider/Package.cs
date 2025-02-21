@@ -71,14 +71,14 @@ namespace InventoryWmiProvider
 
         public override bool Equals(object obj)
         {
-            if (obj.GetType() != typeof(Package))
+            if (obj?.GetType() != typeof(Package))
             {
                 return false;
             }
             return Id == ((Package)obj).Id;
         }
 
-        public bool Equals(Package other) => Id == other.Id;
+        public bool Equals(Package other) => Id == other?.Id;
 
         public override int GetHashCode() => Id.GetHashCode();
     }
