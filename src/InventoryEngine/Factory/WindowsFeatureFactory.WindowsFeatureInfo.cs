@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace InventoryEngine.Factory
+﻿namespace InventoryEngine.Factory
 {
     internal partial class WindowsFeatureFactory
     {
