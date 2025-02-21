@@ -58,7 +58,7 @@ namespace InventoryWmiProvider
         public bool IsOrphaned { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "If the package is installad and managed by Windows Store")]
+        [ManagementQualifier("Description", Value = "If the package is installed and managed by Windows Store")]
         public bool IsStoreApp { get; set; }
 
         [ManagementProbe]

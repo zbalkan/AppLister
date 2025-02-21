@@ -81,7 +81,7 @@ namespace InventoryEngine.Tools
         /// <param name="fullPath"> Full path of the requested registry key </param>
         /// <param name="writable"> If false, key is opened read-only </param>
         /// <param name="ignoreAccessExceptions">
-        ///     If true, return null instead of throwin an exception if the key is inaccessible
+        ///     If true, return null instead of throwing an exception if the key is inaccessible
         /// </param>
         internal static RegistryKey OpenRegistryKey(string fullPath, bool writable, bool ignoreAccessExceptions = false)
         {

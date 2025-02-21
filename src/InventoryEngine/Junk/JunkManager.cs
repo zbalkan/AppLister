@@ -91,16 +91,6 @@ namespace InventoryEngine.Junk
                 return results;
             }
 
-            try
-            {
-                //TODO: Add the dependency
-                //AddRange(knownFolderstype.GetProperties().Attempt(p => ((Windows.Storage.StorageFolder)p.GetValue(null)).Path));
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Failed to collect KnownFolders: " + ex);
-            }
-
             return results;
         }
 

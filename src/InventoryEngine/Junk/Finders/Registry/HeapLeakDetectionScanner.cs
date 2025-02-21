@@ -23,7 +23,7 @@ namespace InventoryEngine.Junk.Finders.Registry
                 using var key = RegistryTools.OpenRegistryKey(RegKey);
                 if (key != null)
                 {
-                    // Reg key names are case insensitive so using tolower key is fine
+                    // Reg key names are case-insensitive so using ToLower key is fine
                     _lookup = key.GetSubKeyNames().ToDictionary(x => x.ToLower(), x => x);
                 }
             }

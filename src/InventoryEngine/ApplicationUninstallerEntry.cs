@@ -62,7 +62,7 @@ namespace InventoryEngine
         public bool IsProtected { get; set; }
 
         /// <summary>
-        ///     The application's uniunstaller is mentioned in the registry (if it's not normal
+        ///     The application's uninstaller is mentioned in the registry (if it's not normal
         ///     uninstallers will not see it)
         /// </summary>
         public bool IsRegistered { get; set; }
@@ -176,7 +176,7 @@ namespace InventoryEngine
                     new[] { "corp", "corporation", "corporations", "limited", "inc", "incorporated", "ltd", "foundation", "s.r.o" };
 
         /// <summary>
-        ///     List of properties that migh have changed by updating the key property
+        ///     List of properties that might have changed by updating the key property
         ///     IMPORTANT: Keep up to date!
         /// </summary>
         internal static readonly ILookup<string, string> PropertyRelationships = new Dictionary<string, List<string>>

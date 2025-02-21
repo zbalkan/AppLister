@@ -217,7 +217,7 @@ namespace InventoryEngine.Factory
                     if (string.Equals(name, "\"apps\":", StringComparison.Ordinal) ||
                         string.Equals(name, "\"buckets\":", StringComparison.Ordinal))
                     {
-                        throw new InvalidDataException("Scoop export is in unkown or invalid format! Try updating Scoop and try again.\n\nContents:\n" + result, e);
+                        throw new InvalidDataException("Scoop export is in unknown or invalid format! Try updating Scoop and try again.\n\nContents:\n" + result, e);
                     }
 
                     var entry = CreateUninstallerEntry(name, version, isGlobal, exeSearcher);

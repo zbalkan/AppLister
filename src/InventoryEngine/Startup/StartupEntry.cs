@@ -5,7 +5,7 @@ using InventoryEngine.Tools;
 namespace InventoryEngine.Startup
 {
     /// <summary>
-    ///     Starup entries stored in Startup folders and Run/RunOnce registry keys
+    ///     Startup entries stored in Startup folders and Run/RunOnce registry keys
     /// </summary>
     public sealed class StartupEntry : StartupEntryBase
     {

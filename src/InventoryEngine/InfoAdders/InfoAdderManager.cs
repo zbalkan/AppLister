@@ -26,7 +26,7 @@ namespace InventoryEngine.InfoAdders
         ///     Static constructor to ensure this is initiated only once.
         /// </summary>
         /// <exception cref="ReflectionTypeLoadException">
-        ///     If this exception is thrown, let the servoce die. It is a boken state.
+        ///     If this exception is thrown, let the service die. It is a broken state.
         /// </exception>
         static InfoAdderManager()
         {

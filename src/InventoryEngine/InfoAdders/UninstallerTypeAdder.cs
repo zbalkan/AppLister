@@ -31,7 +31,7 @@ namespace InventoryEngine.InfoAdders
 
         public static UninstallerType GetUninstallerType(string uninstallString)
         {
-            // Detect MSI / Windows installer based on the uninstall string e.g.
+            // Detect MSI / Windows installer based on the uninstallation string e.g.
             // "C:\ProgramData\Package
             // PersistentCache\{33d1fd90-4274-48a1-9bc1-97e33d9c2d6f}\vcredist_x86.exe" /uninstall
             if (ApplicationEntryTools.PathPointsToMsiExec(uninstallString) || uninstallString.ContainsAll(

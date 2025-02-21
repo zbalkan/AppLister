@@ -29,7 +29,6 @@ namespace InventoryEngine.Junk.Finders.Registry
             var query = from name in key.GetSubKeyNames()
                 let m = ConfidenceGenerators.MatchStringToProductName(target, name)
                 where m >= 0 && m < 3
-                //orderby m ascending
                 select name;
 
             foreach (var result in query)

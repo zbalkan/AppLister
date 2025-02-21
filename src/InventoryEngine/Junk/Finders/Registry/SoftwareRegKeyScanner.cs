@@ -236,7 +236,7 @@ namespace InventoryEngine.Junk.Finders.Registry
                     {
                         try
                         {
-                            // Check if the key acually exists
+                            // Check if the key actually exists
                             using var nodeKey = RegistryTools.OpenRegistryKey(nodePath, false);
                             if (nodeKey != null)
                             {
