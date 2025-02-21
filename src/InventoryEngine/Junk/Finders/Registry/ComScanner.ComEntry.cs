@@ -7,6 +7,7 @@ namespace InventoryEngine.Junk.Finders.Registry
         private sealed class ComEntry
         {
             public readonly string Guid;
+
             public readonly List<string> InterfaceNames = new List<string>();
 
             public string FullFilename;

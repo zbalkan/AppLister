@@ -7,12 +7,13 @@ using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class UninstallerKeySearcher : IJunkCreator
     {
+        public string CategoryName => "Junk_UninstallerKey_GroupName";
+
         private static readonly IEnumerable<string> InstallerSubkeyPaths;
 
         /// <summary>
@@ -53,15 +54,6 @@ namespace InventoryEngine.Junk.Finders.Registry
             }
         }
 
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers) => _targetKeys = InstallerSubkeyPaths
-                .Using(x => Microsoft.Win32.Registry.LocalMachine.OpenSubKey(x))
-                .Where(k => k != null)
-                .SelectMany(k =>
-                {
-                    var parentPath = k.Name;
-                    return k.GetSubKeyNames().Select(n => new KeyValuePair<string, string>(parentPath, n));
-                }).ToList();
-
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
             if (RegistryTools.RegKeyStillExists(target.RegistryPath))
@@ -71,23 +63,32 @@ namespace InventoryEngine.Junk.Finders.Registry
                 yield return regKeyNode;
             }
 
-            if (target.UninstallerKind == UninstallerType.Msiexec && target.BundleProviderKey == Guid.Empty)
+            if (target.UninstallerKind != UninstallerType.Msiexec || target.BundleProviderKey != Guid.Empty)
             {
-                var upgradeKey = MsiTools.ConvertBetweenUpgradeAndProductCode(target.BundleProviderKey).ToString("N");
+                yield break;
+            }
 
-                var matchedKeyPaths = _targetKeys
-                    .Where(x => x.Value.Equals(upgradeKey, StringComparison.OrdinalIgnoreCase));
+            var upgradeKey = MsiTools.ConvertBetweenUpgradeAndProductCode(target.BundleProviderKey).ToString("N");
 
-                foreach (var keyPath in matchedKeyPaths)
-                {
-                    var fullKeyPath = Path.Combine(keyPath.Key, keyPath.Value);
-                    var result = new RegistryKeyJunk(fullKeyPath, target, this);
-                    result.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                    yield return result;
-                }
+            var matchedKeyPaths = _targetKeys
+                .Where(x => x.Value.Equals(upgradeKey, StringComparison.OrdinalIgnoreCase));
+
+            foreach (var keyPath in matchedKeyPaths)
+            {
+                var fullKeyPath = Path.Combine(keyPath.Key, keyPath.Value);
+                var result = new RegistryKeyJunk(fullKeyPath, target, this);
+                result.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                yield return result;
             }
         }
 
-        public string CategoryName => "Junk_UninstallerKey_GroupName";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers) => _targetKeys = InstallerSubkeyPaths
+                        .Using(x => Microsoft.Win32.Registry.LocalMachine.OpenSubKey(x))
+                .Where(k => k != null)
+                .SelectMany(k =>
+                {
+                    var parentPath = k.Name;
+                    return k.GetSubKeyNames().Select(n => new KeyValuePair<string, string>(parentPath, n));
+                }).ToList();
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 
 namespace InventoryEngine.Junk.Finders.Drive
@@ -13,6 +14,7 @@ namespace InventoryEngine.Junk.Finders.Drive
     internal class CommonDriveJunkScanner : JunkCreatorBase
     {
         public override string CategoryName => "Junk_Drive_GroupName";
+
         private static IEnumerable<DirectoryInfo> _foldersToCheck;
 
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target) => _foldersToCheck.SelectMany(x => FindJunkRecursively(x, target));
@@ -86,20 +88,25 @@ namespace InventoryEngine.Junk.Finders.Drive
                     }
 
                     var junkNodes = FindJunkRecursively(dir, uninstaller, level + 1).ToList();
+
                     // ReSharper disable once PossibleMultipleEnumeration
                     results = results.Concat(junkNodes);
 
-                    if (newNode != null)
+                    if (newNode == null)
                     {
-                        // Check if the directory will have nothing left after junk removal.
-                        if (!dir.GetFiles().Any())
-                        {
-                            var subDirs = dir.GetDirectories();
-                            if (!subDirs.Any() || subDirs.All(d => junkNodes.Any(y => PathTools.PathsEqual(d.FullName, y.Path.FullName))))
-                            {
-                                newNode.Confidence.Add(ConfidenceRecords.AllSubdirsMatched);
-                            }
-                        }
+                        continue;
+                    }
+
+                    // Check if the directory will have nothing left after junk removal.
+                    if (dir.GetFiles().Any())
+                    {
+                        continue;
+                    }
+
+                    var subDirs = dir.GetDirectories();
+                    if (!subDirs.Any() || subDirs.All(d => junkNodes.Any(y => PathTools.PathsEqual(d.FullName, y.Path.FullName))))
+                    {
+                        newNode.Confidence.Add(ConfidenceRecords.AllSubdirsMatched);
                     }
                 }
 

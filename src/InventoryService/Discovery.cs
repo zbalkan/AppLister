@@ -17,13 +17,30 @@ namespace InventoryService
         ///     Initiates the engine and scan in different stores
         /// </summary>
         /// <returns>
-        ///     List of installed applciations as a list of <see cref="Package" /> instances.
+        ///     List of installed applications as a list of <see cref="Package" /> instances.
         /// </returns>
         public List<Package> GetAll()
         {
             var apps = Inventory.QueryApps();
             return MaptoPackage(apps);
         }
+
+        private static string ExtractId(ApplicationUninstallerEntry app) => Regex
+            .Replace(
+            $"{string.Join("_", (new[] { app.DisplayNameTrimmed, app.DisplayVersion }).Where(str => !string.IsNullOrEmpty(str)))}"
+            .ToLowerInvariant().Replace(" ", "_").Replace(".", "_").Replace("__", "_"),
+            "[^a-zA-Z0-9.()_]", string.Empty);
+
+        private static string[] GetStartupEntries(ApplicationUninstallerEntry app)
+        {
+            if (!app.HasStartups)
+            {
+                return Array.Empty<string>();
+            }
+            return app.StartupEntries.Select(entry => entry.FullLongName).ToArray();
+        }
+
+        private bool CheckStoreApp(ApplicationUninstallerEntry app) => app.UninstallerKind == UninstallerType.StoreApp;
 
         private List<Package> MaptoPackage(IReadOnlyList<ApplicationUninstallerEntry> apps)
         {
@@ -59,23 +76,6 @@ namespace InventoryService
                 }
             }
             return packages.GroupBy(x => x.Id).Select(x => x.First()).OrderBy(p => p.Id).ToList();
-        }
-
-        private static string ExtractId(ApplicationUninstallerEntry app) => Regex
-            .Replace(
-            $"{string.Join("_", (new string[] { app.DisplayNameTrimmed, app.DisplayVersion }).Where(str => !string.IsNullOrEmpty(str)))}"
-            .ToLowerInvariant().Replace(" ", "_").Replace(".", "_").Replace("__", "_"),
-            "[^a-zA-Z0-9.()_]", string.Empty);
-
-        private bool CheckStoreApp(ApplicationUninstallerEntry app) => app.UninstallerKind == UninstallerType.StoreApp;
-
-        private static string[] GetStartupEntries(ApplicationUninstallerEntry app)
-        {
-            if (!app.HasStartups)
-            {
-                return Array.Empty<string>();
-            }
-            return app.StartupEntries.Select(entry => entry.FullLongName).ToArray();
         }
     }
 }

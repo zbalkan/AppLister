@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -28,11 +27,12 @@ namespace InventoryEngine.InfoAdders
         };
 
         public bool RequiresAllValues { get; }
+
         private static readonly Regex InnoSetupFilenameRegex = new Regex(@"unins\d\d\d", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static UninstallerType GetUninstallerType(string uninstallString)
         {
-            // Detect MSI / Windows installer based on the uninstall string e.g.
+            // Detect MSI / Windows installer based on the uninstallation string e.g.
             // "C:\ProgramData\Package
             // PersistentCache\{33d1fd90-4274-48a1-9bc1-97e33d9c2d6f}\vcredist_x86.exe" /uninstall
             if (ApplicationEntryTools.PathPointsToMsiExec(uninstallString) || uninstallString.ContainsAll(
@@ -59,40 +59,41 @@ namespace InventoryEngine.InfoAdders
                 return UninstallerType.PowerShell;
             }
 
-            if (ProcessStartCommand.TryParse(uninstallString, out var ps)
-                && Path.IsPathRooted(ps.FileName)
-                && File.Exists(ps.FileName))
+            if (!ProcessStartCommand.TryParse(uninstallString, out var ps)
+                || !Path.IsPathRooted(ps.FileName)
+                || !File.Exists(ps.FileName))
             {
-                try
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(ps.FileName);
-                    // Detect Inno Setup
-                    if (fileName != null && InnoSetupFilenameRegex.IsMatch(fileName))
-                    {
-                        // Check if Inno Setup Uninstall Log exists
-                        if (File.Exists(ps.FileName.Substring(0, ps.FileName.Length - 3) + "dat"))
-                        {
-                            return UninstallerType.InnoSetup;
-                        }
-                    }
+                return UninstallerType.Unknown;
+            }
 
-                    // Detect NSIS Nullsoft.NSIS. Slow, but there's no other way than to scan the file
-                    using (var reader = new StreamReader(ps.FileName, Encoding.ASCII))
+            try
+            {
+                var fileName = Path.GetFileNameWithoutExtension(ps.FileName);
+
+                // Detect Inno Setup
+                if (fileName != null && InnoSetupFilenameRegex.IsMatch(fileName))
+                {
+                    // Check if Inno Setup Uninstall Log exists
+                    if (File.Exists(ps.FileName.Substring(0, ps.FileName.Length - 3) + "dat"))
                     {
-                        string line;
-                        while ((line = reader.ReadLine()) != null)
-                        {
-                            if (line.Contains("Nullsoft", StringComparison.Ordinal))
-                            {
-                                return UninstallerType.Nsis;
-                            }
-                        }
+                        return UninstallerType.InnoSetup;
                     }
                 }
-                catch (IOException) { }
-                catch (UnauthorizedAccessException) { }
-                catch (SecurityException) { }
+
+                // Detect NSIS Nullsoft.NSIS. Slow, but there's no other way than to scan the file
+                using var reader = new StreamReader(ps.FileName, Encoding.ASCII);
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (line.Contains("Nullsoft", StringComparison.Ordinal))
+                    {
+                        return UninstallerType.Nsis;
+                    }
+                }
             }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
+            catch (SecurityException) { }
             return UninstallerType.Unknown;
         }
 

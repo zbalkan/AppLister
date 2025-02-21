@@ -3,10 +3,15 @@ namespace InventoryEngine.Startup
     internal sealed class StartupPointData
     {
         public readonly bool AllUsers;
+
         public readonly bool IsRegKey;
+
         public readonly bool IsRunOnce;
+
         public readonly bool IsWow;
+
         public readonly string Name;
+
         public readonly string Path;
 
         public StartupPointData(bool allUsers, bool isRegKey, bool isRunOnce, bool isWow, string name, string path)

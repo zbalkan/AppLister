@@ -13,41 +13,67 @@ namespace InventoryEngine.Extensions
         internal static bool Contains(this string s, string value, StringComparison comparisonType) => s.IndexOf(value, comparisonType) >= 0;
 
         /// <summary>
-        ///     Check if base string contains all of the supplied strings.
+        ///     Check if base string contains all the supplied strings.
         /// </summary>
-        /// <param name="s"> </param>
-        /// <param name="items"> Items to be compared to the base string </param>
-        /// <param name="comparisonType"> Rules of the comparison </param>
-        /// <returns> True if any of the items were found in the base string, else false </returns>
+        /// <param name="s">
+        /// </param>
+        /// <param name="items">
+        ///     Items to be compared to the base string
+        /// </param>
+        /// <param name="comparisonType">
+        ///     Rules of the comparison
+        /// </param>
+        /// <returns>
+        ///     True if any of the items were found in the base string, else false
+        /// </returns>
         internal static bool ContainsAll(this string s, IEnumerable<string> items, StringComparison comparisonType) => items.All(item => s.Contains(item, comparisonType));
 
         /// <summary>
         ///     Check if base char array contains any of the supplied chars.
         /// </summary>
-        /// <param name="s"> </param>
-        /// <param name="items"> Chars to be compared to the base array </param>
-        /// <returns> True if any of the items were found in the base string, else false </returns>
+        /// <param name="s">
+        /// </param>
+        /// <param name="items">
+        ///     Chars to be compared to the base array
+        /// </param>
+        /// <returns>
+        ///     True if any of the items were found in the base string, else false
+        /// </returns>
         internal static bool ContainsAny(this IEnumerable<char> s, IEnumerable<char> items) => items.Any(s.Contains);
 
         /// <summary>
         ///     Check if base string contains any of the supplied strings.
         /// </summary>
-        /// <param name="s"> </param>
-        /// <param name="items"> Items to be compared to the base string </param>
-        /// <param name="comparisonType"> Rules of the comparison </param>
-        /// <returns> True if any of the items were found in the base string, else false </returns>
+        /// <param name="s">
+        /// </param>
+        /// <param name="items">
+        ///     Items to be compared to the base string
+        /// </param>
+        /// <param name="comparisonType">
+        ///     Rules of the comparison
+        /// </param>
+        /// <returns>
+        ///     True if any of the items were found in the base string, else false
+        /// </returns>
         internal static bool ContainsAny(this string s, IEnumerable<string> items, StringComparison comparisonType) => items.Any(item => s.Contains(item, comparisonType));
 
         /// <summary>
-        ///     Trim this string from all whitespaces and ending pronounciations (eg. '.' ','), then
-        ///     remove any of the supplied items from the end of the resulting string. This method
-        ///     is greedy, it will remove the same item multiple times if possible. After every
-        ///     successful removal whitespaces and ending pronounciations are trimmed again.
+        ///     Trim this string from all whitespaces and ending pronunciations (e.g., '.' ','),
+        ///     then remove any of the supplied items from the end of the resulting string. This
+        ///     method is greedy, it will remove the same item multiple times if possible. After
+        ///     every successful removal whitespaces and ending pronunciations are trimmed again.
         /// </summary>
-        /// <param name="s"> </param>
-        /// <param name="trimmers"> Items to be trimmed from base string </param>
-        /// <param name="comparisonType"> How the items are compared to the base string </param>
-        /// <returns> Trimmed version of the base string </returns>
+        /// <param name="s">
+        /// </param>
+        /// <param name="trimmers">
+        ///     Items to be trimmed from base string
+        /// </param>
+        /// <param name="comparisonType">
+        ///     How the items are compared to the base string
+        /// </param>
+        /// <returns>
+        ///     Trimmed version of the base string
+        /// </returns>
         internal static string ExtendedTrimEndAny(this string s, IEnumerable<string> trimmers,
             StringComparison comparisonType)
         {
@@ -72,7 +98,7 @@ namespace InventoryEngine.Extensions
                     var cutNum = resultStr.Length - trimmer.Length;
 
                     // Exit the loop quickly if resultStr contains only the trimmer. Also checks for
-                    // negative lenght.
+                    // negative length.
                     if (cutNum <= 0)
                     {
                         return string.Empty;
@@ -89,11 +115,13 @@ namespace InventoryEngine.Extensions
 
         /// <summary>
         ///     Reverse the string using the specified pattern. The string is split into parts
-        ///     corresponding to the pattern's values, then each of the parts is reversed and
+        ///     corresponding to the pattern's values, then each of the parts is reversed, and
         ///     finally they are joined back.
         ///     Example: String("Tester") Pattern(1,3,2) -&gt; T est er -&gt; T tse re -&gt; Result("Ttsere")
         /// </summary>
-        /// <param name="value"> String to reverse </param>
+        /// <param name="value">
+        ///     String to reverse
+        /// </param>
         /// <param name="pattern">
         ///     Pattern used to reverse the string.
         ///     Warning: The pattern has to have identical total length to the length of the string.
@@ -126,7 +154,7 @@ namespace InventoryEngine.Extensions
                 // Reverse the sub-string and append it
                 returnString.Append(value.Substring(index, length).Reverse().ToArray());
 
-                // Increment our posistion in the string
+                // Increment our position in the string
                 index += length;
             }
 
@@ -135,7 +163,7 @@ namespace InventoryEngine.Extensions
 
         /// <summary>
         ///     Safe version of normalize that doesn't crash on invalid code points in string.
-        ///     Instead the points are replaced with question marks.
+        ///     Instead, the points are replaced with question marks.
         /// </summary>
         internal static string SafeNormalize(this string input, NormalizationForm normalizationForm = NormalizationForm.FormC)
         {
@@ -157,18 +185,27 @@ namespace InventoryEngine.Extensions
         /// <summary>
         ///     Check if base string starts with any of the supplied strings.
         /// </summary>
-        /// <param name="s"> </param>
-        /// <param name="items"> Items to be compared to the base string </param>
-        /// <param name="comparisonType"> Rules of the comparison </param>
-        /// <returns> True if any of the items were found in the base string, else false </returns>
+        /// <param name="s">
+        /// </param>
+        /// <param name="items">
+        ///     Items to be compared to the base string
+        /// </param>
+        /// <param name="comparisonType">
+        ///     Rules of the comparison
+        /// </param>
+        /// <returns>
+        ///     True if any of the items were found in the base string, else false
+        /// </returns>
         internal static bool StartsWithAny(this string s, IEnumerable<string> items, StringComparison comparisonType) => items.Any(item => s.StartsWith(item, comparisonType));
 
         /// <summary>
         ///     Strip version number from the end of a string. "MyApp 1.023.1" -&gt; "MyApp" If
         ///     string is null or empty, string.Empty is returned.
         /// </summary>
-        /// <param name="input"> </param>
-        /// <returns> </returns>
+        /// <param name="input">
+        /// </param>
+        /// <returns>
+        /// </returns>
         internal static string StripStringFromVersionNumber(this string input)
         {
             if (input == null)
@@ -279,14 +316,7 @@ namespace InventoryEngine.Extensions
                 else
                 {
                     var c = input[i];
-                    if (IsValidCodePoint(c))
-                    {
-                        sb.Append(c);
-                    }
-                    else
-                    {
-                        sb.Append(replacement);
-                    }
+                    sb.Append(IsValidCodePoint(c) ? c : replacement);
                 }
             }
             return sb.ToString();

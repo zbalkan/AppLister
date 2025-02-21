@@ -7,7 +7,7 @@ namespace InventoryEngine.Startup
 {
     internal sealed class ServiceEntry : StartupEntryBase
     {
-        public override bool Disabled
+        public bool Disabled
         {
             get
             {
@@ -53,8 +53,6 @@ namespace InventoryEngine.Startup
 
             FillInformationFromFile(CommandFilePath);
         }
-
-        public override void Delete() => ServiceEntryFactory.DeleteService(ProgramName);
 
         public override bool StillExists()
         {

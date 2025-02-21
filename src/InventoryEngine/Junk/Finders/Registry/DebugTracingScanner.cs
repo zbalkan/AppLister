@@ -7,15 +7,12 @@ using System.Security;
 using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class DebugTracingScanner : IJunkCreator
     {
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-        }
+        public string CategoryName => "Junk_DebugTracing_GroupName";
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -30,7 +27,7 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             try
             {
-                pathRoot = Path.GetPathRoot(target.InstallLocation) ?? throw new ArgumentException("No path root for " + target.InstallLocation);
+                pathRoot = Path.GetPathRoot(target.InstallLocation);
             }
             catch (SystemException ex)
             {
@@ -49,26 +46,26 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             try
             {
-                using (var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Tracing", true))
+                using var key = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Tracing", true);
+                if (key != null && target.SortedExecutables != null)
                 {
-                    if (key != null && target.SortedExecutables != null)
-                    {
-                        var exeNames = target.SortedExecutables.Select(Path.GetFileNameWithoutExtension).ToList();
+                    var exeNames = target.SortedExecutables.Select(Path.GetFileNameWithoutExtension).ToList();
 
-                        foreach (var keyGroup in key.GetSubKeyNames()
-                            .Where(x => x.EndsWith("_RASAPI32") || x.EndsWith("_RASMANCS"))
-                            .Select(name => new { name, trimmed = name.Substring(0, name.LastIndexOf('_')) })
-                            .GroupBy(x => x.trimmed))
+                    foreach (var keyGroup in key.GetSubKeyNames()
+                                 .Where(x => x.EndsWith("_RASAPI32") || x.EndsWith("_RASMANCS"))
+                                 .Select(name => new { name, trimmed = name.Substring(0, name.LastIndexOf('_')) })
+                                 .GroupBy(x => x.trimmed))
+                    {
+                        if (!exeNames.Contains(keyGroup.Key, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            if (exeNames.Contains(keyGroup.Key, StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                foreach (var keyName in keyGroup)
-                                {
-                                    var junk = new RegistryKeyJunk(Path.Combine(key.Name, keyName.name), target, this);
-                                    junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                                    returnList.Add(junk);
-                                }
-                            }
+                            continue;
+                        }
+
+                        foreach (var keyName in keyGroup)
+                        {
+                            var junk = new RegistryKeyJunk(Path.Combine(key.Name, keyName.name), target, this);
+                            junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                            returnList.Add(junk);
                         }
                     }
                 }
@@ -81,6 +78,8 @@ namespace InventoryEngine.Junk.Finders.Registry
             return returnList;
         }
 
-        public string CategoryName => "Junk_DebugTracing_GroupName";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
+        }
     }
 }

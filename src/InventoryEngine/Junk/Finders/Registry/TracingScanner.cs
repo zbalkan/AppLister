@@ -3,18 +3,18 @@ using System.IO;
 using System.Linq;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class TracingScanner : IJunkCreator
     {
-        private const string TracingKey = @"SOFTWARE\Microsoft\Tracing";
+        public string CategoryName => "Junk_Tracing_GroupName";
+
         private const string FullTracingKey = @"HKEY_LOCAL_MACHINE\" + TracingKey;
 
-        private ICollection<ApplicationUninstallerEntry> _allEntries;
+        private const string TracingKey = @"SOFTWARE\Microsoft\Tracing";
 
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers) => _allEntries = allUninstallers;
+        private ICollection<ApplicationUninstallerEntry> _allEntries;
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -34,12 +34,14 @@ namespace InventoryEngine.Junk.Finders.Registry
                         var str = subKeyName.Substring(0, i);
 
                         var conf = ConfidenceGenerators.GenerateConfidence(str, Path.Combine(FullTracingKey, subKeyName), 0, target).ToList();
-                        if (conf.Any())
+                        if (!conf.Any())
                         {
-                            var node = new RegistryKeyJunk(Path.Combine(FullTracingKey, subKeyName), target, this);
-                            node.Confidence.AddRange(conf);
-                            results.Add(node);
+                            continue;
                         }
+
+                        var node = new RegistryKeyJunk(Path.Combine(FullTracingKey, subKeyName), target, this);
+                        node.Confidence.AddRange(conf);
+                        results.Add(node);
                     }
                 }
             }
@@ -49,6 +51,6 @@ namespace InventoryEngine.Junk.Finders.Registry
             return results;
         }
 
-        public string CategoryName => "Junk_Tracing_GroupName";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers) => _allEntries = allUninstallers;
     }
 }

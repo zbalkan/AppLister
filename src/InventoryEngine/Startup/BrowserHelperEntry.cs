@@ -7,7 +7,7 @@ namespace InventoryEngine.Startup
 {
     internal sealed class BrowserHelperEntry : StartupEntryBase
     {
-        public override bool Disabled
+        public bool Disabled
         {
             get { return _disabled; }
             set
@@ -34,6 +34,7 @@ namespace InventoryEngine.Startup
         }
 
         private bool IsWow { get; }
+
         private bool _disabled;
 
         public BrowserHelperEntry(string programName, string command, string parentKeyPath,
@@ -55,24 +56,14 @@ namespace InventoryEngine.Startup
             }
         }
 
-        public override void Delete()
-        {
-            using (var key = RegistryTools.OpenRegistryKey(GetRealParentPath(), true))
-            {
-                key?.DeleteSubKey(EntryLongName);
-            }
-        }
-
         public string GetRealParentPath(bool opposite = false) => (opposite ? !_disabled : _disabled)
                 ? Path.Combine(ParentLongName, BrowserEntryFactory.AutorunsDisabledKeyName)
                 : ParentLongName;
 
         public override bool StillExists()
         {
-            using (var key = RegistryTools.OpenRegistryKey(GetRealParentPath()))
-            {
-                return key?.GetSubKeyNames().Contains(EntryLongName) == true;
-            }
+            using var key = RegistryTools.OpenRegistryKey(GetRealParentPath());
+            return key?.GetSubKeyNames().Contains(EntryLongName) == true;
         }
     }
 }

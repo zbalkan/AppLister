@@ -13,38 +13,55 @@ namespace InventoryEngine.Tools
             '\\',
             '/',
             '"',
+
             // SPACE
             '\u0020',
+
             // NO-BREAK SPACE
             '\u00A0',
+
             // OGHAM SPACE MARK
             '\u1680',
+
             // EN QUAD
             '\u2000',
+
             // EM QUAD
             '\u2001',
+
             // EN SPACE
             '\u2002',
+
             // EM SPACE
             '\u2003',
+
             // THREE-PER-EM SPACE
             '\u2004',
+
             // FOUR-PER-EM SPACE
             '\u2005',
+
             // SIX-PER-EM SPACE
             '\u2006',
+
             // FIGURE SPACE
             '\u2007',
+
             // PUNCTUATION SPACE
             '\u2008',
+
             // THIN SPACE
             '\u2009',
+
             // HAIR SPACE
             '\u200A',
+
             // NARROW NO-BREAK SPACE
             '\u202F',
+
             // MEDIUM MATHEMATICAL SPACE
             '\u205F',
+
             // and IDEOGRAPHIC SPACE
             '\u3000',
 
@@ -56,24 +73,32 @@ namespace InventoryEngine.Tools
 
             // CHARACTER TABULATION
             '\u0009',
+
             // LINE FEED
             '\u000A',
+
             // LINE TABULATION
             '\u000B',
+
             // FORM FEED
             '\u000C',
+
             // CARRIAGE RETURN
             '\u000D',
+
             // NEXT LINE
             '\u0085'
         };
 
         /// <summary>
         ///     Get full path of an application available in current environment. Same as writing
-        ///     it's name in CMD.
+        ///     its name in CMD.
         /// </summary>
-        /// <param name="filename"> Name of the exectuable, including the extension </param>
-        /// <returns> </returns>
+        /// <param name="filename">
+        ///     Name of the executable, including the extension
+        /// </param>
+        /// <returns>
+        /// </returns>
         public static string GetFullPathOfExecutable(string filename)
         {
             IEnumerable<string> paths = new[] { Environment.CurrentDirectory };
@@ -119,15 +144,13 @@ namespace InventoryEngine.Tools
         internal static string GetDirectory(string fullPath)
         {
             var trimmed = fullPath.TrimEnd('"', ' ', '\\').TrimStart('"', ' ');
-            if (trimmed.Contains('\\'))
+            if (!trimmed.Contains('\\'))
             {
-                var index = trimmed.LastIndexOf('\\');
-                if (index < trimmed.Length)
-                {
-                    return trimmed.Substring(0, index);
-                }
+                return string.Empty;
             }
-            return string.Empty;
+
+            var index = trimmed.LastIndexOf('\\');
+            return index < trimmed.Length ? trimmed.Substring(0, index) : string.Empty;
         }
 
         /// <summary>
@@ -136,15 +159,13 @@ namespace InventoryEngine.Tools
         internal static string GetName(string fullPath)
         {
             var trimmed = fullPath.TrimEnd('"', ' ', '\\');
-            if (trimmed.Contains('\\'))
+            if (!trimmed.Contains('\\'))
             {
-                var index = trimmed.LastIndexOf('\\') + 1;
-                if (index < trimmed.Length)
-                {
-                    return trimmed.Substring(index);
-                }
+                return string.Empty;
             }
-            return string.Empty;
+
+            var index = trimmed.LastIndexOf('\\') + 1;
+            return index < trimmed.Length ? trimmed.Substring(index) : string.Empty;
         }
 
         // Try to get the windows directory, returns null if failed
@@ -229,7 +250,7 @@ namespace InventoryEngine.Tools
             for (var i = 0; i < directoryParts.Length; i++)
             {
                 var part = directoryParts[i].ToLower();
-                result = string.Concat(result, part.Substring(0, 1).ToUpperInvariant() + part.Substring(1), "\\");
+                result = $"{result}{part.Substring(0, 1).ToUpperInvariant() + part.Substring(1)}\\";
             }
 
             return result;
@@ -270,24 +291,26 @@ namespace InventoryEngine.Tools
                 return false;
             }
 
-            if (normalizeFilesystemPath)
+            if (!normalizeFilesystemPath)
             {
-                try { subPath = Path.GetFullPath(subPath).Replace('\\', '/'); }
-                catch (SystemException) { }
+                return subPath.StartsWith(basePath + '/', StringComparison.InvariantCultureIgnoreCase);
             }
+
+            try { subPath = Path.GetFullPath(subPath).Replace('\\', '/'); }
+            catch (SystemException) { }
 
             return subPath.StartsWith(basePath + '/', StringComparison.InvariantCultureIgnoreCase);
         }
 
-        /// <param name="exename"> name of the exectuable, including .exe </param>
-        private static string GetExecutablePathFromAppPaths(string exename)
+        /// <param name="executableName">
+        ///     name of the executable, including .exe
+        /// </param>
+        private static string GetExecutablePathFromAppPaths(string executableName)
         {
             const string appPaths = @"Software\Microsoft\Windows\CurrentVersion\App Paths";
-            var executableEntry = Path.Combine(appPaths, exename);
-            using (var key = Registry.CurrentUser.OpenSubKey(executableEntry) ?? Registry.LocalMachine.OpenSubKey(executableEntry))
-            {
-                return key?.GetStringSafe(null);
-            }
+            var executableEntry = Path.Combine(appPaths, executableName);
+            using var key = Registry.CurrentUser.OpenSubKey(executableEntry) ?? Registry.LocalMachine.OpenSubKey(executableEntry);
+            return key?.GetStringSafe(null);
         }
     }
 }

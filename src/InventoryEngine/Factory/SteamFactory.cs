@@ -6,35 +6,40 @@ using System.Linq;
 using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
+using InventoryEngine.Junk.Finders;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Factory
 {
     internal class SteamFactory : IIndependentUninstallerFactory, IJunkCreator
     {
+        internal static string SteamHelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "SteamHelper.exe");
+
         private static bool GetSteamInfo(out string steamLocation)
         {
             steamLocation = null;
 
-            if (File.Exists(SteamHelperPath))
+            if (!File.Exists(SteamHelperPath))
             {
-                var output = FactoryTools.StartHelperAndReadOutput(SteamHelperPath, "steam");
-                if (!string.IsNullOrEmpty(output)
-                    && !output.Contains("error", StringComparison.InvariantCultureIgnoreCase)
-                    && Directory.Exists(output = output.Trim().TrimEnd('\\', '/')))
-                {
-                    steamLocation = output;
-                    return true;
-                }
+                return false;
             }
 
-            return false;
+            var output = FactoryTools.StartHelperAndReadOutput(SteamHelperPath, "steam");
+            if (string.IsNullOrEmpty(output)
+                || output.Contains("error", StringComparison.InvariantCultureIgnoreCase)
+                || !Directory.Exists(output = output.Trim().TrimEnd('\\', '/')))
+            {
+                return false;
+            }
+
+            steamLocation = output;
+            return true;
         }
 
-        internal static string SteamHelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "SteamHelper.exe");
-
         #region IIndependantUninstallerFactory
+
+        public string DisplayName => "Progress_AppStores_Steam";
 
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
         {
@@ -90,16 +95,13 @@ namespace InventoryEngine.Factory
 
         public bool IsEnabled() => UninstallToolsGlobalConfig.ScanSteam;
 
-        public string DisplayName => "Progress_AppStores_Steam";
-
         #endregion IIndependantUninstallerFactory
 
         #region IJunkCreator
 
-        private static readonly string[] TempFolderNames = { "downloading", "shadercache", "temp" };
+        public string CategoryName { get; } = "UninstallerType_Steam";
 
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        { }
+        private static readonly string[] TempFolderNames = { "downloading", "shadercache", "temp" };
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -122,13 +124,15 @@ namespace InventoryEngine.Factory
                     foreach (var cacheFolderName in TempFolderNames)
                     {
                         var subpath = Path.Combine(libraryDir, cacheFolderName, appIdStr);
-                        if (Directory.Exists(subpath))
+                        if (!Directory.Exists(subpath))
                         {
-                            var junk = new FileSystemJunk(new DirectoryInfo(subpath), target, this);
-                            junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                            junk.Confidence.Add(4);
-                            results.Add(junk);
+                            continue;
                         }
+
+                        var junk = new FileSystemJunk(new DirectoryInfo(subpath), target, this);
+                        junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                        junk.Confidence.Add(4);
+                        results.Add(junk);
                     }
                 }
                 else
@@ -143,7 +147,8 @@ namespace InventoryEngine.Factory
             return results;
         }
 
-        public string CategoryName { get; } = "UninstallerType_Steam";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        { }
 
         #endregion IJunkCreator
     }

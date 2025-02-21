@@ -1,7 +1,7 @@
 ﻿using System;
 using InventoryEngine.Junk.Confidence;
+using InventoryEngine.Junk.Finders;
 using InventoryEngine.Startup;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Containers
 {

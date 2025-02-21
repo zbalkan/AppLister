@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using UninstallTools.Junk.Finders;
+using InventoryEngine.Junk.Finders;
 
 namespace InventoryEngine.Junk.Containers
 {

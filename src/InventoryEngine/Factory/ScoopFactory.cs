@@ -17,16 +17,20 @@ namespace InventoryEngine.Factory
     {
         public string DisplayName => "Progress_AppStores_Scoop";
 
-        private static readonly JsonSerializerOptions _jsonOptions;
+        private static readonly JsonSerializerOptions JsonOptions;
+
         private static string _powershellPath;
+
         private static string _scoopGlobalPath;
+
         private static string _scoopUserPath;
+
         private static string _scriptPath;
 
         static ScoopFactory()
         {
-            _jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web); // ignore property name case
-            _jsonOptions.Converters.Add(new PowerShellDateTimeOffsetConverter());
+            JsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web); // ignore property name case
+            JsonOptions.Converters.Add(new PowerShellDateTimeOffsetConverter());
         }
 
         public static ApplicationUninstallerEntry CreateUninstallerEntry(
@@ -50,12 +54,17 @@ namespace InventoryEngine.Factory
 
                 try
                 {
-                    var install = JsonDocument.Parse(File.ReadAllText(Path.Combine(currentDir, "install.json")))
-                        .Deserialize(typeof(AppInstall), _jsonOptions) as AppInstall;
+                    if (!(JsonDocument.Parse(File.ReadAllText(Path.Combine(currentDir, "install.json")))
+                        .Deserialize(typeof(AppInstall), JsonOptions) is AppInstall install))
+                    {
+                        throw new FormatException($"Failed to parse {currentDir}\\install.json");
+                    }
 
-                    var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(currentDir, "manifest.json")))
-                        .Deserialize(typeof(AppManifest), options: _jsonOptions) as AppManifest;
-
+                    if (!(JsonDocument.Parse(File.ReadAllText(Path.Combine(currentDir, "manifest.json")))
+                        .Deserialize(typeof(AppManifest), options: JsonOptions) is AppManifest manifest))
+                    {
+                        throw new FormatException($"Failed to parse {currentDir}\\manifest.json");
+                    }
                     entry.AboutUrl = manifest.Homepage;
 
                     var shortcuts = manifest.Architecture?[install.Architecture]?.Shortcuts ?? manifest.Shortcuts;
@@ -165,7 +174,7 @@ namespace InventoryEngine.Factory
             try
             {
                 var export = JsonDocument.Parse(result)
-                    .Deserialize(typeof(ExportInfo), _jsonOptions) as ExportInfo;
+                    .Deserialize(typeof(ExportInfo), JsonOptions) as ExportInfo;
 
                 foreach (var app in export.Apps)
                 {
@@ -177,6 +186,7 @@ namespace InventoryEngine.Factory
                     results.Add(entry);
                 }
             }
+
             // Fallback to plain text export format
             catch (JsonException e)
             {
@@ -217,7 +227,7 @@ namespace InventoryEngine.Factory
                     if (string.Equals(name, "\"apps\":", StringComparison.Ordinal) ||
                         string.Equals(name, "\"buckets\":", StringComparison.Ordinal))
                     {
-                        throw new InvalidDataException("Scoop export is in unkown or invalid format! Try updating Scoop and try again.\n\nContents:\n" + result, e);
+                        throw new InvalidDataException("Scoop export is in unknown or invalid format! Try updating Scoop and try again.\n\nContents:\n" + result, e);
                     }
 
                     var entry = CreateUninstallerEntry(name, version, isGlobal, exeSearcher);
@@ -238,13 +248,13 @@ namespace InventoryEngine.Factory
                 _scoopUserPath = Environment.GetEnvironmentVariable("SCOOP");
                 if (string.IsNullOrEmpty(_scoopUserPath))
                 {
-                    _scoopUserPath = Path.Combine(WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_PROFILE), "scoop");
+                    _scoopUserPath = Path.Combine(WindowsTools.GetEnvironmentPath(Csidl.CSIDL_PROFILE), "scoop");
                 }
 
                 _scoopGlobalPath = Environment.GetEnvironmentVariable("SCOOP_GLOBAL");
                 if (string.IsNullOrEmpty(_scoopGlobalPath))
                 {
-                    _scoopGlobalPath = Path.Combine(WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_COMMON_APPDATA), "scoop");
+                    _scoopGlobalPath = Path.Combine(WindowsTools.GetEnvironmentPath(Csidl.CSIDL_COMMON_APPDATA), "scoop");
                 }
 
                 _scriptPath = Path.Combine(_scoopUserPath, "shims\\scoop.ps1");
@@ -279,13 +289,11 @@ namespace InventoryEngine.Factory
             startInfo.CreateNoWindow = true;
             startInfo.StandardOutputEncoding = Encoding.Default;
 
-            using (var process = Process.Start(startInfo))
-            {
-                var sw = Stopwatch.StartNew();
-                var output = process?.StandardOutput.ReadToEnd();
-                Debug.WriteLine($"[Performance] Running command {startInfo.FileName} {startInfo.Arguments} took {sw.ElapsedMilliseconds}ms");
-                return output;
-            }
+            using var process = Process.Start(startInfo);
+            var sw = Stopwatch.StartNew();
+            var output = process?.StandardOutput.ReadToEnd();
+            Debug.WriteLine($"[Performance] Running command {startInfo.FileName} {startInfo.Arguments} took {sw.ElapsedMilliseconds}ms");
+            return output;
         }
     }
 }

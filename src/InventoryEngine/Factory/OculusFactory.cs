@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using InventoryEngine.Extensions;
 using InventoryEngine.InfoAdders;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory
@@ -10,6 +11,7 @@ namespace InventoryEngine.Factory
     public class OculusFactory : IIndependentUninstallerFactory
     {
         public string DisplayName => "Progress_AppStores_Oculus";
+
         private static string HelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "OculusHelper.exe");
 
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
@@ -28,12 +30,11 @@ namespace InventoryEngine.Factory
 
             foreach (var data in FactoryTools.ExtractAppDataSetsFromHelperOutput(output))
             {
-                if (!data.ContainsKey("CanonicalName"))
+                if (!data.TryGetValue("CanonicalName", out var name))
                 {
                     continue;
                 }
 
-                var name = data["CanonicalName"];
                 if (string.IsNullOrEmpty(name))
                 {
                     continue;
@@ -44,6 +45,7 @@ namespace InventoryEngine.Factory
                 var entry = new ApplicationUninstallerEntry
                 {
                     RatingId = name,
+
                     //RegistryKeyName = name,
                     UninstallString = uninstallStr,
                     QuietUninstallString = uninstallStr,
@@ -60,6 +62,8 @@ namespace InventoryEngine.Factory
             }
             return results.AsReadOnly();
         }
+
+        public bool IsEnabled() => UninstallToolsGlobalConfig.ScanOculus;
 
         private static void Enrich(Dictionary<string, string> data, string name, ApplicationUninstallerEntry entry)
         {
@@ -79,8 +83,6 @@ namespace InventoryEngine.Factory
                 entry.RawDisplayName = name.Replace('-', ' ').ToTitleCase();
             }
         }
-
-        public bool IsEnabled() => UninstallToolsGlobalConfig.ScanOculus;
 
         private static bool IsHelperAvailable() => File.Exists(HelperPath);
     }

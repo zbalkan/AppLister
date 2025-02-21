@@ -36,9 +36,9 @@ namespace InventoryEngine.Startup
             new StartupPointData(false, true, true, false, @"HKCU\RunOnce)",
                 @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce"),
             new StartupPointData(false, false, false, false, @"User\Startup",
-                WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_STARTUP)),
+                WindowsTools.GetEnvironmentPath(Csidl.CSIDL_STARTUP)),
             new StartupPointData(true, false, false, false, @"Common\Startup",
-                WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_COMMON_STARTUP))
+                WindowsTools.GetEnvironmentPath(Csidl.CSIDL_COMMON_STARTUP))
         }.AsEnumerable();
 
         /// <summary>
@@ -90,26 +90,24 @@ namespace InventoryEngine.Startup
             var results = new List<StartupEntry>();
             try
             {
-                using (var rKey = RegistryTools.OpenRegistryKey(point.Path))
+                using var rKey = RegistryTools.OpenRegistryKey(point.Path);
+                if (rKey != null)
                 {
-                    if (rKey != null)
+                    foreach (var name in rKey.GetValueNames())
                     {
-                        foreach (var name in rKey.GetValueNames())
+                        var result = rKey.GetStringSafe(name);
+                        if (string.IsNullOrEmpty(result))
                         {
-                            var result = rKey.GetStringSafe(name);
-                            if (string.IsNullOrEmpty(result))
-                            {
-                                continue;
-                            }
+                            continue;
+                        }
 
-                            try
-                            {
-                                results.Add(new StartupEntry(point, name, result));
-                            }
-                            catch (Exception)
-                            {
-                                // TODO
-                            }
+                        try
+                        {
+                            results.Add(new StartupEntry(point, name, result));
+                        }
+                        catch (Exception)
+                        {
+                            // TODO
                         }
                     }
                 }

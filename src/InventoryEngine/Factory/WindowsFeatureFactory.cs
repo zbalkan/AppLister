@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Management;
 using System.Threading;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory
@@ -62,48 +63,46 @@ namespace InventoryEngine.Factory
             var searcher = new ManagementObjectSearcher(new ManagementScope(),
                 new ObjectQuery("select * from Win32_OptionalFeature"),
                 new EnumerationOptions(null, TimeSpan.FromSeconds(35), 100, false, false, false, false, false, false, false));
-            using (var moc = searcher.Get())
+            using var moc = searcher.Get();
+            var items = moc.Cast<ManagementObject>().ToList();
+            foreach (var managementObject in items)
             {
-                var items = moc.Cast<ManagementObject>().ToList();
-                foreach (var managementObject in items)
+                var featureInfo = new WindowsFeatureInfo();
+                foreach (var property in managementObject.Properties)
                 {
-                    var featureInfo = new WindowsFeatureInfo();
-                    foreach (var property in managementObject.Properties)
+                    if (property.Name == "Caption")
                     {
-                        if (property.Name == "Caption")
+                        featureInfo.DisplayName = property.Value.ToString();
+                    }
+                    else if (property.Name == "InstallState")
+                    {
+                        var status = (uint)property.Value;
+                        if (status == 2)
                         {
-                            featureInfo.DisplayName = property.Value.ToString();
+                            featureInfo.Enabled = false;
                         }
-                        else if (property.Name == "InstallState")
+                        else if (status == 1)
                         {
-                            var status = (uint)property.Value;
-                            if (status == 2)
-                            {
-                                featureInfo.Enabled = false;
-                            }
-                            else if (status == 1)
-                            {
-                                featureInfo.Enabled = true;
-                            }
-                            else
-                            {
-                                featureInfo.FeatureName = null;
-                                break;
-                            }
+                            featureInfo.Enabled = true;
                         }
-                        else if (property.Name == "Name")
+                        else
                         {
-                            featureInfo.FeatureName = property.Value.ToString();
+                            featureInfo.FeatureName = null;
+                            break;
                         }
                     }
-
-                    if (string.IsNullOrEmpty(featureInfo.FeatureName))
+                    else if (property.Name == "Name")
                     {
-                        continue;
+                        featureInfo.FeatureName = property.Value.ToString();
                     }
-
-                    features.Add(featureInfo);
                 }
+
+                if (string.IsNullOrEmpty(featureInfo.FeatureName))
+                {
+                    continue;
+                }
+
+                features.Add(featureInfo);
             }
 
             return features;

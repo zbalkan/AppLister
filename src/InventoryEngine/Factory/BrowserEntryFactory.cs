@@ -12,52 +12,50 @@ namespace InventoryEngine.Factory
     {
         internal const string AutorunsDisabledKeyName = "AutorunsDisabled";
 
+        private const string ClsidPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\Classes\CLSID";
+
         private static readonly string[] RegistryStartupPoints =
-        {
+                {
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects",
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\explorer\Browser Helper Objects"
         };
 
-        private const string ClsidPath = @"HKEY_LOCAL_MACHINE\SOFTWARE\Classes\CLSID";
-
         public static IEnumerable<BrowserHelperEntry> GetBrowserHelpers()
         {
-            using (var clsidKey = RegistryTools.OpenRegistryKey(ClsidPath))
+            using var clsidKey = RegistryTools.OpenRegistryKey(ClsidPath);
+            foreach (var registryStartupPoint in RegistryStartupPoints)
             {
-                foreach (var registryStartupPoint in RegistryStartupPoints)
+                RegistryKey mainKey;
+
+                try
                 {
-                    RegistryKey mainKey;
+                    mainKey = RegistryTools.CreateSubKeyRecursively(registryStartupPoint);
+                }
+                catch (UnauthorizedAccessException e)
+                {
+                    Debug.WriteLine($"Failed to read reg key {registryStartupPoint}: " + e);
+                    continue;
+                }
 
-                    try
+                using (mainKey)
+                {
+                    foreach (var browserHelperEntry in
+                             GatherBrowserHelpersFromKey(mainKey, clsidKey, registryStartupPoint, false))
                     {
-                        mainKey = RegistryTools.CreateSubKeyRecursively(registryStartupPoint);
-                    }
-                    catch (UnauthorizedAccessException e)
-                    {
-                        Debug.WriteLine($"Failed to read reg key {registryStartupPoint}: " + e);
-                        continue;
+                        yield return browserHelperEntry;
                     }
 
-                    using (mainKey)
+                    using (var disabledKey = mainKey.OpenSubKey(AutorunsDisabledKeyName))
                     {
-                        foreach (var browserHelperEntry in
-                            GatherBrowserHelpersFromKey(mainKey, clsidKey, registryStartupPoint, false))
+                        if (disabledKey == null)
                         {
-                            yield return browserHelperEntry;
+                            continue;
                         }
 
-                        using (var disabledKey = mainKey.OpenSubKey(AutorunsDisabledKeyName))
+                        foreach (var browserHelperEntry in
+                                 GatherBrowserHelpersFromKey(disabledKey, clsidKey, registryStartupPoint, true))
                         {
-                            if (disabledKey == null)
-                            {
-                                continue;
-                            }
-
-                            foreach (var browserHelperEntry in
-                                GatherBrowserHelpersFromKey(disabledKey, clsidKey, registryStartupPoint, true))
-                            {
-                                yield return browserHelperEntry;
-                            }
+                            yield return browserHelperEntry;
                         }
                     }
                 }
@@ -70,23 +68,21 @@ namespace InventoryEngine.Factory
         {
             foreach (var registryKey in workingKey.GetSubKeyNames())
             {
-                using (var classKey = clsidKey.OpenSubKey(registryKey))
+                using var classKey = clsidKey.OpenSubKey(registryKey);
+                var name = classKey?.GetStringSafe(null);
+                if (string.IsNullOrEmpty(name))
                 {
-                    var name = classKey?.GetStringSafe(null);
-                    if (string.IsNullOrEmpty(name))
-                    {
-                        continue;
-                    }
-
-                    string command;
-                    using (var runKey = classKey.OpenSubKey("InProcServer32") ?? classKey.OpenSubKey("InProcServer"))
-                    {
-                        command = runKey?.GetStringSafe(null);
-                    }
-
-                    yield return new BrowserHelperEntry(name, command,
-                        registryStartupPoint, registryKey, disabled, workingKey.Name.Contains("Wow6432Node"));
+                    continue;
                 }
+
+                string command;
+                using (var runKey = classKey.OpenSubKey("InProcServer32") ?? classKey.OpenSubKey("InProcServer"))
+                {
+                    command = runKey?.GetStringSafe(null);
+                }
+
+                yield return new BrowserHelperEntry(name, command,
+                    registryStartupPoint, registryKey, disabled, workingKey.Name.Contains("Wow6432Node"));
             }
         }
     }

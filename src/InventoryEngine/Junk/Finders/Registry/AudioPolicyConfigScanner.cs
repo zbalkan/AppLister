@@ -6,17 +6,14 @@ using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class AudioPolicyConfigScanner : IJunkCreator
     {
-        private const string AudioPolicyConfigSubkey = @"Microsoft\Internet Explorer\LowRegistry\Audio\PolicyConfig\PropertyStore";
+        public string CategoryName => "Junk_AudioPolicy_GroupName";
 
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-        }
+        private const string AudioPolicyConfigSubkey = @"Microsoft\Internet Explorer\LowRegistry\Audio\PolicyConfig\PropertyStore";
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -31,7 +28,7 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             try
             {
-                pathRoot = Path.GetPathRoot(target.InstallLocation) ?? throw new ArgumentException("No path root for " + target.InstallLocation);
+                pathRoot = Path.GetPathRoot(target.InstallLocation);
             }
             catch (SystemException ex)
             {
@@ -48,36 +45,36 @@ namespace InventoryEngine.Junk.Finders.Registry
                 return returnList;
             }
 
-            using (var key = RegistryTools.OpenRegistryKey(Path.Combine(SoftwareRegKeyScanner.KeyCu, AudioPolicyConfigSubkey)))
+            using var key = RegistryTools.OpenRegistryKey(Path.Combine(SoftwareRegKeyScanner.KeyCu, AudioPolicyConfigSubkey));
+            if (key == null)
             {
-                if (key == null)
+                return returnList;
+            }
+
+            foreach (var subKeyName in key.GetSubKeyNames())
+            {
+                using var subKey = key.OpenSubKey(subKeyName);
+                if (subKey == null)
                 {
-                    return returnList;
+                    continue;
                 }
 
-                foreach (var subKeyName in key.GetSubKeyNames())
+                var defVal = subKey.GetStringSafe(null);
+                if (defVal?.Contains(unrootedLocation, StringComparison.InvariantCultureIgnoreCase) != true)
                 {
-                    using (var subKey = key.OpenSubKey(subKeyName))
-                    {
-                        if (subKey == null)
-                        {
-                            continue;
-                        }
-
-                        var defVal = subKey.GetStringSafe(null);
-                        if (defVal?.Contains(unrootedLocation, StringComparison.InvariantCultureIgnoreCase) == true)
-                        {
-                            var junk = new RegistryKeyJunk(subKey.Name, target, this);
-                            junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                            returnList.Add(junk);
-                        }
-                    }
+                    continue;
                 }
+
+                var junk = new RegistryKeyJunk(subKey.Name, target, this);
+                junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                returnList.Add(junk);
             }
 
             return returnList;
         }
 
-        public string CategoryName => "Junk_AudioPolicy_GroupName";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
+        }
     }
 }

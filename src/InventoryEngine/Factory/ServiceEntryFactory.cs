@@ -21,18 +21,6 @@ namespace InventoryEngine.Factory
             return GetEnabledState(classInstance);
         }
 
-        public static void DeleteService(string serviceName)
-        {
-            try { EnableService(serviceName, false); }
-            catch (ManagementException) { }
-
-            var classInstance = GetServiceObject(serviceName);
-
-            // Execute the method and obtain the return values.
-            var outParams = classInstance.InvokeMethod("Delete", null, new InvokeMethodOptions { Timeout = TimeSpan.FromMinutes(1) });
-            CheckReturnValue(outParams, 16); // 16 - Service Marked For Deletion
-        }
-
         public static void EnableService(string serviceName, bool newState)
         {
             var classInstance = GetServiceObject(serviceName);
@@ -59,17 +47,21 @@ namespace InventoryEngine.Factory
                 foreach (var queryObj in searcher.Get())
                 {
                     // Skip drivers and adapters
-                    if (queryObj["ServiceType"] is string serviceType && serviceType.Contains("Process"))
+                    if (!(queryObj["ServiceType"] is string serviceType) || !serviceType.Contains("Process"))
                     {
-                        // Don't show system services
-                        if (queryObj["PathName"] is string filename && !filename.Contains(
-                            WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_WINDOWS),
-                            StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            var e = new ServiceEntry((string)queryObj["Name"], queryObj["DisplayName"] as string, filename);
-                            results.Add(e);
-                        }
+                        continue;
                     }
+
+                    // Don't show system services
+                    if (!(queryObj["PathName"] is string filename) || filename.Contains(
+                            WindowsTools.GetEnvironmentPath(Csidl.CSIDL_WINDOWS),
+                            StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var e = new ServiceEntry((string)queryObj["Name"], queryObj["DisplayName"] as string, filename);
+                    results.Add(e);
                 }
             }
             catch (Exception ex) when (ex is TypeInitializationException || ex is ManagementException || ex is ExternalException || ex is PlatformNotSupportedException)

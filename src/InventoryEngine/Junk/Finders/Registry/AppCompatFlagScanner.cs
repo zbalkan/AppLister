@@ -4,21 +4,18 @@ using System.Linq;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
     internal class AppCompatFlagScanner : IJunkCreator
     {
+        public string CategoryName => "Junk_AppCompat_GroupName";
+
         private static readonly IEnumerable<string> AppCompatFlags = new[]
-        {
+                {
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags",
             @"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags"
         };
-
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-        }
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -33,28 +30,30 @@ namespace InventoryEngine.Junk.Finders.Registry
                 compatKey + @"\Compatibility Assistant\Store"
             }))
             {
-                using (var key = RegistryTools.OpenRegistryKey(fullCompatKey))
+                using var key = RegistryTools.OpenRegistryKey(fullCompatKey);
+                if (key == null)
                 {
-                    if (key == null)
+                    continue;
+                }
+
+                foreach (var valueName in key.GetValueNames())
+                {
+                    // Check for matches
+                    if (!valueName.StartsWith(target.InstallLocation,
+                            StringComparison.InvariantCultureIgnoreCase))
                     {
                         continue;
                     }
 
-                    foreach (var valueName in key.GetValueNames())
-                    {
-                        // Check for matches
-                        if (valueName.StartsWith(target.InstallLocation,
-                            StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            var junk = new RegistryValueJunk(key.Name, valueName, target, this);
-                            junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                            yield return junk;
-                        }
-                    }
+                    var junk = new RegistryValueJunk(key.Name, valueName, target, this);
+                    junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                    yield return junk;
                 }
             }
         }
 
-        public string CategoryName => "Junk_AppCompat_GroupName";
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
+        }
     }
 }

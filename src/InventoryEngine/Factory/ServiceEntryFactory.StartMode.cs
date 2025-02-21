@@ -5,7 +5,9 @@
         internal enum StartMode
         {
             Auto,
+
             Manual,
+
             Disabled
         }
     }

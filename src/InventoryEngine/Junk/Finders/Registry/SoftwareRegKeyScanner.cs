@@ -15,6 +15,14 @@ namespace InventoryEngine.Junk.Finders.Registry
     {
         public override string CategoryName => "Junk_Registry_GroupName";
 
+        internal static readonly string KeyCu = @"HKEY_CURRENT_USER\SOFTWARE";
+
+        internal static readonly string KeyCuWow = @"HKEY_CURRENT_USER\SOFTWARE\Wow6432Node";
+
+        internal static readonly string KeyLm = @"HKEY_LOCAL_MACHINE\SOFTWARE";
+
+        internal static readonly string KeyLmWow = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node";
+
         private const string KeynameRegisteredApps = "RegisteredApplications";
 
         private const string KeyVirtualStoreCu = @"HKEY_CURRENT_USER\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE";
@@ -28,11 +36,27 @@ namespace InventoryEngine.Junk.Finders.Registry
             @"HKEY_LOCAL_MACHINE\SOFTWARE\Classes\VirtualStore\MACHINE\SOFTWARE\Wow6432Node";
 
         /// <summary>
-        ///     Keys to step over when scanning
+        ///     Can point to programs executable or directory
         /// </summary>
-        private static readonly IEnumerable<string> KeyBlacklist = new[]
+        private static readonly IEnumerable<string> ExeOrDirPathKeyNames = new[]
         {
-            "Microsoft", "Wow6432Node", "Windows", "Classes", "Clients", KeynameRegisteredApps
+            "Path",
+            "Path64",
+            "pth",
+            "PlayerPath",
+            "AppPath"
+        };
+
+        /// <summary>
+        ///     Always points to program's main executable
+        /// </summary>
+        private static readonly IEnumerable<string> ExePathKeyNames = new[]
+        {
+            "exe64",
+            "exe32",
+            "Executable",
+            "PathToExe",
+            "ExePath"
         };
 
         /// <summary>
@@ -52,33 +76,12 @@ namespace InventoryEngine.Junk.Finders.Registry
         };
 
         /// <summary>
-        ///     Always points to program's main executable
+        ///     Keys to step over when scanning
         /// </summary>
-        private static readonly IEnumerable<string> ExePathKeyNames = new[]
+        private static readonly IEnumerable<string> KeyBlacklist = new[]
         {
-            "exe64",
-            "exe32",
-            "Executable",
-            "PathToExe",
-            "ExePath"
+            "Microsoft", "Wow6432Node", "Windows", "Classes", "Clients", KeynameRegisteredApps
         };
-
-        /// <summary>
-        ///     Can point to programs executable or directory
-        /// </summary>
-        private static readonly IEnumerable<string> ExeOrDirPathKeyNames = new[]
-        {
-            "Path",
-            "Path64",
-            "pth",
-            "PlayerPath",
-            "AppPath"
-        };
-
-        internal static readonly string KeyCu = @"HKEY_CURRENT_USER\SOFTWARE";
-        internal static readonly string KeyCuWow = @"HKEY_CURRENT_USER\SOFTWARE\Wow6432Node";
-        internal static readonly string KeyLm = @"HKEY_LOCAL_MACHINE\SOFTWARE";
-        internal static readonly string KeyLmWow = @"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node";
 
         private static readonly ICollection<string> SoftwareRegKeys;
 
@@ -107,12 +110,10 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             foreach (var softwareKeyName in SoftwareRegKeys)
             {
-                using (var softwareKey = RegistryTools.OpenRegistryKey(softwareKeyName))
+                using var softwareKey = RegistryTools.OpenRegistryKey(softwareKeyName);
+                if (softwareKey != null)
                 {
-                    if (softwareKey != null)
-                    {
-                        output.AddRange(FindJunkRecursively(softwareKey));
-                    }
+                    output.AddRange(FindJunkRecursively(softwareKey));
                 }
             }
 
@@ -158,19 +159,18 @@ namespace InventoryEngine.Junk.Finders.Registry
                             continue;
                         }
 
-                        using (var subKey = softwareKey.OpenSubKey(subKeyName, false))
+                        using var subKey = softwareKey.OpenSubKey(subKeyName, false);
+                        if (subKey != null)
                         {
-                            if (subKey != null)
-                            {
-                                // ReSharper disable once PossibleMultipleEnumeration
-                                returnList = returnList.Concat(FindJunkRecursively(subKey, level + 1));
-                            }
+                            // ReSharper disable once PossibleMultipleEnumeration
+                            returnList = returnList.Concat(FindJunkRecursively(subKey, level + 1));
                         }
                     }
                 }
 
                 ConfidenceGenerators.TestForSimilarNames(_uninstaller, AllUninstallers, added.ConvertAll(x => new KeyValuePair<JunkResultBase, string>(x, x.RegKeyName)));
             }
+
             // Reg key invalid
             catch (ArgumentException)
             {
@@ -185,6 +185,60 @@ namespace InventoryEngine.Junk.Finders.Registry
             // ReSharper disable once PossibleMultipleEnumeration
             return returnList;
         }
+
+        private IEnumerable<RegistryKeyJunk> ScanRelatedKeys(IEnumerable<RegistryKeyJunk> itemsToCompare)
+        {
+            var input = itemsToCompare.ToList();
+            var output = new List<RegistryKeyJunk>();
+
+            foreach (var registryJunkNode in input)
+            {
+                var nodeName = registryJunkNode.FullRegKeyPath;
+
+                // Check Wow first because non-wow path will match wow path
+                var softwareKey = new[] { KeyLmWow, KeyCuWow, KeyLm, KeyCu }.First(
+                    key => nodeName.StartsWith(key, StringComparison.InvariantCultureIgnoreCase));
+
+                nodeName = nodeName.Substring(softwareKey.Length + 1);
+
+                foreach (var keyToTest in SoftwareRegKeys.Except(new[] { softwareKey }))
+                {
+                    var nodePath = Path.Combine(keyToTest, nodeName);
+
+                    // Check if the same node exists in other root keys
+                    var node = input.Find(x => PathTools.PathsEqual(x.FullRegKeyPath, nodePath));
+
+                    if (node != null)
+                    {
+                        // Add any non-duplicate confidence to the existing node
+                        node.Confidence.AddRange(registryJunkNode.Confidence.ConfidenceParts
+                            .Where(x => !node.Confidence.ConfidenceParts.Any(x.Equals)));
+                    }
+                    else
+                    {
+                        try
+                        {
+                            // Check if the key actually exists
+                            using var nodeKey = RegistryTools.OpenRegistryKey(nodePath, false);
+                            if (nodeKey != null)
+                            {
+                                var newNode = new RegistryKeyJunk(nodePath, _uninstaller, this);
+                                newNode.Confidence.AddRange(registryJunkNode.Confidence.ConfidenceParts);
+                                output.Add(newNode);
+                            }
+                        }
+                        catch
+                        {
+                            // Ignore keys that don't exist
+                        }
+                    }
+                }
+            }
+
+            return output;
+        }
+
+        private bool TestPathsMatchExe(string keyValue) => PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, Path.GetDirectoryName(keyValue), true);
 
         private bool TestValueForMatches(RegistryKey softwareKey, string valueName)
         {
@@ -208,60 +262,5 @@ namespace InventoryEngine.Junk.Finders.Registry
                 return PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, softwareKey.GetStringSafe(null), true);
             }
         }
-
-        private IEnumerable<RegistryKeyJunk> ScanRelatedKeys(IEnumerable<RegistryKeyJunk> itemsToCompare)
-        {
-            var input = itemsToCompare.ToList();
-            var output = new List<RegistryKeyJunk>();
-
-            foreach (var registryJunkNode in input)
-            {
-                var nodeName = registryJunkNode.FullRegKeyPath;
-
-                // Check Wow first because non-wow path will match wow path
-                var softwareKey = new[] { KeyLmWow, KeyCuWow, KeyLm, KeyCu }.First(
-                    key => nodeName.StartsWith(key, StringComparison.InvariantCultureIgnoreCase));
-
-                nodeName = nodeName.Substring(softwareKey.Length + 1);
-
-                foreach (var keyToTest in SoftwareRegKeys.Except(new[] { softwareKey }))
-                {
-                    var nodePath = Path.Combine(keyToTest, nodeName);
-                    // Check if the same node exists in other root keys
-                    var node = input.Find(x => PathTools.PathsEqual(x.FullRegKeyPath, nodePath));
-
-                    if (node != null)
-                    {
-                        // Add any non-duplicate confidence to the existing node
-                        node.Confidence.AddRange(registryJunkNode.Confidence.ConfidenceParts
-                            .Where(x => !node.Confidence.ConfidenceParts.Any(x.Equals)));
-                    }
-                    else
-                    {
-                        try
-                        {
-                            // Check if the key acually exists
-                            using (var nodeKey = RegistryTools.OpenRegistryKey(nodePath, false))
-                            {
-                                if (nodeKey != null)
-                                {
-                                    var newNode = new RegistryKeyJunk(nodePath, _uninstaller, this);
-                                    newNode.Confidence.AddRange(registryJunkNode.Confidence.ConfidenceParts);
-                                    output.Add(newNode);
-                                }
-                            }
-                        }
-                        catch
-                        {
-                            // Ignore keys that don't exist
-                        }
-                    }
-                }
-            }
-
-            return output;
-        }
-
-        private bool TestPathsMatchExe(string keyValue) => PathTools.SubPathIsInsideBasePath(_uninstaller.InstallLocation, Path.GetDirectoryName(keyValue), true);
     }
 }

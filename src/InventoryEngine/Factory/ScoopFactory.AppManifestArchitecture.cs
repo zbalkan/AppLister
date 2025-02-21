@@ -10,6 +10,7 @@ namespace InventoryEngine.Factory
             public string[] Bin { get; set; }
 
             public string[] EnvAddPath { get; set; }
+
             public string[][] Shortcuts { get; set; }
         }
     }

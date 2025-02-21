@@ -4,17 +4,18 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 
 namespace InventoryEngine.Factory
 {
     public class ScriptFactory : IIndependentUninstallerFactory
     {
-        private static readonly PropertyInfo[] EntryProps;
+        public string DisplayName => "Progress_AppStores_Templates";
 
         private static string HelperPath { get; } = Path.Combine(UninstallToolsGlobalConfig.AssemblyLocation, "ScriptHelper.exe");
 
-        private static bool IsHelperAvailable() => File.Exists(HelperPath);
+        private static readonly PropertyInfo[] EntryProps;
 
         static ScriptFactory()
         {
@@ -81,6 +82,6 @@ namespace InventoryEngine.Factory
 
         public bool IsEnabled() => UninstallToolsGlobalConfig.ScanPreDefined;
 
-        public string DisplayName => "Progress_AppStores_Templates";
+        private static bool IsHelperAvailable() => File.Exists(HelperPath);
     }
 }

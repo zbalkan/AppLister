@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Containers;
+using InventoryEngine.Junk.Finders;
 using InventoryEngine.Shared;
 using InventoryEngine.Tools;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk
 {
@@ -81,22 +80,15 @@ namespace InventoryEngine.Junk
                 }
             }
 
-            AddRange((Enum.GetValues(typeof(CSIDL)) as CSIDL[])
+            AddRange((Enum.GetValues(typeof(Csidl)) as Csidl[])
                 .Attempt(WindowsTools.GetEnvironmentPath));
 
             var knownFolderstype = Type.GetType("Windows.Storage.KnownFolders, Microsoft.Windows.SDK.NET", false);
+
             // Might not be available on some systems
-            if (knownFolderstype != null)
+            if (knownFolderstype == null)
             {
-                try
-                {
-                    //TODO: Add the dependency
-                    //AddRange(knownFolderstype.GetProperties().Attempt(p => ((Windows.Storage.StorageFolder)p.GetValue(null)).Path));
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Failed to collect KnownFolders: " + ex);
-                }
+                return results;
             }
 
             return results;

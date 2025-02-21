@@ -22,6 +22,7 @@ namespace InventoryEngine.InfoAdders
         };
 
         public bool RequiresAllValues { get; } = true;
+
         internal static readonly string[] BinaryDirectoryNames;
 
         static AppExecutablesSearcher()

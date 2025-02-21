@@ -6,23 +6,23 @@ using System.Linq;
 using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
+using InventoryEngine.Junk.Finders;
+using InventoryEngine.Shared;
 using InventoryEngine.Tools;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk
 {
     internal class ProgramFilesOrphans : IJunkCreator
     {
-        private string[] _otherInstallLocations;
-        private string[] _otherNames;
-        private string[] _otherPublishers;
-        private List<DirectoryInfo> _programFilesDirectories;
+        public string CategoryName => "Junk_ProgramFilesOrphans_GroupName";
 
-        public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
-        {
-            // Do nothing when called by the manager
-            yield break;
-        }
+        private string[] _otherInstallLocations;
+
+        private string[] _otherNames;
+
+        private string[] _otherPublishers;
+
+        private List<DirectoryInfo> _programFilesDirectories;
 
         public IEnumerable<IJunkResult> FindAllJunk()
         {
@@ -34,6 +34,30 @@ namespace InventoryEngine.Junk
             }
 
             return output;
+        }
+
+        public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
+        {
+            // Do nothing when called by the manager
+            yield break;
+        }
+
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
+            _programFilesDirectories = UninstallToolsGlobalConfig.GetProgramFilesDirectories(true);
+
+            var applicationUninstallerEntries = allUninstallers as IList<ApplicationUninstallerEntry> ?? allUninstallers.ToList();
+
+            _otherInstallLocations =
+                applicationUninstallerEntries.SelectMany(x => new[] { x.InstallLocation, x.UninstallerLocation })
+                    .Where(x => !string.IsNullOrEmpty(x)).Distinct().ToArray();
+
+            _otherPublishers =
+                applicationUninstallerEntries.Select(x => x.PublisherTrimmed).Where(x => x?.Length > 3)
+                    .Distinct().ToArray();
+            _otherNames =
+                applicationUninstallerEntries.Select(x => x.DisplayNameTrimmed).Where(x => x?.Length > 3)
+                    .Distinct().ToArray();
         }
 
         private void FindJunkRecursively(ICollection<FileSystemJunk> returnList, DirectoryInfo parentDirectory, int level)
@@ -134,25 +158,5 @@ namespace InventoryEngine.Junk
                 Debug.WriteLine($"Crash while scanning for {CategoryName} junk: {ex}");
             }
         }
-
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-            _programFilesDirectories = UninstallToolsGlobalConfig.GetProgramFilesDirectories(true);
-
-            var applicationUninstallerEntries = allUninstallers as IList<ApplicationUninstallerEntry> ?? allUninstallers.ToList();
-
-            _otherInstallLocations =
-                applicationUninstallerEntries.SelectMany(x => new[] { x.InstallLocation, x.UninstallerLocation })
-                    .Where(x => !string.IsNullOrEmpty(x)).Distinct().ToArray();
-
-            _otherPublishers =
-                applicationUninstallerEntries.Select(x => x.PublisherTrimmed).Where(x => x?.Length > 3)
-                    .Distinct().ToArray();
-            _otherNames =
-                applicationUninstallerEntries.Select(x => x.DisplayNameTrimmed).Where(x => x?.Length > 3)
-                    .Distinct().ToArray();
-        }
-
-        public string CategoryName => "Junk_ProgramFilesOrphans_GroupName";
     }
 }

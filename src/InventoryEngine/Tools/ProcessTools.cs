@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Management;
-using InventoryEngine.Extensions;
 using InventoryEngine.Shared;
 
 namespace InventoryEngine.Tools
@@ -17,45 +13,21 @@ namespace InventoryEngine.Tools
                     Path.GetInvalidFileNameChars().Concat(new[] { ',', ';' }).ToArray();
 
         /// <summary>
-        ///     Get IDs of all child processes
-        /// </summary>
-        internal static IEnumerable<int> GetChildProcesses(int pid)
-        {
-            try
-            {
-                using (var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid))
-                {
-                    var moc = searcher.Get();
-                    var childProcesses = moc.Cast<ManagementObject>().Select(mo => Convert.ToInt32(mo["ProcessID"])).ToList();
-                    return childProcesses;
-                }
-            }
-            catch
-            {
-                Process processById;
-                try
-                {
-                    processById = Process.GetProcessById(pid);
-                }
-                catch (Exception a)
-                {
-                    Debug.WriteLine(a);
-                    return Enumerable.Empty<int>();
-                }
-                return processById.GetChildProcesses().Select(x => x.Id);
-            }
-        }
-
-        /// <summary>
         ///     Attempts to separate filename (or filename with path) from the supplied arguments.
         /// </summary>
-        /// <param name="fullCommand"> </param>
-        /// <returns> </returns>
+        /// <param name="fullCommand">
+        /// </param>
+        /// <returns>
+        /// </returns>
         /// <exception cref="ArgumentNullException">
         ///     The value of 'fullCommand' cannot be null.
         /// </exception>
-        /// <exception cref="ArgumentException"> fullCommand can't be empty </exception>
-        /// <exception cref="FormatException"> Filename is in invalid format </exception>
+        /// <exception cref="ArgumentException">
+        ///     fullCommand can't be empty
+        /// </exception>
+        /// <exception cref="FormatException">
+        ///     Filename is in invalid format
+        /// </exception>
         internal static ProcessStartCommand SeparateArgsFromCommand(string fullCommand)
         {
             if (fullCommand == null)
@@ -113,7 +85,11 @@ namespace InventoryEngine.Tools
 
             // If quotation marks were missing, check for any invalid characters after last dot in
             // case of eg: c:\test.dir thing\filename.exe?0 used to get icons
-            if (pathEnd < 0)
+            if (pathEnd >= 0)
+            {
+                return SeparateCommand(fullCommand, pathEnd);
+            }
+
             {
                 var endIndex = 0;
                 while (true)

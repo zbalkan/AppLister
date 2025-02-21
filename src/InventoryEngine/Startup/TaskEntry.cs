@@ -1,35 +1,10 @@
 ﻿using System;
-using System.IO;
 using Microsoft.Win32.TaskScheduler;
 
 namespace InventoryEngine.Startup
 {
     internal sealed class TaskEntry : StartupEntryBase, IDisposable
     {
-        public override bool Disabled
-        {
-            get
-            {
-                try { return !SourceTask.Enabled; }
-                catch (FileNotFoundException) { }
-                catch (InvalidCastException) { }
-                catch (System.Runtime.InteropServices.COMException) { }
-                // If it's impossible to check disabled state, assume not disabled
-                return false;
-            }
-            set
-            {
-                try
-                {
-                    SourceTask.Enabled = !value;
-                }
-                catch (Exception)
-                {
-                    // TODO
-                }
-            }
-        }
-
         public override string ParentShortName
         {
             get { return "Startup_ShortName_Task"; }
@@ -37,7 +12,8 @@ namespace InventoryEngine.Startup
         }
 
         private Task SourceTask { get; }
-        private bool disposedValue;
+
+        private bool _disposedValue;
 
         internal TaskEntry(string name, string command, string commandFilename, Task task)
         {
@@ -52,8 +28,6 @@ namespace InventoryEngine.Startup
             FillInformationFromFile(CommandFilePath);
         }
 
-        public override void Delete() => SourceTask.Folder.DeleteTask(SourceTask.Name, false);
-
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
@@ -65,14 +39,16 @@ namespace InventoryEngine.Startup
 
         private void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (_disposedValue)
             {
-                if (disposing)
-                {
-                    SourceTask.Dispose();
-                }
-                disposedValue = true;
+                return;
             }
+
+            if (disposing)
+            {
+                SourceTask.Dispose();
+            }
+            _disposedValue = true;
         }
     }
 }

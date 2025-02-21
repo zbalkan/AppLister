@@ -12,11 +12,16 @@ namespace InventoryEngine.Shared
         ///     Static distance algorithm working on strings, computing transpositions as well as
         ///     stopping when maxDistance was reached.
         /// </summary>
-        /// <param name="s1"> </param>
-        /// <param name="s2"> </param>
-        /// <param name="maxOffset"> </param>
-        /// <param name="maxDistance"> </param>
-        /// <returns> </returns>
+        /// <param name="s1">
+        /// </param>
+        /// <param name="s2">
+        /// </param>
+        /// <param name="maxOffset">
+        /// </param>
+        /// <param name="maxDistance">
+        /// </param>
+        /// <returns>
+        /// </returns>
         internal static double CommonDistance(string s1, string s2, int maxOffset, int maxDistance = 0)
         {
             var l1 = (s1?.Length) ?? 0;
@@ -88,6 +93,7 @@ namespace InventoryEngine.Shared
                     {
                         c1 = c2 = Math.Min(c1, c2);  //using min allows the computation of transpositions
                     }
+
                     //if matching tokens are found, remove 1 from both cursors (they get incremented at the end of the loop)
                     //so that we can have only one code block handling matches
                     for (var i = 0; i < maxOffset && (c1 + i < l1 || c2 + i < l2); i++)
@@ -98,12 +104,15 @@ namespace InventoryEngine.Shared
                             c2--;
                             break;
                         }
-                        if ((c2 + i < l2) && s1[c1] == s2[c2 + i])
+
+                        if ((c2 + i >= l2) || s1[c1] != s2[c2 + i])
                         {
-                            c1--;
-                            c2 += i - 1;
-                            break;
+                            continue;
                         }
+
+                        c1--;
+                        c2 += i - 1;
+                        break;
                     }
                 }
                 c1++;
@@ -116,14 +125,17 @@ namespace InventoryEngine.Shared
                         return temporaryDistance;
                     }
                 }
+
                 // this covers the case where the last match is on the last token in list, so that
                 // it can compute transpositions correctly
-                if ((c1 >= l1) || (c2 >= l2))
+                if ((c1 < l1) && (c2 < l2))
                 {
-                    lcss += localCs;
-                    localCs = 0;
-                    c1 = c2 = Math.Min(c1, c2);
+                    continue;
                 }
+
+                lcss += localCs;
+                localCs = 0;
+                c1 = c2 = Math.Min(c1, c2);
             }
             lcss += localCs;
             return Math.Max(l1, l2) - (lcss - trans); //apply transposition cost to the final result
@@ -132,10 +144,14 @@ namespace InventoryEngine.Shared
         /// <summary>
         ///     Standard Sift algorithm, using strings and taking only maxOffset as a parameter
         /// </summary>
-        /// <param name="s1"> </param>
-        /// <param name="s2"> </param>
-        /// <param name="maxOffset"> </param>
-        /// <returns> </returns>
+        /// <param name="s1">
+        /// </param>
+        /// <param name="s2">
+        /// </param>
+        /// <param name="maxOffset">
+        /// </param>
+        /// <returns>
+        /// </returns>
         internal static int SimplestDistance(string s1, string s2, int maxOffset)
         {
             var l1 = (s1?.Length) ?? 0;
@@ -170,6 +186,7 @@ namespace InventoryEngine.Shared
                     {
                         c1 = c2 = Math.Max(c1, c2);
                     }
+
                     //if matching tokens are found, remove 1 from both cursors (they get incremented at the end of the loop)
                     //so that we can have only one code block handling matches
                     for (var i = 0; i < maxOffset && (c1 + i < l1 && c2 + i < l2); i++)
@@ -180,12 +197,15 @@ namespace InventoryEngine.Shared
                             c2--;
                             break;
                         }
-                        if ((c2 + i < l2) && s1[c1] == s2[c2 + i])
+
+                        if ((c2 + i >= l2) || s1[c1] != s2[c2 + i])
                         {
-                            c1--;
-                            c2 += i - 1;
-                            break;
+                            continue;
                         }
+
+                        c1--;
+                        c2 += i - 1;
+                        break;
                     }
                 }
                 c1++;

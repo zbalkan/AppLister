@@ -15,24 +15,38 @@ namespace InventoryEngine.Factory
     internal class RegistryFactory : IUninstallerFactory
     {
         public static readonly string RegistryNameBundleProviderKey = "BundleProviderKey";
+
         public static readonly string RegistryNameComment = "Comment";
+
         public static readonly string RegistryNameDisplayIcon = "DisplayIcon";
+
         public static readonly string RegistryNameDisplayName = "DisplayName";
+
         public static readonly string RegistryNameDisplayVersion = "DisplayVersion";
+
         public static readonly string RegistryNameEstimatedSize = "EstimatedSize";
+
         public static readonly string RegistryNameInstallDate = "InstallDate";
+
         public static readonly string RegistryNameInstallLocation = "InstallLocation";
+
         public static readonly string RegistryNameInstallSource = "InstallSource";
+
         public static readonly string RegistryNameModifyPath = "ModifyPath";
+
         public static readonly string RegistryNameParentKeyName = "ParentKeyName";
+
         public static readonly string RegistryNamePublisher = "Publisher";
+
         public static readonly string RegistryNameQuietUninstallString = "QuietUninstallString";
 
         public static readonly IEnumerable<string> RegistryNamesOfUrlSources = new[]
             {"URLInfoAbout", "URLUpdateInfo", "HelpLink"};
 
         public static readonly string RegistryNameSystemComponent = "SystemComponent";
+
         public static readonly string RegistryNameUninstallString = "UninstallString";
+
         public static readonly string RegistryNameWindowsInstaller = "WindowsInstaller";
 
         private const string RegUninstallersKeyDirect =
@@ -143,6 +157,7 @@ namespace InventoryEngine.Factory
             }
 
             var uninstallString = GetUninstallString(uninstallerKey);
+
             // Look for a valid GUID in the path
             return GuidTools.TryExtractGuid(uninstallString, out resultGuid) ? resultGuid : Guid.Empty;
         }
@@ -150,37 +165,39 @@ namespace InventoryEngine.Factory
         private static DateTime GetInstallDate(RegistryKey uninstallerKey)
         {
             var dateString = uninstallerKey.GetStringSafe(RegistryNameInstallDate);
-            if (dateString?.Length == 8)
+            if (dateString?.Length != 8)
+            {
+                return DateTime.MinValue;
+            }
+
+            try
+            {
+                // Likely to be in YYYYMMDD format
+                return new DateTime(int.Parse(dateString.Substring(0, 4)),
+                    int.Parse(dateString.Substring(4, 2)),
+                    int.Parse(dateString.Substring(6, 2)));
+            }
+            catch (ArgumentOutOfRangeException)
             {
                 try
                 {
-                    // Likely to be in YYYYMMDD format
+                    // YYYYDDMM format instead of standard YYYYMMDD?
                     return new DateTime(int.Parse(dateString.Substring(0, 4)),
-                                    int.Parse(dateString.Substring(4, 2)),
-                                    int.Parse(dateString.Substring(6, 2)));
+                        int.Parse(dateString.Substring(6, 2)),
+                        int.Parse(dateString.Substring(4, 2)));
                 }
-                catch (ArgumentOutOfRangeException)
-                {
-                    try
-                    {
-                        // YYYYDDMM format instead of standard YYYYMMDD?
-                        return new DateTime(int.Parse(dateString.Substring(0, 4)),
-                                            int.Parse(dateString.Substring(6, 2)),
-                                            int.Parse(dateString.Substring(4, 2)));
-                    }
-                    catch (SystemException ex)
-                    {
-                        Debug.WriteLine(ex);
-                    }
-                }
-                catch (FormatException ex)
+                catch (SystemException ex)
                 {
                     Debug.WriteLine(ex);
                 }
-                catch (ArgumentException ex)
-                {
-                    Debug.WriteLine(ex);
-                }
+            }
+            catch (FormatException ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            catch (ArgumentException ex)
+            {
+                Debug.WriteLine(ex);
             }
 
             return DateTime.MinValue;
@@ -294,8 +311,12 @@ namespace InventoryEngine.Factory
         ///     passed uninstallerKey is null. If there are any problems while reading the registry
         ///     an exception will be thrown as well.
         /// </summary>
-        /// <param name="uninstallerKey"> Registry key which contains the uninstaller information. </param>
-        /// <param name="is64Bit"> Is the registry key pointing to a 64 bit subkey? </param>
+        /// <param name="uninstallerKey">
+        ///     Registry key which contains the uninstaller information.
+        /// </param>
+        /// <param name="is64Bit">
+        ///     Is the registry key pointing to a 64 bit subkey?
+        /// </param>
         private ApplicationUninstallerEntry TryCreateFromRegistry(RegistryKey uninstallerKey, bool is64Bit)
         {
             if (uninstallerKey == null)

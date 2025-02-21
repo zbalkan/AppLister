@@ -2,46 +2,55 @@
 {
     internal static class MsiWrapper
     {
-        internal sealed class INSTALLPROPERTY
+        internal sealed class Installproperty
         {
             public string PropertyName { get; }
 
-            public static INSTALLPROPERTY ASSIGNMENTTYPE = new INSTALLPROPERTY("AssignmentType");
+            public static Installproperty Assignmenttype = new Installproperty("AssignmentType");
 
-            public static INSTALLPROPERTY HELPLINK = new INSTALLPROPERTY("HelpLink");
+            public static Installproperty Helplink = new Installproperty("HelpLink");
 
-            public static INSTALLPROPERTY HELPTELEPHONE = new INSTALLPROPERTY("HelpTelephone");
+            public static Installproperty Helptelephone = new Installproperty("HelpTelephone");
 
-            public static INSTALLPROPERTY INSTALLDATE = new INSTALLPROPERTY("InstallDate");
+            public static Installproperty Installdate = new Installproperty("InstallDate");
 
             // Product info attributes: installed information
-            public static INSTALLPROPERTY INSTALLEDPRODUCTNAME = new INSTALLPROPERTY("InstalledProductName");
+            public static Installproperty Installedproductname = new Installproperty("InstalledProductName");
 
-            public static INSTALLPROPERTY INSTALLLOCATION = new INSTALLPROPERTY("InstallLocation");
+            public static Installproperty Installlocation = new Installproperty("InstallLocation");
 
-            public static INSTALLPROPERTY INSTALLSOURCE = new INSTALLPROPERTY("InstallSource");
+            public static Installproperty Installsource = new Installproperty("InstallSource");
 
-            public static INSTALLPROPERTY LANGUAGE = new INSTALLPROPERTY("Language");
+            public static Installproperty Language = new Installproperty("Language");
 
-            public static INSTALLPROPERTY LOCALPACKAGE = new INSTALLPROPERTY("LocalPackage");
+            public static Installproperty Localpackage = new Installproperty("LocalPackage");
 
-            public static INSTALLPROPERTY PACKAGECODE = new INSTALLPROPERTY("PackageCode");
+            public static Installproperty Packagecode = new Installproperty("PackageCode");
 
             // Product info attributes: advertised information
-            public static INSTALLPROPERTY PACKAGENAME = new INSTALLPROPERTY("PackageName");
+            public static Installproperty Packagename = new Installproperty("PackageName");
 
-            public static INSTALLPROPERTY PRODUCTICON = new INSTALLPROPERTY("ProductIcon");
-            public static INSTALLPROPERTY PRODUCTNAME = new INSTALLPROPERTY("ProductName");
-            public static INSTALLPROPERTY PUBLISHER = new INSTALLPROPERTY("Publisher");
-            public static INSTALLPROPERTY TRANSFORMS = new INSTALLPROPERTY("Transforms");
-            public static INSTALLPROPERTY URLINFOABOUT = new INSTALLPROPERTY("URLInfoAbout");
-            public static INSTALLPROPERTY URLUPDATEINFO = new INSTALLPROPERTY("URLUpdateInfo");
-            public static INSTALLPROPERTY VERSION = new INSTALLPROPERTY("Version");
-            public static INSTALLPROPERTY VERSIONMAJOR = new INSTALLPROPERTY("VersionMajor");
-            public static INSTALLPROPERTY VERSIONMINOR = new INSTALLPROPERTY("VersionMinor");
-            public static INSTALLPROPERTY VERSIONSTRING = new INSTALLPROPERTY("VersionString");
+            public static Installproperty Producticon = new Installproperty("ProductIcon");
 
-            private INSTALLPROPERTY(string name)
+            public static Installproperty Productname = new Installproperty("ProductName");
+
+            public static Installproperty Publisher = new Installproperty("Publisher");
+
+            public static Installproperty Transforms = new Installproperty("Transforms");
+
+            public static Installproperty Urlinfoabout = new Installproperty("URLInfoAbout");
+
+            public static Installproperty Urlupdateinfo = new Installproperty("URLUpdateInfo");
+
+            public static Installproperty Version = new Installproperty("Version");
+
+            public static Installproperty Versionmajor = new Installproperty("VersionMajor");
+
+            public static Installproperty Versionminor = new Installproperty("VersionMinor");
+
+            public static Installproperty Versionstring = new Installproperty("VersionString");
+
+            private Installproperty(string name)
             {
                 PropertyName = name;
             }

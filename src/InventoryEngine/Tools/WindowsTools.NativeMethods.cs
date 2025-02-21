@@ -8,44 +8,13 @@ namespace InventoryEngine.Tools
     {
         private static class NativeMethods
         {
-            /// <summary>
-            ///     Flash both the window caption and taskbar button. This is equivalent to setting
-            ///     the FLASHW_CAPTION | FLASHW_TRAY flags.
-            /// </summary>
-            internal const uint FLASHW_ALL = 3;
+            internal const int MaxPath = 260;
 
-            /// <summary>
-            ///     Flash the window caption.
-            /// </summary>
-            internal const uint FLASHW_CAPTION = 1;
-
-            /// <summary>
-            ///     Stop flashing. The system restores the window to its original stae.
-            /// </summary>
-            internal const uint FLASHW_STOP = 0;
-
-            /// <summary>
-            ///     Flash continuously, until the FLASHW_STOP flag is set.
-            /// </summary>
-            internal const uint FLASHW_TIMER = 4;
-
-            /// <summary>
-            ///     Flash continuously until the window comes to the foreground.
-            /// </summary>
-            internal const uint FLASHW_TIMERNOFG = 12;
-
-            /// <summary>
-            ///     Flash the taskbar button.
-            /// </summary>
-            internal const uint FLASHW_TRAY = 2;
-
-            internal const int MAX_PATH = 260;
-
-            internal const uint STGM_READ = 0;
+            internal const uint StgmRead = 0;
 
             [Flags]
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1135:Declare enum member with zero value (when enum has FlagsAttribute).", Justification = "<Pending>")]
-            internal enum SLGP_FLAGS
+            internal enum SlgpFlags
             {
                 /// <summary>
                 ///     Retrieves the standard short (8.3 format) file name
@@ -66,7 +35,7 @@ namespace InventoryEngine.Tools
 
             [Flags]
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1135:Declare enum member with zero value (when enum has FlagsAttribute).", Justification = "<Pending>")]
-            internal enum SLR_FLAGS
+            internal enum SlrFlags
             {
                 /// <summary>
                 ///     Do not display a dialog box if the link cannot be resolved. When SLR_NO_UI
@@ -126,14 +95,14 @@ namespace InventoryEngine.Tools
             internal interface IPersist
             {
                 [PreserveSig]
-                void GetClassID(out Guid pClassID);
+                void GetClassID(out Guid pClassId);
             }
 
             [ComImport, Guid("0000010b-0000-0000-C000-000000000046"),
              InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
             internal interface IPersistFile : IPersist
             {
-                new void GetClassID(out Guid pClassID);
+                new void GetClassID(out Guid pClassId);
 
                 [PreserveSig]
                 int IsDirty();
@@ -163,7 +132,7 @@ namespace InventoryEngine.Tools
                 ///     Retrieves the path and file name of a Shell link object
                 /// </summary>
                 void GetPath([Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pszFile, int cchMaxPath,
-                    ref WIN32_FIND_DATAW pfd, SLGP_FLAGS fFlags);
+                    ref Win32FindDataw pfd, SlgpFlags fFlags);
 
                 /// <summary>
                 ///     Retrieves the list of item identifiers for a Shell link object
@@ -246,7 +215,7 @@ namespace InventoryEngine.Tools
                 /// <summary>
                 ///     Attempts to find the target of a Shell link, even if it has been moved or renamed
                 /// </summary>
-                void Resolve(IntPtr hwnd, SLR_FLAGS fFlags);
+                void Resolve(IntPtr hwnd, SlrFlags fFlags);
 
                 /// <summary>
                 ///     Sets the path and file name of a Shell link object
@@ -254,44 +223,10 @@ namespace InventoryEngine.Tools
                 void SetPath([MarshalAs(UnmanagedType.LPWStr)] string pszFile);
             }
 
-            [DllImport("user32.dll")]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            internal static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
-
             //internal const int CSIDL_COMMON_STARTMENU = 0x16; // All Users\Start Menu
             [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
             internal static extern bool SHGetSpecialFolderPath(IntPtr hwndOwner, [Out] StringBuilder lpszPath,
                 int nFolder, bool fCreate);
-
-            [StructLayout(LayoutKind.Sequential)]
-            internal struct FLASHWINFO
-            {
-                /// <summary>
-                ///     The size of the structure in bytes.
-                /// </summary>
-                internal uint cbSize;
-
-                /// <summary>
-                ///     A Handle to the Window to be Flashed. The window can be either opened or minimized.
-                /// </summary>
-                internal IntPtr hwnd;
-
-                /// <summary>
-                ///     The Flash Status.
-                /// </summary>
-                internal uint dwFlags;
-
-                /// <summary>
-                ///     The number of times to Flash the window.
-                /// </summary>
-                internal uint uCount;
-
-                /// <summary>
-                ///     The rate at which the Window is to be flashed, in milliseconds. If Zero, the
-                ///     function uses the default cursor blink rate.
-                /// </summary>
-                internal uint dwTimeout;
-            }
 
             /*
                         [DllImport("shfolder.dll", CharSet = CharSet.Auto)]
@@ -300,15 +235,22 @@ namespace InventoryEngine.Tools
             */
 
             [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-            internal readonly struct WIN32_FIND_DATAW
+            internal readonly struct Win32FindDataw
             {
                 internal readonly uint dwFileAttributes;
+
                 internal readonly long ftCreationTime;
+
                 internal readonly long ftLastAccessTime;
+
                 internal readonly long ftLastWriteTime;
+
                 internal readonly uint nFileSizeHigh;
+
                 internal readonly uint nFileSizeLow;
+
                 internal readonly uint dwReserved0;
+
                 internal readonly uint dwReserved1;
 
                 [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]

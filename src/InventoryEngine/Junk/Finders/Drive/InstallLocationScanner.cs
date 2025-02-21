@@ -16,15 +16,17 @@ namespace InventoryEngine.Junk.Finders.Drive
             }
 
             var resultNode = GetJunkNodeFromLocation(GetOtherInstallLocations(target), target.InstallLocation, target);
-            if (resultNode != null)
+            if (resultNode == null)
             {
-                if (target.UninstallerKind == UninstallerType.StoreApp)
-                {
-                    resultNode.Confidence.Add(ConfidenceRecords.IsStoreApp);
-                }
-
-                yield return resultNode;
+                yield break;
             }
+
+            if (target.UninstallerKind == UninstallerType.StoreApp)
+            {
+                resultNode.Confidence.Add(ConfidenceRecords.IsStoreApp);
+            }
+
+            yield return resultNode;
         }
     }
 }

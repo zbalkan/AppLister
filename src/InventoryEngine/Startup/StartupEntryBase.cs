@@ -24,32 +24,6 @@ namespace InventoryEngine.Startup
         public virtual string Company { get; protected set; }
 
         /// <summary>
-        ///     True if the entry is not processed during startup. It is stored in the backup reg
-        ///     key and optionally backup directory if it's a link file.
-        /// </summary>
-        public abstract bool Disabled { get; set; }
-
-        /// <summary>
-        ///     Name of the called program extracted from the link or the target executable (if possible)
-        /// </summary>
-        public virtual string ProgramName { get; protected set; }
-
-        /// <summary>
-        ///     Program name without version info and such
-        /// </summary>
-        public virtual string ProgramNameTrimmed { get; protected set; }
-
-        /// <summary>
-        ///     Custom name of the parent location
-        /// </summary>
-        public virtual string ParentShortName { get; protected set; }
-
-        /// <summary>
-        ///     Full name of the parent location
-        /// </summary>
-        public virtual string ParentLongName { get; protected set; }
-
-        /// <summary>
         ///     Full name of the entry
         /// </summary>
         public virtual string EntryLongName { get; protected set; }
@@ -62,19 +36,29 @@ namespace InventoryEngine.Startup
             : null;
 
         /// <summary>
-        ///     Delete this startup entry from the system
+        ///     Full name of the parent location
         /// </summary>
-        public abstract void Delete();
+        public virtual string ParentLongName { get; protected set; }
+
+        /// <summary>
+        ///     Custom name of the parent location
+        /// </summary>
+        public virtual string ParentShortName { get; protected set; }
+
+        /// <summary>
+        ///     Name of the called program extracted from the link or the target executable (if possible)
+        /// </summary>
+        public virtual string ProgramName { get; protected set; }
+
+        /// <summary>
+        ///     Program name without version info and such
+        /// </summary>
+        public virtual string ProgramNameTrimmed { get; protected set; }
 
         /// <summary>
         ///     Check if this entry still exists in the system
         /// </summary>
         public abstract bool StillExists();
-
-        /// <summary>
-        ///     $"{ProgramName} | {Company} | {Command}"
-        /// </summary>
-        public virtual string ToLongString() => $"{ProgramName} | {Company} | {Command}";
 
         /// <summary>
         ///     Returns FullLongName, unless it's empty. In that case returns ProgramName, or

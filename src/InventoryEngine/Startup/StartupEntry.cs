@@ -5,7 +5,7 @@ using InventoryEngine.Tools;
 namespace InventoryEngine.Startup
 {
     /// <summary>
-    ///     Starup entries stored in Startup folders and Run/RunOnce registry keys
+    ///     Startup entries stored in Startup folders and Run/RunOnce registry keys
     /// </summary>
     public sealed class StartupEntry : StartupEntryBase
     {
@@ -29,24 +29,26 @@ namespace InventoryEngine.Startup
         ///     True if the entry is not processed during startup. It is stored in the backup reg
         ///     key and optionally backup directory if it's a link file.
         /// </summary>
-        public override bool Disabled
+        public bool Disabled
         {
             get { return DisabledStore; }
             set
             {
-                if (value != DisabledStore)
+                if (value == DisabledStore)
                 {
-                    if (value)
-                    {
-                        StartupEntryManager.Disable(this);
-                    }
-                    else
-                    {
-                        StartupEntryManager.Enable(this);
-                    }
-
-                    DisabledStore = value;
+                    return;
                 }
+
+                if (value)
+                {
+                    StartupEntryManager.Disable(this);
+                }
+                else
+                {
+                    StartupEntryManager.Enable(this);
+                }
+
+                DisabledStore = value;
             }
         }
 
@@ -66,6 +68,7 @@ namespace InventoryEngine.Startup
         public bool IsRunOnce { get; internal set; }
 
         internal bool AllUsersStore;
+
         internal bool DisabledStore;
 
         internal StartupEntry(StartupPointData dataPoint, string fileName, string targetString)
@@ -113,7 +116,7 @@ namespace InventoryEngine.Startup
         /// <summary>
         ///     Delete this startup entry from the system
         /// </summary>
-        public override void Delete() => StartupEntryManager.Delete(this);
+        public void Delete() => StartupEntryManager.Delete(this);
 
         /// <summary>
         ///     Check if the startup entry still exists in registry or on disk. If the entry is
@@ -133,24 +136,14 @@ namespace InventoryEngine.Startup
                     return File.Exists(FullLongName);
                 }
 
-                using (var key = RegistryTools.OpenRegistryKey(ParentLongName))
-                {
-                    return !string.IsNullOrEmpty(key.GetStringSafe(EntryLongName));
-                }
+                using var key = RegistryTools.OpenRegistryKey(ParentLongName);
+                return !string.IsNullOrEmpty(key.GetStringSafe(EntryLongName));
             }
             catch
             {
                 return false;
             }
         }
-
-        /// <summary>
-        ///     $"{ProgramName} | {Company} | {ParentLongName} | {Command}"
-        /// </summary>
-        public override string ToLongString() => $"{ProgramName} | {Company} | {ParentLongName} | {Command}";
-
-        //TODO temporary hack
-        internal void SetParentFancyName(string newValue) => ParentShortName = newValue;
 
         //TODO temporary hack
         internal void SetParentLongName(string newValue) => ParentLongName = newValue;

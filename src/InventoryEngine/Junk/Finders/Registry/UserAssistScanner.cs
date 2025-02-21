@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
 using InventoryEngine.Tools;
-using UninstallTools.Junk.Finders;
 
 namespace InventoryEngine.Junk.Finders.Registry
 {
@@ -18,14 +17,11 @@ namespace InventoryEngine.Junk.Finders.Registry
             //GUIDs for Windows XP
             "{75048700-EF1F-11D0-9888-006097DEACF9}",
             "{5E6AB780-7743-11CF-A12B-00AA004AE837",
+
             //GUIDs for Windows 7
             "{CEBFF5CD-ACE2-4F4F-9178-9926F41749EA}",
             "{F4E57C4B-2036-45F0-A9AB-443BCFE33D9F}}"
         };
-
-        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
-        {
-        }
 
         public IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
         {
@@ -36,38 +32,42 @@ namespace InventoryEngine.Junk.Finders.Registry
 
             foreach (var userAssistGuid in UserAssistGuids)
             {
-                using (var key = RegistryTools.OpenRegistryKey(
-                    $@"{SoftwareRegKeyScanner.KeyCu}\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{userAssistGuid}\Count"))
+                using var key = RegistryTools.OpenRegistryKey(
+                    $@"{SoftwareRegKeyScanner.KeyCu}\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{userAssistGuid}\Count");
+                if (key == null)
                 {
-                    if (key == null)
+                    continue;
+                }
+
+                foreach (var valueName in key.GetValueNames())
+                {
+                    // Convert the value name to a usable form
+                    var convertedName = Rot13(valueName);
+                    var guidEnd = convertedName.IndexOf('}') + 1;
+                    if (guidEnd > 0 && GuidTools.GuidTryParse(convertedName.Substring(0, guidEnd), out var g))
+                    {
+                        convertedName = NativeMethods.GetKnownFolderPath(g) + convertedName.Substring(guidEnd);
+                    }
+
+                    // Check for matches
+                    if (!convertedName.StartsWith(target.InstallLocation,
+                            StringComparison.InvariantCultureIgnoreCase))
                     {
                         continue;
                     }
 
-                    foreach (var valueName in key.GetValueNames())
+                    var junk = new RegistryValueJunk(key.Name, valueName, target, this)
                     {
-                        // Convert the value name to a usable form
-                        var convertedName = Rot13(valueName);
-                        var guidEnd = convertedName.IndexOf('}') + 1;
-                        if (guidEnd > 0 && GuidTools.GuidTryParse(convertedName.Substring(0, guidEnd), out var g))
-                        {
-                            convertedName = NativeMethods.GetKnownFolderPath(g) + convertedName.Substring(guidEnd);
-                        }
-
-                        // Check for matches
-                        if (convertedName.StartsWith(target.InstallLocation,
-                            StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            var junk = new RegistryValueJunk(key.Name, valueName, target, this)
-                            {
-                                DisplayValueName = convertedName
-                            };
-                            junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                            yield return junk;
-                        }
-                    }
+                        DisplayValueName = convertedName
+                    };
+                    junk.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                    yield return junk;
                 }
             }
+        }
+
+        public void Setup(ICollection<ApplicationUninstallerEntry> allUninstallers)
+        {
         }
 
         private static string Rot13(string input)

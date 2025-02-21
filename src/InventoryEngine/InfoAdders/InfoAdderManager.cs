@@ -16,17 +16,20 @@ namespace InventoryEngine.InfoAdders
     internal class InfoAdderManager
     {
         private static readonly Type BoolType = typeof(bool);
+
         private static readonly IMissingInfoAdder[] InfoAdders;
 
         private static readonly ICollection<CompiledPropertyInfo<ApplicationUninstallerEntry>> NonUninstallerProperties;
+
         private static readonly Dictionary<string, CompiledPropertyInfo<ApplicationUninstallerEntry>> TargetProperties;
+
         private static readonly ICollection<CompiledPropertyInfo<ApplicationUninstallerEntry>> UninstallerProperties;
 
         /// <summary>
         ///     Static constructor to ensure this is initiated only once.
         /// </summary>
         /// <exception cref="ReflectionTypeLoadException">
-        ///     If this exception is thrown, let the servoce die. It is a boken state.
+        ///     If this exception is thrown, let the service die. It is a broken state.
         /// </exception>
         static InfoAdderManager()
         {
@@ -77,16 +80,17 @@ namespace InventoryEngine.InfoAdders
                     return valIsDefault;
                 }
 
-                if (TargetProperties.TryGetValue(key, out var property))
+                if (!TargetProperties.TryGetValue(key, out var property))
                 {
-                    valIsDefault = Equals(property.CompiledGet(target), property.Tag);
-                    valueIsDefaultCache.Add(key, valIsDefault);
-
-                    return valIsDefault;
+                    return true;
                 }
 
+                valIsDefault = Equals(property.CompiledGet(target), property.Tag);
+                valueIsDefaultCache.Add(key, valIsDefault);
+
+                return valIsDefault;
+
                 // If we can't check if the value is default, assume that it is to be safe
-                return true;
             }
 
             for (var index = 0; index < adders.Count; index++)
@@ -142,8 +146,12 @@ namespace InventoryEngine.InfoAdders
         /// <summary>
         ///     Copy missing property values
         /// </summary>
-        /// <param name="baseEntry"> Copy values to this object </param>
-        /// <param name="entryToMerge"> Copy from this object </param>
+        /// <param name="baseEntry">
+        ///     Copy values to this object
+        /// </param>
+        /// <param name="entryToMerge">
+        ///     Copy from this object
+        /// </param>
         public void CopyMissingInformation(ApplicationUninstallerEntry baseEntry, ApplicationUninstallerEntry entryToMerge)
         {
             // If one of these is not null it will be merged by loop below. If both are not null

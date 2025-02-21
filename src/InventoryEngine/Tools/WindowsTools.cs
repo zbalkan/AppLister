@@ -177,11 +177,52 @@ namespace InventoryEngine.Tools
             "ZL9"
         };
 
-        internal static string GetEnvironmentPath(CSIDL target)
+        internal static string GetEnvironmentPath(Csidl target)
         {
             var path = new StringBuilder(260);
             NativeMethods.SHGetSpecialFolderPath(IntPtr.Zero, path, (int)target, false);
             return path.ToString();
+        }
+
+        /// <summary>
+        ///     Returns executable paths of all installed web browsers
+        /// </summary>
+        internal static IEnumerable<string> GetInstalledWebBrowsers()
+        {
+            // Check for built-in browsers that obviously don't have to conform to standards
+            var results = new List<string>(new[]
+            {
+                Path.Combine(GetProgramFilesX86Path(), @"Internet Explorer\iexplore.exe"),
+                Path.Combine(GetEnvironmentPath(Csidl.CSIDL_PROGRAM_FILES), @"Internet Explorer\iexplore.exe"),
+                Path.Combine(GetEnvironmentPath(Csidl.CSIDL_WINDOWS), @"SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdgeCP.exe"),
+                Path.Combine(GetEnvironmentPath(Csidl.CSIDL_WINDOWS), @"SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdge.exe")
+            }.Where(File.Exists));
+
+            // Check for 3rd party browsers in standard reg keys
+            foreach (var internetKeyName in new[]
+            {
+                @"SOFTWARE\Clients\StartMenuInternet",
+                @"SOFTWARE\WOW6432Node\Clients\StartMenuInternet"
+            })
+            {
+                using var key = Registry.LocalMachine.OpenSubKey(internetKeyName);
+                if (key == null)
+                {
+                    continue;
+                }
+
+                foreach (var registryKey in key.GetSubKeyNames())
+                {
+                    using var commandKey = key.OpenSubKey(registryKey + @"\shell\open\command");
+                    var path = commandKey?.GetStringSafe(null);
+                    if (path != null)
+                    {
+                        results.Add(path.Trim('\"'));
+                    }
+                }
+            }
+
+            return results.Distinct((x, y) => x.Equals(y, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -190,7 +231,7 @@ namespace InventoryEngine.Tools
         internal static string GetProgramFilesX86Path()
         {
             var result = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-            return string.IsNullOrEmpty(result) ? GetEnvironmentPath(CSIDL.CSIDL_PROGRAM_FILES) : result;
+            return string.IsNullOrEmpty(result) ? GetEnvironmentPath(Csidl.CSIDL_PROGRAM_FILES) : result;
         }
 
         internal static SecurityIdentifier GetUserSid() => WindowsIdentity.GetCurrent().User;
@@ -206,7 +247,9 @@ namespace InventoryEngine.Tools
         /// <param name="onlySystemTypes">
         ///     Should file types executed by third party applications be included?
         /// </param>
-        /// <param name="includeLibraries"> Should library file types be included in the comparison? </param>
+        /// <param name="includeLibraries">
+        ///     Should library file types be included in the comparison?
+        /// </param>
         internal static bool IsExecutable(string filename, bool onlySystemTypes, bool includeLibraries)
         {
             filename = filename.ExtendedTrimEndAny(new[] { "'", "\"" }, StringComparison.CurrentCultureIgnoreCase);
@@ -234,58 +277,15 @@ namespace InventoryEngine.Tools
         internal static string ResolveShortcut(string filename)
         {
             var link = new NativeMethods.ShellLink();
+
             // ReSharper disable once SuspiciousTypeConversion.Global
-            ((NativeMethods.IPersistFile)link).Load(filename, NativeMethods.STGM_READ);
-            var sb = new StringBuilder(NativeMethods.MAX_PATH);
-            var data = new NativeMethods.WIN32_FIND_DATAW();
+            ((NativeMethods.IPersistFile)link).Load(filename, NativeMethods.StgmRead);
+            var sb = new StringBuilder(NativeMethods.MaxPath);
+            var data = new NativeMethods.Win32FindDataw();
+
             // ReSharper disable once SuspiciousTypeConversion.Global
             ((NativeMethods.IShellLinkW)link).GetPath(sb, sb.Capacity, ref data, 0);
             return sb.ToString();
-        }
-
-        /// <summary>
-        ///     Returns executable paths of all installed web browsers
-        /// </summary>
-        internal static IEnumerable<string> GetInstalledWebBrowsers()
-        {
-            // Check for built-in browsers that obviously don't have to conform to standards
-            var results = new List<string>(new[]
-            {
-                Path.Combine(GetProgramFilesX86Path(), @"Internet Explorer\iexplore.exe"),
-                Path.Combine(GetEnvironmentPath(CSIDL.CSIDL_PROGRAM_FILES), @"Internet Explorer\iexplore.exe"),
-                Path.Combine(GetEnvironmentPath(CSIDL.CSIDL_WINDOWS), @"SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdgeCP.exe"),
-                Path.Combine(GetEnvironmentPath(CSIDL.CSIDL_WINDOWS), @"SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\MicrosoftEdge.exe")
-            }.Where(File.Exists));
-
-            // Check for 3rd party browsers in standard reg keys
-            foreach (var internetKeyName in new[]
-            {
-                @"SOFTWARE\Clients\StartMenuInternet",
-                @"SOFTWARE\WOW6432Node\Clients\StartMenuInternet"
-            })
-            {
-                using (var key = Registry.LocalMachine.OpenSubKey(internetKeyName))
-                {
-                    if (key == null)
-                    {
-                        continue;
-                    }
-
-                    foreach (var registryKey in key.GetSubKeyNames())
-                    {
-                        using (var commandKey = key.OpenSubKey(registryKey + @"\shell\open\command"))
-                        {
-                            var path = commandKey?.GetStringSafe(null);
-                            if (path != null)
-                            {
-                                results.Add(path.Trim('\"'));
-                            }
-                        }
-                    }
-                }
-            }
-
-            return results.Distinct((x, y) => x.Equals(y, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

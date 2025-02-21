@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using InventoryEngine.Extensions;
 using InventoryEngine.InfoAdders;
+using InventoryEngine.Shared;
 using InventoryEngine.Startup;
 using InventoryEngine.Tools;
 
@@ -17,6 +18,7 @@ namespace InventoryEngine.Factory
         ///     Attach startup entries to uninstaller entries that are automatically detected as related.
         /// </summary>
         public static void AttachStartupEntries(IEnumerable<ApplicationUninstallerEntry> uninstallers, IEnumerable<StartupEntryBase> startupEntries) =>
+
             // Using DoForEach to avoid multiple enumerations
             StartupManager.AssignStartupEntries(uninstallers
                 .DoForEach(x => { if (x != null) { x.StartupEntries = null; } }), startupEntries);
@@ -71,6 +73,7 @@ namespace InventoryEngine.Factory
                 // Handle duplicate entries ----------------------------------------------------------------------------------
                 var mergedResults = registryResults.ToList();
                 MergeResults(mergedResults, otherResults);
+
                 // Make sure to merge driveResults last
                 MergeResults(mergedResults, driveResults);
 

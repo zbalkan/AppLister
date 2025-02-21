@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using InventoryEngine.Extensions;
+using InventoryEngine.Shared;
 using InventoryEngine.Startup;
 using InventoryEngine.Tools;
 
@@ -61,7 +62,7 @@ namespace InventoryEngine
         public bool IsProtected { get; set; }
 
         /// <summary>
-        ///     The application's uniunstaller is mentioned in the registry (if it's not normal
+        ///     The application's uninstaller is mentioned in the registry (if it's not normal
         ///     uninstallers will not see it)
         /// </summary>
         public bool IsRegistered { get; set; }
@@ -171,15 +172,12 @@ namespace InventoryEngine
         /// </summary>
         internal string[] SortedExecutables { get; set; }
 
-        private static readonly IEnumerable<string> CompanyNameEndTrimmers =
-                    new[] { "corp", "corporation", "corporations", "limited", "inc", "incorporated", "ltd", "foundation", "s.r.o" };
-
         /// <summary>
-        ///     List of properties that migh have changed by updating the key property
+        ///     List of properties that might have changed by updating the key property
         ///     IMPORTANT: Keep up to date!
         /// </summary>
         internal static readonly ILookup<string, string> PropertyRelationships = new Dictionary<string, List<string>>
-        {
+                {
             {
                 nameof(UninstallString),
                 new List<string>
@@ -200,7 +198,7 @@ namespace InventoryEngine
                 nameof(RegistryKeyName),
                 new List<string> {nameof(RatingId)}
             },
-        }.SelectMany(x => x.Value.Select(y => new { x.Key, Value = y })).ToLookup(x => x.Key, x => x.Value);
+                }.SelectMany(x => x.Value.Select(y => new { x.Key, Value = y })).ToLookup(x => x.Key, x => x.Value);
 
         /// <summary>
         ///     Junk specified during creation of the entry that would not be detected afterwards.
@@ -208,38 +206,22 @@ namespace InventoryEngine
         /// </summary>
         internal readonly List<Junk.Containers.IJunkResult> AdditionalJunk = new List<Junk.Containers.IJunkResult>();
 
+        private static readonly IEnumerable<string> CompanyNameEndTrimmers =
+                            new[] { "corp", "corporation", "corporations", "limited", "inc", "incorporated", "ltd", "foundation", "s.r.o" };
+
         private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
+
         private string _installLocation;
+
         private string _installSource;
+
         private string _modifyPath;
+
         private string _ratingId;
+
         private string _uninstallerFullFilename;
+
         private string _uninstallString;
-
-        /// <summary>
-        ///     Get a unique cache ID of this item. Returns null if there isn't enough information
-        ///     to get a reasonably unique key.
-        /// </summary>
-        public string GetCacheId()
-        {
-            if (!string.IsNullOrEmpty(CacheIdOverride))
-            {
-                return CacheIdOverride;
-            }
-
-            var rid = RatingId;
-            if (!string.IsNullOrEmpty(rid))
-            {
-                return rid;
-            }
-
-            if (!string.IsNullOrEmpty(DisplayName) && !string.IsNullOrEmpty(InstallLocation))
-            {
-                return DisplayName + InstallLocation;// + DisplayVersion + InstallDate + EstimatedSize;
-            }
-
-            return null;
-        }
 
         public IEnumerable<string> GetSortedExecutables()
         {

@@ -13,16 +13,19 @@ namespace InventoryEngine.Junk.Finders.Drive
     internal class WerScanner : JunkCreatorBase
     {
         public override string CategoryName => "Junk_WerReports_GroupName";
+
         private const string CrashLabel = "AppCrash_";
+
         private static readonly ICollection<string> Archives;
+
         private ICollection<string> _werReportPaths;
 
         static WerScanner()
         {
             Archives = new[]
             {
-                WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_COMMON_APPDATA),
-                WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_LOCAL_APPDATA)
+                WindowsTools.GetEnvironmentPath(Csidl.CSIDL_COMMON_APPDATA),
+                WindowsTools.GetEnvironmentPath(Csidl.CSIDL_LOCAL_APPDATA)
             }.SelectMany(x => new[]
             {
                 Path.Combine(x, @"Microsoft\Windows\WER\ReportArchive"),
@@ -58,12 +61,14 @@ namespace InventoryEngine.Junk.Finders.Drive
 
                 var filename = reportPath.Substring(startIndex, count);
 
-                if (appExecutables.Any(x => x.StartsWith(filename, StringComparison.InvariantCultureIgnoreCase)))
+                if (!appExecutables.Any(x => x.StartsWith(filename, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    var node = new FileSystemJunk(new DirectoryInfo(reportPath), target, this);
-                    node.Confidence.Add(ConfidenceRecords.ExplicitConnection);
-                    yield return node;
+                    continue;
                 }
+
+                var node = new FileSystemJunk(new DirectoryInfo(reportPath), target, this);
+                node.Confidence.Add(ConfidenceRecords.ExplicitConnection);
+                yield return node;
             }
         }
 

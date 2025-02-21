@@ -8,7 +8,7 @@ namespace InventoryEngine.Startup
     public static class StartupEntryManager
     {
         // 6.2 is windows 8 and 2012, they are using a new startup disable scheme
-        internal static IStartupDisable DisableFunctions => _disableFunctions ?? (_disableFunctions = new StartupDisable());
+        internal static IStartupDisable DisableFunctions => _disableFunctions ??= new StartupDisable();
 
         private static IStartupDisable _disableFunctions;
 
@@ -18,7 +18,9 @@ namespace InventoryEngine.Startup
         ///     it exists, same for the "Startup" folder. To remove them change the Disabled
         ///     property and run this command again.
         /// </summary>
-        /// <param name="startupEntry"> Entry to delete </param>
+        /// <param name="startupEntry">
+        ///     Entry to delete
+        /// </param>
         public static void Delete(StartupEntry startupEntry)
         {
             if (startupEntry.Disabled)
@@ -40,7 +42,8 @@ namespace InventoryEngine.Startup
         ///     Disable startup entry to stop it from being processed at startup. It is stored in
         ///     the backup store.
         /// </summary>
-        /// <param name="startupEntry"> </param>
+        /// <param name="startupEntry">
+        /// </param>
         public static void Disable(StartupEntry startupEntry)
         {
             if (startupEntry.DisabledStore)
@@ -54,7 +57,8 @@ namespace InventoryEngine.Startup
         /// <summary>
         ///     Restore the entry from the backup store, so that it can be executed again.
         /// </summary>
-        /// <param name="startupEntry"> </param>
+        /// <param name="startupEntry">
+        /// </param>
         public static void Enable(StartupEntry startupEntry)
         {
             if (!startupEntry.DisabledStore)
@@ -125,7 +129,8 @@ namespace InventoryEngine.Startup
         /// <summary>
         ///     Create a registry value for the specified entry. Works for drive links as well.
         /// </summary>
-        /// <param name="startupEntry"> </param>
+        /// <param name="startupEntry">
+        /// </param>
         internal static void CreateRegValue(StartupEntry startupEntry)
         {
             if (string.IsNullOrEmpty(startupEntry.Command))
@@ -133,10 +138,8 @@ namespace InventoryEngine.Startup
                 return;
             }
 
-            using (var runKey = RegistryTools.CreateSubKeyRecursively(startupEntry.ParentLongName))
-            {
-                runKey.SetValue(startupEntry.EntryLongName, startupEntry.Command, RegistryValueKind.String);
-            }
+            using var runKey = RegistryTools.CreateSubKeyRecursively(startupEntry.ParentLongName);
+            runKey.SetValue(startupEntry.EntryLongName, startupEntry.Command, RegistryValueKind.String);
         }
     }
 }

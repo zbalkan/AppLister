@@ -11,40 +11,6 @@ namespace InventoryEngine.Tools
 {
     internal static class FactoryTools
     {
-        /// <summary>
-        ///     Warning: only use with helpers that output unicode and use 0 as success return code.
-        /// </summary>
-        internal static string StartHelperAndReadOutput(string filename, string args)
-        {
-            if (!File.Exists(filename))
-            {
-                return null;
-            }
-
-            using (var process = Process.Start(new ProcessStartInfo(filename, args)
-            {
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = false,
-                CreateNoWindow = true,
-                StandardOutputEncoding = Encoding.Unicode
-            }))
-            {
-                try
-                {
-                    var sw = Stopwatch.StartNew();
-                    var output = process?.StandardOutput.ReadToEnd();
-                    Debug.WriteLine($"[Performance] Running command {filename} {args} took {sw.ElapsedMilliseconds}ms");
-                    return process?.ExitCode == 0 ? output : null;
-                }
-                catch (Win32Exception ex)
-                {
-                    Debug.WriteLine(ex);
-                    return null;
-                }
-            }
-        }
-
         internal static IEnumerable<Dictionary<string, string>> ExtractAppDataSetsFromHelperOutput(string helperOutput)
         {
             ICollection<string> allParts = helperOutput.SplitNewlines(StringSplitOptions.None);
@@ -64,34 +30,36 @@ namespace InventoryEngine.Tools
             }
         }
 
-        internal static bool CheckIsValid(ApplicationUninstallerEntry target, IEnumerable<Guid> msiProducts)
+        /// <summary>
+        ///     Warning: only use with helpers that output unicode and use 0 as success return code.
+        /// </summary>
+        internal static string StartHelperAndReadOutput(string filename, string args)
         {
-            if (string.IsNullOrEmpty(target.UninstallerFullFilename))
+            if (!File.Exists(filename))
             {
-                return false;
+                return null;
             }
 
-            bool isPathRooted;
+            using var process = Process.Start(new ProcessStartInfo(filename, args)
+            {
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = false,
+                CreateNoWindow = true,
+                StandardOutputEncoding = Encoding.Unicode
+            });
             try
             {
-                isPathRooted = Path.IsPathRooted(target.UninstallerFullFilename);
+                var sw = Stopwatch.StartNew();
+                var output = process?.StandardOutput.ReadToEnd();
+                Debug.WriteLine($"[Performance] Running command {filename} {args} took {sw.ElapsedMilliseconds}ms");
+                return process?.ExitCode == 0 ? output : null;
             }
-            catch (ArgumentException)
+            catch (Win32Exception ex)
             {
-                isPathRooted = false;
+                Debug.WriteLine(ex);
+                return null;
             }
-
-            if (isPathRooted && File.Exists(target.UninstallerFullFilename))
-            {
-                return true;
-            }
-
-            if (target.UninstallerKind == UninstallerType.Msiexec)
-            {
-                return msiProducts.Contains(target.BundleProviderKey);
-            }
-
-            return !isPathRooted;
         }
     }
 }

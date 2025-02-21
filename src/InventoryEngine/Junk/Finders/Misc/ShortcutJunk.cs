@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using InventoryEngine;
 using InventoryEngine.Extensions;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
-using InventoryEngine.Junk.Finders;
 using InventoryEngine.Shared;
 using InventoryEngine.Tools;
 
-namespace UninstallTools.Junk.Finders.Misc
+namespace InventoryEngine.Junk.Finders.Misc
 {
     internal partial class ShortcutJunk : JunkCreatorBase
     {
         public override string CategoryName => "Junk_Shortcut_GroupName";
+
         private ICollection<Shortcut> _links;
 
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)
@@ -72,7 +71,7 @@ namespace UninstallTools.Junk.Finders.Misc
             _links = GetShortcuts();
         }
 
-        private static IEnumerable<string> GetLnkFilesSafe(CSIDL directory, SearchOption option)
+        private static IEnumerable<string> GetLnkFilesSafe(Csidl directory, SearchOption option)
         {
             try
             {
@@ -88,14 +87,14 @@ namespace UninstallTools.Junk.Finders.Misc
 
         private static List<Shortcut> GetShortcuts()
         {
-            var syspath = WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_WINDOWS);
+            var syspath = WindowsTools.GetEnvironmentPath(Csidl.CSIDL_WINDOWS);
 
             var results = new List<Shortcut>();
             foreach (var linkFilename in
-                GetLnkFilesSafe(CSIDL.CSIDL_PROGRAMS, SearchOption.AllDirectories)
-                .Concat(GetLnkFilesSafe(CSIDL.CSIDL_COMMON_PROGRAMS, SearchOption.AllDirectories))
-                .Concat(GetLnkFilesSafe(CSIDL.CSIDL_DESKTOPDIRECTORY, SearchOption.TopDirectoryOnly))
-                .Concat(GetLnkFilesSafe(CSIDL.CSIDL_COMMON_DESKTOPDIRECTORY, SearchOption.TopDirectoryOnly))
+                GetLnkFilesSafe(Csidl.CSIDL_PROGRAMS, SearchOption.AllDirectories)
+                .Concat(GetLnkFilesSafe(Csidl.CSIDL_COMMON_PROGRAMS, SearchOption.AllDirectories))
+                .Concat(GetLnkFilesSafe(Csidl.CSIDL_DESKTOPDIRECTORY, SearchOption.TopDirectoryOnly))
+                .Concat(GetLnkFilesSafe(Csidl.CSIDL_COMMON_DESKTOPDIRECTORY, SearchOption.TopDirectoryOnly))
                 .Distinct())
             {
                 try
@@ -133,16 +132,18 @@ namespace UninstallTools.Junk.Finders.Misc
 
             foreach (var source in _links)
             {
-                if (source.LinkTarget.Contains(target, StringComparison.InvariantCultureIgnoreCase))
+                if (!source.LinkTarget.Contains(target, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var result = CreateJunkNode(source, entry);
-                    if (!targetIsSafe)
-                    {
-                        result.Confidence.Add(ConfidenceRecords.DirectoryStillUsed);
-                    }
-
-                    yield return result;
+                    continue;
                 }
+
+                var result = CreateJunkNode(source, entry);
+                if (!targetIsSafe)
+                {
+                    result.Confidence.Add(ConfidenceRecords.DirectoryStillUsed);
+                }
+
+                yield return result;
             }
         }
 
@@ -160,12 +161,13 @@ namespace UninstallTools.Junk.Finders.Misc
             {
                 foreach (var source in _links)
                 {
-                    if (source.LinkTarget.Contains(appId, StringComparison.Ordinal)
-                        && source.LinkTarget.Contains("steam", StringComparison.OrdinalIgnoreCase))
+                    if (!source.LinkTarget.Contains(appId, StringComparison.Ordinal)
+                        || !source.LinkTarget.Contains("steam", StringComparison.OrdinalIgnoreCase))
                     {
-                        var result = CreateJunkNode(source, target);
-                        yield return result;
+                        continue;
                     }
+
+                    yield return CreateJunkNode(source, target);
                 }
             }
             else

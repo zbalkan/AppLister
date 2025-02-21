@@ -8,12 +8,16 @@ namespace WindowsServiceProxy
 {
     public partial class WindowsBackgroundService : ServiceBase
     {
-        private readonly InventoryService.InventoryService internalService;
-        private readonly int _queryPeriodInMilliseconds;
+        private const int DefaultQueryPeriodInMinutes = 600;
 
-        private const int DefaultQueryPeriodInMinutes = 600;  // Default period constant
+        // Default period constant
         private const string QueryPeriodKey = "QueryPeriodInMinutes";
+
         private const string ServiceKeyPath = @"SOFTWARE\zb\InventorySvc";
+
+        private readonly InventoryService.InventoryService _internalService;
+
+        private readonly int _queryPeriodInMilliseconds;
 
         private Timer _timer;
 
@@ -31,11 +35,17 @@ namespace WindowsServiceProxy
                 _queryPeriodInMilliseconds = ToMillisecond(period);
             }
 
-            internalService = new InventoryService.InventoryService(EventLog);
+            _internalService = new InventoryService.InventoryService(EventLog);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Data types", "TI0301:Do not use 'magic numbers'", Justification = "Converting minutes to milliseconds")]
-        private static int ToMillisecond(int period) => period * 60 * 1000;
+        internal void TestStartupAndStop(string[] args)
+        {
+            OnStart(args);
+            while (true)
+            {
+                // empty loop to keep the main thread alive
+            }
+        }
 
         protected override void OnStart(string[] args)
         {
@@ -54,15 +64,9 @@ namespace WindowsServiceProxy
 
         protected override void OnStop() => _timer.Dispose();
 
-        internal void TestStartupAndStop(string[] args)
-        {
-            OnStart(args);
-            while (true)
-            {
-                // empty loop to keep the main thread alive
-            }
-        }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Data types", "TI0301:Do not use 'magic numbers'", Justification = "Converting minutes to milliseconds")]
+        private static int ToMillisecond(int period) => period * 60 * 1000;
 
-        private void Refresh(object state) => internalService.Refresh();
+        private void Refresh(object state) => _internalService.Refresh();
     }
 }

@@ -14,9 +14,9 @@ namespace InventoryEngine.Factory
     {
         public string DisplayName => "Progress_AppStores_WinStore";
 
-        private static readonly PowerShell powershellInstance = PowerShell.Create();
+        private static readonly PowerShell PowershellInstance = PowerShell.Create();
 
-        private static readonly string windowsPath = WindowsTools.GetEnvironmentPath(CSIDL.CSIDL_WINDOWS);
+        private static readonly string WindowsPath = WindowsTools.GetEnvironmentPath(Csidl.CSIDL_WINDOWS);
 
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
         {
@@ -50,7 +50,7 @@ namespace InventoryEngine.Factory
 
         private static string[] FindExecutables(PSObject manifest)
         {
-            if (manifest == default)
+            if (manifest == null)
             {
                 return Array.Empty<string>();
             }
@@ -66,20 +66,19 @@ namespace InventoryEngine.Factory
 
         private static PSObject GetAppxManifest(string packageName)
         {
-            PSObject manifest = default;
-            powershellInstance.Commands.Clear();
-            powershellInstance
+            PSObject manifest = null;
+            PowershellInstance.Commands.Clear();
+            PowershellInstance
                 .AddCommand("Get-AppxPackageManifest")
                 .AddParameter("Package", packageName);
 
             try
             {
-                manifest = powershellInstance.Invoke()[0];
+                manifest = PowershellInstance.Invoke()[0];
             }
             catch (CmdletInvocationException)
             {
-                var message = $"Failed to call Get-AppxPackageManifest for package {packageName}";
-                Debug.WriteLine(message);
+                Debug.WriteLine($"{packageName} does not have a manifest. Skipping.");
             }
             catch (Exception ex)
             {
@@ -91,9 +90,9 @@ namespace InventoryEngine.Factory
 
         private static Collection<PSObject> GetAppxPackages()
         {
-            powershellInstance.Commands.Clear();
-            powershellInstance.AddCommand("Get-AppxPackage");
-            return powershellInstance.Invoke();
+            PowershellInstance.Commands.Clear();
+            PowershellInstance.AddCommand("Get-AppxPackage");
+            return PowershellInstance.Invoke();
         }
 
         private static ApplicationUninstallerEntry MapToEntry(PSObject appxPackage)
@@ -165,7 +164,7 @@ namespace InventoryEngine.Factory
         private static string ResolveDisplayName(PSMemberInfoCollection<PSPropertyInfo> props, PSObject manifest)
         {
             string displayName;
-            if (manifest == default)
+            if (manifest == null)
             {
                 displayName = props["Name"].Value.ToString();
             }
@@ -174,11 +173,13 @@ namespace InventoryEngine.Factory
                 var package = manifest.Members["Package"].Value as XmlElement;
                 displayName = package["Properties"]["DisplayName"].InnerText;
 
-                if (displayName.StartsWith("ms-resource"))
+                if (!displayName.StartsWith("ms-resource"))
                 {
-                    var identity = package["Identity"];
-                    displayName = identity.Attributes["Name"].Value;
+                    return displayName;
                 }
+
+                var identity = package["Identity"];
+                displayName = identity.Attributes["Name"].Value;
             }
 
             return displayName;
@@ -186,7 +187,7 @@ namespace InventoryEngine.Factory
 
         private static string ResolveExecutableName(PSObject manifest)
         {
-            if (manifest == default)
+            if (manifest == null)
             {
                 return string.Empty;
             }
@@ -218,7 +219,7 @@ namespace InventoryEngine.Factory
 
         private static string ResolvePublisherDisplayName(PSObject manifest)
         {
-            if (manifest == default)
+            if (manifest == null)
             {
                 return string.Empty;
             }
@@ -231,15 +232,7 @@ namespace InventoryEngine.Factory
         {
             var raw = props["Publisher"].Value.ToString();
             var firstComma = raw.IndexOf(',');
-            string newName;
-            if (firstComma == -1)
-            {
-                newName = raw.Replace("CN=", string.Empty);
-            }
-            else
-            {
-                newName = raw.Substring(0, firstComma).Replace("CN=", string.Empty);
-            }
+            var newName = firstComma == -1 ? raw.Replace("CN=", string.Empty) : raw.Substring(0, firstComma).Replace("CN=", string.Empty);
 
             var isValidGuid = Guid.TryParse(newName, out _);
             if (isValidGuid)
@@ -259,7 +252,7 @@ namespace InventoryEngine.Factory
                 return false;
             }
 
-            return installLocation.StartsWith(windowsPath, StringComparison.InvariantCultureIgnoreCase);
+            return installLocation.StartsWith(WindowsPath, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

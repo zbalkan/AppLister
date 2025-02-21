@@ -7,6 +7,8 @@ namespace InventoryEngine.Startup
 {
     internal static class StartupManager
     {
+        public static Dictionary<string, Func<IEnumerable<StartupEntryBase>>> Factories { get; }
+
         static StartupManager()
         {
             Factories = new Dictionary<string, Func<IEnumerable<StartupEntryBase>>>
@@ -18,14 +20,16 @@ namespace InventoryEngine.Startup
             };
         }
 
-        public static Dictionary<string, Func<IEnumerable<StartupEntryBase>>> Factories { get; }
-
         /// <summary>
         ///     Fill in the ApplicationUninstallerEntry.StartupEntries property with a list of
         ///     related StartupEntry objects. Old data is not cleared, only overwritten if necessary.
         /// </summary>
-        /// <param name="allUninstallerEntries"> Uninstaller entries to assign to </param>
-        /// <param name="allStartupEntries"> Startup entries to assign </param>
+        /// <param name="allUninstallerEntries">
+        ///     Uninstaller entries to assign to
+        /// </param>
+        /// <param name="allStartupEntries">
+        ///     Startup entries to assign
+        /// </param>
         public static void AssignStartupEntries(IEnumerable<ApplicationUninstallerEntry> allUninstallerEntries,
             IEnumerable<StartupEntryBase> allStartupEntries)
         {
@@ -71,7 +75,12 @@ namespace InventoryEngine.Startup
                     }
 
                     var uninLoc = uninstaller.UninstallerLocation;
-                    if (!string.IsNullOrEmpty(uninLoc) && startup.CommandFilePath.StartsWith(uninLoc, StringComparison.OrdinalIgnoreCase))
+                    if (string.IsNullOrEmpty(uninLoc) ||
+                        !startup.CommandFilePath.StartsWith(uninLoc, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false;
+                    }
+
                     {
                         // Don't assign if there are any applications with more specific/deep
                         // install locations (same depth is fine)

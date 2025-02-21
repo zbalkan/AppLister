@@ -67,71 +67,24 @@ namespace InventoryEngine.Factory
             var dividedItems = SplitByPhysicalDrives(entries, entry =>
             {
                 var loc = entry.InstallLocation ?? entry.UninstallerLocation;
-                if (!string.IsNullOrEmpty(loc))
+                if (string.IsNullOrEmpty(loc))
                 {
-                    try
-                    {
-                        return new DirectoryInfo(loc);
-                    }
-                    catch (SystemException ex)
-                    {
-                        Debug.WriteLine(ex);
-                    }
+                    return cDrive;
+                }
+
+                try
+                {
+                    return new DirectoryInfo(loc);
+                }
+                catch (SystemException ex)
+                {
+                    Debug.WriteLine(ex);
                 }
                 return cDrive;
             });
 
             workSpreader.Start(dividedItems);
             workSpreader.Join();
-        }
-
-        private static IList<IList<TData>> SplitByPhysicalDrives<TData>(IReadOnlyCollection<TData> itemsToScan, Func<TData, DirectoryInfo> locationGetter)
-        {
-            var output = new List<IList<TData>>();
-            try
-            {
-                using (var searcherDtp = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_DiskDriveToDiskPartition"))
-                using (var searcherLtp = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_LogicalDiskToPartition"))
-                {
-                    var dtp = searcherDtp.Get().Cast<ManagementObject>().Select(queryObj => new
-                    {
-                        Drive = queryObj["Antecedent"] as string,
-                        Partition = queryObj["Dependent"] as string
-                    });
-
-                    var ltp = searcherLtp.Get().Cast<ManagementObject>().Select(queryObj => new
-                    {
-                        Partition = queryObj["Antecedent"] as string,
-                        LogicalDrive = queryObj["Dependent"] as string
-                    });
-
-                    var correlatedDriveList = ltp.Join(dtp, arg => arg.Partition, arg => arg.Partition, (x, y) => new
-                    {
-                        LogicalName = x.LogicalDrive.Split(new[] { '"' }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault()?.Append('\\'),
-                        y.Drive
-                    }).Where(x => !string.IsNullOrEmpty(x.LogicalName.ToString())).GroupBy(x => x.Drive);
-
-                    var inputList = itemsToScan.Select(x => new { locationGetter(x).Root.Name, x }).ToList();
-                    foreach (var logicalDriveGroup in correlatedDriveList)
-                    {
-                        var filteredByPhysicalDrive = inputList.Where(x =>
-                            logicalDriveGroup.Any(y =>
-                                y.LogicalName.ToString().Equals(x.Name, StringComparison.OrdinalIgnoreCase))).ToList();
-
-                        inputList.RemoveAll(filteredByPhysicalDrive);
-                        output.Add(filteredByPhysicalDrive.ConvertAll(x => x.x));
-                    }
-                    // Bundle leftovers as a single drive
-                    output.Add(inputList.ConvertAll(x => x.x));
-                }
-            }
-            catch (SystemException ex)
-            {
-                Debug.WriteLine("Failed to get logical disk to physical drive relationships - " + ex);
-                output.Clear();
-                output.Add(itemsToScan.ToList());
-            }
-            return output;
         }
 
         private static bool CheckIsValid(ApplicationUninstallerEntry target, IEnumerable<Guid> msiProducts)
@@ -162,6 +115,54 @@ namespace InventoryEngine.Factory
             }
 
             return !isPathRooted;
+        }
+
+        private static IList<IList<TData>> SplitByPhysicalDrives<TData>(IReadOnlyCollection<TData> itemsToScan, Func<TData, DirectoryInfo> locationGetter)
+        {
+            var output = new List<IList<TData>>();
+            try
+            {
+                using var searcherDtp = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_DiskDriveToDiskPartition");
+                using var searcherLtp = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_LogicalDiskToPartition");
+                var dtp = searcherDtp.Get().Cast<ManagementObject>().Select(queryObj => new
+                {
+                    Drive = queryObj["Antecedent"] as string,
+                    Partition = queryObj["Dependent"] as string
+                });
+
+                var ltp = searcherLtp.Get().Cast<ManagementObject>().Select(queryObj => new
+                {
+                    Partition = queryObj["Antecedent"] as string,
+                    LogicalDrive = queryObj["Dependent"] as string
+                });
+
+                var correlatedDriveList = ltp.Join(dtp, arg => arg.Partition, arg => arg.Partition, (x, y) => new
+                {
+                    LogicalName = x.LogicalDrive.Split(new[] { '"' }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault()?.Append('\\'),
+                    y.Drive
+                }).Where(x => !string.IsNullOrEmpty(x.LogicalName.ToString())).GroupBy(x => x.Drive);
+
+                var inputList = itemsToScan.Select(x => new { locationGetter(x).Root.Name, x }).ToList();
+                foreach (var logicalDriveGroup in correlatedDriveList)
+                {
+                    var filteredByPhysicalDrive = inputList.Where(x =>
+                        logicalDriveGroup.Any(y =>
+                            y.LogicalName.ToString().Equals(x.Name, StringComparison.OrdinalIgnoreCase))).ToList();
+
+                    inputList.RemoveAll(filteredByPhysicalDrive);
+                    output.Add(filteredByPhysicalDrive.ConvertAll(x => x.x));
+                }
+
+                // Bundle leftovers as a single drive
+                output.Add(inputList.ConvertAll(x => x.x));
+            }
+            catch (SystemException ex)
+            {
+                Debug.WriteLine("Failed to get logical disk to physical drive relationships - " + ex);
+                output.Clear();
+                output.Add(itemsToScan.ToList());
+            }
+            return output;
         }
     }
 }

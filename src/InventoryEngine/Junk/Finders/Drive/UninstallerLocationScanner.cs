@@ -5,12 +5,14 @@ using System.IO;
 using System.Linq;
 using InventoryEngine.Junk.Confidence;
 using InventoryEngine.Junk.Containers;
+using InventoryEngine.Shared;
 
 namespace InventoryEngine.Junk.Finders.Drive
 {
     internal class UninstallerLocationScanner : JunkCreatorBase
     {
         public override string CategoryName => "Junk_UninstallerLocation_GroupName";
+
         private IEnumerable<string> _allProgramFiles;
 
         public override IEnumerable<IJunkResult> FindJunk(ApplicationUninstallerEntry target)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using InventoryEngine.Extensions;
@@ -12,7 +11,7 @@ namespace InventoryEngine.Tools
     {
         private static readonly int[] GuidRegistryFormatPattern = { 8, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2 };
 
-        public static string MsiGetProductInfo(Guid productCode, MsiWrapper.INSTALLPROPERTY property)
+        public static string MsiGetProductInfo(Guid productCode, MsiWrapper.Installproperty property)
         {
             var propertyLen = 512;
             var sbProperty = new StringBuilder(propertyLen);

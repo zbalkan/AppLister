@@ -10,31 +10,33 @@ using System.Runtime.InteropServices;
 namespace InventoryWmiProvider
 {
     [System.ComponentModel.RunInstaller(true)]
-    public class WMIProviderInstaller : DefaultManagementInstaller
+    public class WmiProviderInstaller : DefaultManagementInstaller
     {
         public override void Install(IDictionary stateSaver)
         {
             base.Install(stateSaver);
 
             var asm = Assembly.GetExecutingAssembly();
-            var RS = new RegistrationServices();
+            var rs = new RegistrationServices();
 
-            if (RS.RegisterAssembly(asm, AssemblyRegistrationFlags.SetCodeBase))
+            if (!rs.RegisterAssembly(asm, AssemblyRegistrationFlags.SetCodeBase))
             {
-                try
-                {
-                    new Publish().GacInstall(Assembly.GetExecutingAssembly().Location);
-                }
-                catch { }
+                return;
             }
+
+            try
+            {
+                new Publish().GacInstall(Assembly.GetExecutingAssembly().Location);
+            }
+            catch { }
         }
 
         public override void Uninstall(IDictionary savedState)
         {
             try
             {
-                var MC = new ManagementClass(@"root\cimv2:CI_Application");
-                MC.Delete();
+                var mc = new ManagementClass(@"root\cimv2:CI_Application");
+                mc.Delete();
             }
             catch { }
 

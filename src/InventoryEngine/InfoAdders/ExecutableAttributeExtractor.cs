@@ -14,6 +14,7 @@ namespace InventoryEngine.InfoAdders
             nameof(ApplicationUninstallerEntry.RawDisplayName),
             nameof(ApplicationUninstallerEntry.DisplayVersion),
             nameof(ApplicationUninstallerEntry.Publisher)
+
             //nameof(ApplicationUninstallerEntry.Comment)
         };
 
@@ -38,9 +39,15 @@ namespace InventoryEngine.InfoAdders
         /// <summary>
         ///     Add information from FileVersionInfo of specified file to the targetEntry
         /// </summary>
-        /// <param name="targetEntry"> Entry to update </param>
-        /// <param name="infoSourceFilename"> Binary file to get the information from </param>
-        /// <param name="onlyUnpopulated"> Only update unpopulated fields of the targetEntry </param>
+        /// <param name="targetEntry">
+        ///     Entry to update
+        /// </param>
+        /// <param name="infoSourceFilename">
+        ///     Binary file to get the information from
+        /// </param>
+        /// <param name="onlyUnpopulated">
+        ///     Only update unpopulated fields of the targetEntry
+        /// </param>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1163:Unused parameter.", Justification = "<Pending>")]
         internal static void FillInformationFromFileAttribs(ApplicationUninstallerEntry targetEntry, string infoSourceFilename, bool onlyUnpopulated)
         {
@@ -97,18 +104,20 @@ namespace InventoryEngine.InfoAdders
                 targetEntry.Comment = comment;
             }
 
-            if (unpopulatedCheck(targetEntry.DisplayVersion))
+            if (!unpopulatedCheck(targetEntry.DisplayVersion))
             {
-                var productVersion = verInfo.ProductVersion?.Trim();
-                if (string.IsNullOrEmpty(productVersion))
-                {
-                    productVersion = verInfo.FileVersion?.Trim();
-                }
+                return;
+            }
 
-                if (!string.IsNullOrEmpty(productVersion))
-                {
-                    targetEntry.DisplayVersion = ApplicationEntryTools.CleanupDisplayVersion(productVersion);
-                }
+            var productVersion = verInfo.ProductVersion?.Trim();
+            if (string.IsNullOrEmpty(productVersion))
+            {
+                productVersion = verInfo.FileVersion?.Trim();
+            }
+
+            if (!string.IsNullOrEmpty(productVersion))
+            {
+                targetEntry.DisplayVersion = ApplicationEntryTools.CleanupDisplayVersion(productVersion);
             }
         }
     }
