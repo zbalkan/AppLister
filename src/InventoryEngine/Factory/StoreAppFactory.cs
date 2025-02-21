@@ -78,8 +78,7 @@ namespace InventoryEngine.Factory
             }
             catch (CmdletInvocationException)
             {
-                var message = $"Failed to call Get-AppxPackageManifest for package {packageName}";
-                Debug.WriteLine(message);
+                Debug.WriteLine($"{packageName} does not have a manifest. Skipping.");
             }
             catch (Exception ex)
             {
