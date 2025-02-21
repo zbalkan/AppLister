@@ -17,34 +17,6 @@ namespace InventoryEngine.Tools
                     Path.GetInvalidFileNameChars().Concat(new[] { ',', ';' }).ToArray();
 
         /// <summary>
-        ///     Get IDs of all child processes
-        /// </summary>
-        internal static IEnumerable<int> GetChildProcesses(int pid)
-        {
-            try
-            {
-                using var searcher = new ManagementObjectSearcher("Select * From Win32_Process Where ParentProcessID=" + pid);
-                var moc = searcher.Get();
-                var childProcesses = moc.Cast<ManagementObject>().Select(mo => Convert.ToInt32(mo["ProcessID"])).ToList();
-                return childProcesses;
-            }
-            catch
-            {
-                Process processById;
-                try
-                {
-                    processById = Process.GetProcessById(pid);
-                }
-                catch (Exception a)
-                {
-                    Debug.WriteLine(a);
-                    return Enumerable.Empty<int>();
-                }
-                return processById.GetChildProcesses().Select(x => x.Id);
-            }
-        }
-
-        /// <summary>
         ///     Attempts to separate filename (or filename with path) from the supplied arguments.
         /// </summary>
         /// <param name="fullCommand"> </param>

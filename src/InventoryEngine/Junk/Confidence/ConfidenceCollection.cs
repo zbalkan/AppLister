@@ -53,19 +53,6 @@ namespace InventoryEngine.Junk.Confidence
             return result;
         }
 
-        public string GetWorstOffender()
-        {
-            var lowest = _items.Min(x => x.Change);
-            var item = _items.Find(x => x.Change.Equals(lowest));
-
-            if (item != null)
-            {
-                return item.Reason ?? string.Empty;
-            }
-
-            return string.Empty;
-        }
-
         internal void Add(int value) => _items.Add(new ConfidenceRecord(value));
 
         internal void Add(ConfidenceRecord value) => _items.Add(value);

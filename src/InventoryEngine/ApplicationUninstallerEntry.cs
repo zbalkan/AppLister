@@ -217,31 +217,6 @@ namespace InventoryEngine
         private string _uninstallerFullFilename;
         private string _uninstallString;
 
-        /// <summary>
-        ///     Get a unique cache ID of this item. Returns null if there isn't enough information
-        ///     to get a reasonably unique key.
-        /// </summary>
-        public string GetCacheId()
-        {
-            if (!string.IsNullOrEmpty(CacheIdOverride))
-            {
-                return CacheIdOverride;
-            }
-
-            var rid = RatingId;
-            if (!string.IsNullOrEmpty(rid))
-            {
-                return rid;
-            }
-
-            if (!string.IsNullOrEmpty(DisplayName) && !string.IsNullOrEmpty(InstallLocation))
-            {
-                return DisplayName + InstallLocation;// + DisplayVersion + InstallDate + EstimatedSize;
-            }
-
-            return null;
-        }
-
         public IEnumerable<string> GetSortedExecutables()
         {
             if (SortedExecutables == null)

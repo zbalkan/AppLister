@@ -6,30 +6,6 @@ namespace InventoryEngine.Startup
 {
     internal sealed class TaskEntry : StartupEntryBase, IDisposable
     {
-        public bool Disabled
-        {
-            get
-            {
-                try { return !SourceTask.Enabled; }
-                catch (FileNotFoundException) { }
-                catch (InvalidCastException) { }
-                catch (System.Runtime.InteropServices.COMException) { }
-                // If it's impossible to check disabled state, assume not disabled
-                return false;
-            }
-            set
-            {
-                try
-                {
-                    SourceTask.Enabled = !value;
-                }
-                catch (Exception)
-                {
-                    // TODO
-                }
-            }
-        }
-
         public override string ParentShortName
         {
             get { return "Startup_ShortName_Task"; }
@@ -51,8 +27,6 @@ namespace InventoryEngine.Startup
 
             FillInformationFromFile(CommandFilePath);
         }
-
-        public void Delete() => SourceTask.Folder.DeleteTask(SourceTask.Name, false);
 
         public void Dispose()
         {

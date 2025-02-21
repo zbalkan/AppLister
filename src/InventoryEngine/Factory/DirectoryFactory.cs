@@ -30,28 +30,6 @@ namespace InventoryEngine.Factory
             return FactoryThreadedHelpers.DriveApplicationScan(dirsToSkip, itemsToScan).ToList().AsReadOnly();
         }
 
-        public static IEnumerable<ApplicationUninstallerEntry> TryGetApplicationsFromDirectories(
-            ICollection<DirectoryInfo> directoriesToScan, IEnumerable<ApplicationUninstallerEntry> existingUninstallers)
-        {
-            var pfDirs = UninstallToolsGlobalConfig.GetProgramFilesDirectories(true);
-            var dirsToSkip = GetDirectoriesToSkip(existingUninstallers, pfDirs).ToList();
-
-            var results = new List<ApplicationUninstallerEntry>();
-            foreach (var directory in directoriesToScan)
-            {
-                if (UninstallToolsGlobalConfig.IsSystemDirectory(directory) ||
-                    directory.Name.StartsWith("Windows", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    continue;
-                }
-
-                var detectedEntries = TryCreateFromDirectory(directory, dirsToSkip);
-
-                results.AddRange(detectedEntries);
-            }
-            return results;
-        }
-
         /// <summary>
         ///     Get directories to scan for applications
         /// </summary>
@@ -298,21 +276,6 @@ namespace InventoryEngine.Factory
             }
 
             return results;
-        }
-
-        public static IEnumerable<ApplicationUninstallerEntry> TryCreateFromDirectory(
-            DirectoryInfo directoryToScan, IEnumerable<ApplicationUninstallerEntry> existingUninstallers)
-        {
-            var pfDirs = UninstallToolsGlobalConfig.GetProgramFilesDirectories(true);
-            var dirsToSkip = GetDirectoriesToSkip(existingUninstallers, pfDirs).ToList();
-
-            if (UninstallToolsGlobalConfig.IsSystemDirectory(directoryToScan) ||
-                directoryToScan.Name.StartsWith("Windows", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return Enumerable.Empty<ApplicationUninstallerEntry>();
-            }
-
-            return TryCreateFromDirectory(directoryToScan, dirsToSkip);
         }
     }
 }

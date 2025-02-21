@@ -55,12 +55,6 @@ namespace InventoryEngine.Startup
             }
         }
 
-        public void Delete()
-        {
-            using var key = RegistryTools.OpenRegistryKey(GetRealParentPath(), true);
-            key?.DeleteSubKey(EntryLongName);
-        }
-
         public string GetRealParentPath(bool opposite = false) => (opposite ? !_disabled : _disabled)
                 ? Path.Combine(ParentLongName, BrowserEntryFactory.AutorunsDisabledKeyName)
                 : ParentLongName;

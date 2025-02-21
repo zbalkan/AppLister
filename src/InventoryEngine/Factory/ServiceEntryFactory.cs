@@ -21,18 +21,6 @@ namespace InventoryEngine.Factory
             return GetEnabledState(classInstance);
         }
 
-        public static void DeleteService(string serviceName)
-        {
-            try { EnableService(serviceName, false); }
-            catch (ManagementException) { }
-
-            var classInstance = GetServiceObject(serviceName);
-
-            // Execute the method and obtain the return values.
-            var outParams = classInstance.InvokeMethod("Delete", null, new InvokeMethodOptions { Timeout = TimeSpan.FromMinutes(1) });
-            CheckReturnValue(outParams, 16); // 16 - Service Marked For Deletion
-        }
-
         public static void EnableService(string serviceName, bool newState)
         {
             var classInstance = GetServiceObject(serviceName);

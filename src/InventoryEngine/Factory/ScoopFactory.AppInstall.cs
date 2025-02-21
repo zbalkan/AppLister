@@ -5,7 +5,6 @@
         private sealed class AppInstall
         {
             public string Architecture { get; set; }
-            public string Bucket { get; set; }
         }
     }
 }

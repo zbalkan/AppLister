@@ -8,37 +8,6 @@ namespace InventoryEngine.Tools
     {
         private static class NativeMethods
         {
-            /// <summary>
-            ///     Flash both the window caption and taskbar button. This is equivalent to setting
-            ///     the FLASHW_CAPTION | FLASHW_TRAY flags.
-            /// </summary>
-            internal const uint FlashwAll = 3;
-
-            /// <summary>
-            ///     Flash the window caption.
-            /// </summary>
-            internal const uint FlashwCaption = 1;
-
-            /// <summary>
-            ///     Stop flashing. The system restores the window to its original stae.
-            /// </summary>
-            internal const uint FlashwStop = 0;
-
-            /// <summary>
-            ///     Flash continuously, until the FLASHW_STOP flag is set.
-            /// </summary>
-            internal const uint FlashwTimer = 4;
-
-            /// <summary>
-            ///     Flash continuously until the window comes to the foreground.
-            /// </summary>
-            internal const uint FlashwTimernofg = 12;
-
-            /// <summary>
-            ///     Flash the taskbar button.
-            /// </summary>
-            internal const uint FlashwTray = 2;
-
             internal const int MaxPath = 260;
 
             internal const uint StgmRead = 0;
@@ -254,44 +223,10 @@ namespace InventoryEngine.Tools
                 void SetPath([MarshalAs(UnmanagedType.LPWStr)] string pszFile);
             }
 
-            [DllImport("user32.dll")]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            internal static extern bool FlashWindowEx(ref Flashwinfo pwfi);
-
             //internal const int CSIDL_COMMON_STARTMENU = 0x16; // All Users\Start Menu
             [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
             internal static extern bool SHGetSpecialFolderPath(IntPtr hwndOwner, [Out] StringBuilder lpszPath,
                 int nFolder, bool fCreate);
-
-            [StructLayout(LayoutKind.Sequential)]
-            internal struct Flashwinfo
-            {
-                /// <summary>
-                ///     The size of the structure in bytes.
-                /// </summary>
-                internal uint cbSize;
-
-                /// <summary>
-                ///     A Handle to the Window to be Flashed. The window can be either opened or minimized.
-                /// </summary>
-                internal IntPtr hwnd;
-
-                /// <summary>
-                ///     The Flash Status.
-                /// </summary>
-                internal uint dwFlags;
-
-                /// <summary>
-                ///     The number of times to Flash the window.
-                /// </summary>
-                internal uint uCount;
-
-                /// <summary>
-                ///     The rate at which the Window is to be flashed, in milliseconds. If Zero, the
-                ///     function uses the default cursor blink rate.
-                /// </summary>
-                internal uint dwTimeout;
-            }
 
             /*
                         [DllImport("shfolder.dll", CharSet = CharSet.Auto)]

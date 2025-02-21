@@ -7,13 +7,6 @@ namespace InventoryEngine.Extensions
     internal static class CollectionExtensions
     {
         /// <summary>
-        ///     Recursively select all subitems based on the selector.
-        /// </summary>
-        internal static IEnumerable<T> SelectManyResursively<T>(this IEnumerable<T> enumerable, Func<T, IEnumerable<T>> subitemSelector) => enumerable.SelectMany(
-                x => Enumerable.Repeat(x, 1)
-                .Concat(subitemSelector(x).SelectManyResursively(subitemSelector)));
-
-        /// <summary>
         ///     Run distinct using the specified equality comparator
         /// </summary>
         internal static IEnumerable<TSource> Distinct<TSource>(this IEnumerable<TSource> source,

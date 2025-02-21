@@ -54,8 +54,6 @@ namespace InventoryEngine.Startup
             FillInformationFromFile(CommandFilePath);
         }
 
-        public void Delete() => ServiceEntryFactory.DeleteService(ProgramName);
-
         public override bool StillExists()
         {
             try
