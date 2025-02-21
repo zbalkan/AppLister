@@ -33,25 +33,21 @@ namespace InventoryService
         public void Refresh()
         {
             Publisher.CheckDependency();
-
-            _logger?.WriteEntry("Reading packages from WMI.", EventLogEntryType.Information);
             var publishedPackages = _wmiScanner.GetAll();
 
-            _logger?.WriteEntry("Running discovery scan.", EventLogEntryType.Information);
+            _logger?.WriteEntry("Running discovery scan.", EventLogEntryType.Information, 10);
             _stopwatch.Reset();
             _stopwatch.Start();
             var discoveredPackages = _discovery.GetAll();
             _stopwatch.Stop();
-            _logger?.WriteEntry($"Discovery scan completed. Elapsed time: {_stopwatch.Elapsed}.", EventLogEntryType.Information);
 
             if (publishedPackages?.Count > 0)
             {
-                _logger?.WriteEntry("Cleaning inventory.", EventLogEntryType.Information);
                 Publisher.Unpublish(publishedPackages);
             }
-            _logger?.WriteEntry("Updating inventory.", EventLogEntryType.Information);
             Publisher.Publish(discoveredPackages);
-            _logger?.WriteEntry($"Inventory updated with {discoveredPackages.Count} packages.");
+            var message = $"Discovery scan completed.\nElapsed time: {_stopwatch.Elapsed}\nDiscovered packages: {discoveredPackages.Count}";
+            _logger?.WriteEntry(message, EventLogEntryType.Information, 11);
         }
 
         private void Dispose(bool disposing)

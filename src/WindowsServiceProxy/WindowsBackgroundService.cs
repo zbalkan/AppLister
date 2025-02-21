@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,6 +51,7 @@ namespace WindowsServiceProxy
         protected override void OnStart(string[] args)
         {
             base.OnStart(args);
+            EventLog.WriteEntry("Service started.", EventLogEntryType.Information, 1);
 
             try
             {
@@ -62,11 +64,26 @@ namespace WindowsServiceProxy
             }
         }
 
-        protected override void OnStop() => _timer.Dispose();
+        protected override void OnStop()
+        {
+            EventLog.WriteEntry("Service stopped.", EventLogEntryType.Information, 2);
+
+            _timer.Dispose();
+        }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Data types", "TI0301:Do not use 'magic numbers'", Justification = "Converting minutes to milliseconds")]
         private static int ToMillisecond(int period) => period * 60 * 1000;
 
-        private void Refresh(object state) => _internalService.Refresh();
+        private void Refresh(object state)
+        {
+            try
+            {
+                _internalService.Refresh();
+            }
+            catch (Exception ex)
+            {
+                EventLog.WriteEntry(ex.Message, EventLogEntryType.Error, 3);
+            }
+        }
     }
 }
