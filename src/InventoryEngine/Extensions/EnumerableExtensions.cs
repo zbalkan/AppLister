@@ -54,8 +54,8 @@ namespace InventoryEngine.Extensions
         ///         using `foreach` in Visual C# or `For Each` in Visual Basic.
         ///     </para>
         ///     <para>
-        ///         The <see cref="DistinctBy{TSource, TKey}(IEnumerable{TSource}, Func{TSource,
-        ///         TKey})" /> method returns an unordered sequence that contains no duplicate
+        ///         The <see cref="DistinctBy{TSource, TKey}(IEnumerable{TSource}, Func{TSource, TKey})" />
+        ///         method returns an unordered sequence that contains no duplicate
         ///         values. The default equality comparer, <see cref="EqualityComparer{T}.Default"
         ///         />, is used to compare values.
         ///     </para>
