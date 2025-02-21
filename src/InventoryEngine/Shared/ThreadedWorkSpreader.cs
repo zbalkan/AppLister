@@ -52,8 +52,6 @@ namespace InventoryEngine.Shared
                 throw new ArgumentNullException(nameof(dataBuckets));
             }
 
-            var totalCount = dataBuckets.Aggregate(0, (i, list) => i + list.Count);
-
             foreach (var itemBucket in dataBuckets)
             {
                 if (itemBucket.Count == 0)
