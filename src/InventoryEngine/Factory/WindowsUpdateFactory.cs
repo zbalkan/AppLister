@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
+using System.Linq;
 using InventoryEngine.Shared;
 using InventoryEngine.Tools;
+using WUApiLib;
 
 namespace InventoryEngine.Factory
 {
@@ -17,12 +17,8 @@ namespace InventoryEngine.Factory
         public IReadOnlyList<ApplicationUninstallerEntry> GetUninstallerEntries()
         {
             var results = new List<ApplicationUninstallerEntry>();
-            if (!IsHelperAvailable()) return results;
 
-            var output = FactoryTools.StartHelperAndReadOutput(HelperPath, "list");
-            if (string.IsNullOrEmpty(output) || output.Trim().StartsWith("Error", StringComparison.OrdinalIgnoreCase)) return results;
-
-            foreach (var group in FactoryTools.ExtractAppDataSetsFromHelperOutput(output))
+            foreach (var update in GetUpdateList())
             {
                 var entry = new ApplicationUninstallerEntry
                 {
@@ -30,51 +26,19 @@ namespace InventoryEngine.Factory
                     IsUpdate = true,
                     Publisher = "Microsoft Corporation"
                 };
-                foreach (var valuePair in group)
-                {
-                    switch (valuePair.Key)
-                    {
-                        case "UpdateID":
-                            entry.RatingId = valuePair.Value;
-                            if (GuidTools.TryExtractGuid(valuePair.Value, out var result))
-                                entry.BundleProviderKey = result;
-                            break;
 
-                        case "RevisionNumber":
-                            entry.DisplayVersion = ApplicationEntryTools.CleanupDisplayVersion(valuePair.Value);
-                            break;
-
-                        case "Title":
-                            entry.RawDisplayName = valuePair.Value;
-                            break;
-
-                        case "IsUninstallable":
-                            if (bool.TryParse(valuePair.Value, out var isUnins))
-                                entry.IsProtected = !isUnins;
-                            break;
-
-                        case "SupportUrl":
-                            entry.AboutUrl = valuePair.Value;
-                            break;
-
-                        case "MinDownloadSize":
-                            break;
-
-                        case "MaxDownloadSize":
-                            break;
-
-                        case "LastDeploymentChangeTime":
-                            if (DateTime.TryParse(valuePair.Value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) &&
-                                !DateTime.MinValue.Equals(date))
-                                entry.InstallDate = date;
-                            break;
-
-                        default:
-                            Debug.Fail("Unknown label");
-                            break;
-                    }
-                }
-
+                var updateIdentity = update.Identity;
+                entry.RatingId = updateIdentity.UpdateID;
+                if (GuidTools.TryExtractGuid(updateIdentity.UpdateID, out var result))
+                    entry.BundleProviderKey = result;
+                entry.DisplayVersion = ApplicationEntryTools.CleanupDisplayVersion(updateIdentity.RevisionNumber.ToString());
+                entry.RawDisplayName = update.Title;
+                entry.IsProtected = !update.IsUninstallable;
+                entry.AboutUrl = update.SupportUrl;
+                var date = update.LastDeploymentChangeTime;
+                if (!DateTime.MinValue.Equals(date))
+                    entry.InstallDate = date;
+                entry.InstallDate = date;
                 entry.UninstallString = $"\"{HelperPath}\" uninstall {entry.RatingId}";
                 entry.QuietUninstallString = entry.UninstallString;
 
@@ -86,6 +50,12 @@ namespace InventoryEngine.Factory
 
         public bool IsEnabled() => UninstallToolsGlobalConfig.ScanWinUpdates;
 
-        private static bool IsHelperAvailable() => File.Exists(HelperPath);
+        private static List<IUpdate> GetUpdateList()
+        {
+            var wuaSession = new UpdateSessionClass();
+            var wuaSearcher = wuaSession.CreateUpdateSearcher();
+            var wuaSearch = wuaSearcher.Search("IsInstalled=1 and IsPresent=1 and Type='Software'");
+            return wuaSearch.Updates.OfType<IUpdate>().ToList();
+        }
     }
 }
