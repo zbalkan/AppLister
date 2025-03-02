@@ -6,11 +6,11 @@ namespace InventoryService
     public interface IScanner
     {
         /// <summary>
-        ///     Reads all the packages from the source.
+        ///     Reads all the Apps from the source.
         /// </summary>
         /// <returns>
-        ///     List of packages collected. Returns empty list of nothing found.
+        ///     List of Apps collected. Returns empty list of nothing found.
         /// </returns>
-        List<Package> GetAll();
+        List<App> GetAll();
     }
 }

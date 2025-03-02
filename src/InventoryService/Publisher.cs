@@ -11,12 +11,12 @@ namespace InventoryService
         {
             try
             {
-                var package = new Package
+                var App = new App
                 {
                     Id = "Test"
                 };
-                InstrumentationManager.Publish(package);
-                InstrumentationManager.Revoke(package);
+                InstrumentationManager.Publish(App);
+                InstrumentationManager.Revoke(App);
             }
             catch
             {
@@ -24,13 +24,13 @@ namespace InventoryService
             }
         }
 
-        public static void Publish(IEnumerable<Package> packages)
+        public static void Publish(IEnumerable<App> Apps)
         {
             try
             {
-                foreach (var package in packages)
+                foreach (var App in Apps)
                 {
-                    InstrumentationManager.Publish(package);
+                    InstrumentationManager.Publish(App);
                 }
             }
             catch
@@ -39,13 +39,13 @@ namespace InventoryService
             }
         }
 
-        public static void Unpublish(IEnumerable<Package> packages)
+        public static void Unpublish(IEnumerable<App> Apps)
         {
-            foreach (var package in packages)
+            foreach (var App in Apps)
             {
                 try
                 {
-                    InstrumentationManager.Revoke(package);
+                    InstrumentationManager.Revoke(App);
                 }
                 catch
                 {

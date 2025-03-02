@@ -16,14 +16,14 @@ Here, I used Bulk Crap Uninstaller as an engine due to its amazing discovery cap
 
 Install the service and WMI provider using the installer. It will start discovery as soon as possible. You can then run queries against it:
 ```powershell
-Get-CimInstance -Class "CI_Application" |
+Get-CimInstance -Class "ZB_App" |
         Select-Object * -ExcludeProperty PSComputerName, Scope, Path, Options, ClassPath, Properties, SystemProperties, Qualifiers, Site, Container, __*
 ```
 
 One of the good things is that you can use WMI filters for your Group Policies. For instance, you can query if Firefox installed with this PowerShell command, and you can use the same query for WMI filters.
 
 ```powershell
-Get-CimInstance -Query "SELECT Name FROM CI_Application WHERE Name LIKE 'Mozilla Firefox'"
+Get-CimInstance -Query "SELECT Name FROM ZB_App WHERE Name LIKE 'Mozilla Firefox'"
 ```
 
 ## Architecture

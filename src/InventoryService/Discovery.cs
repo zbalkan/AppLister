@@ -9,7 +9,7 @@ using InventoryWmiProvider;
 namespace InventoryService
 {
     /// <summary>
-    ///     The class that utilizes scan engine to collect software packages
+    ///     The class that utilizes scan engine to collect installed Apps
     /// </summary>
     public sealed class Discovery : IScanner
     {
@@ -17,12 +17,12 @@ namespace InventoryService
         ///     Initiates the engine and scan in different stores
         /// </summary>
         /// <returns>
-        ///     List of installed applications as a list of <see cref="Package" /> instances.
+        ///     List of installed applications as a list of <see cref="App" /> instances.
         /// </returns>
-        public List<Package> GetAll()
+        public List<App> GetAll()
         {
             var apps = Inventory.QueryApps();
-            return MaptoPackage(apps);
+            return MaptoApp(apps);
         }
 
         private static string ExtractId(ApplicationUninstallerEntry app) => Regex
@@ -42,14 +42,14 @@ namespace InventoryService
 
         private bool CheckStoreApp(ApplicationUninstallerEntry app) => app.UninstallerKind == UninstallerType.StoreApp;
 
-        private List<Package> MaptoPackage(IReadOnlyList<ApplicationUninstallerEntry> apps)
+        private List<App> MaptoApp(IReadOnlyList<ApplicationUninstallerEntry> apps)
         {
-            var packages = new List<Package>();
+            var Apps = new List<App>();
             foreach (var app in apps)
             {
                 try
                 {
-                    packages.Add(new Package()
+                    Apps.Add(new App()
                     {
                         Id = ExtractId(app),
                         Name = app.DisplayNameTrimmed,
@@ -75,7 +75,7 @@ namespace InventoryService
                     Trace.TraceError($"{ex.Message} @{app.DisplayNameTrimmed}");
                 }
             }
-            return packages.GroupBy(x => x.Id).Select(x => x.First()).OrderBy(p => p.Id).ToList();
+            return Apps.GroupBy(x => x.Id).Select(x => x.First()).OrderBy(p => p.Id).ToList();
         }
     }
 }

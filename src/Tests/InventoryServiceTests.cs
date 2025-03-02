@@ -20,29 +20,29 @@ namespace Tests
 
         // ExceptionAdjustment: M:Microsoft.VisualStudio.TestTools.UnitTesting.Assert.IsTrue(System.Boolean) -T:Microsoft.VisualStudio.TestTools.UnitTesting.AssertFailedException
         [TestMethod]
-        public void WhenPackagesNotPublished_DiscoveredPackages_ShouldBeEmpty()
+        public void WhenAppsNotPublished_DiscoveredApps_ShouldBeEmpty()
         {
             // Collect
-            var publishedPackages = _wmiScanner.GetAll();
+            var publishedApps = _wmiScanner.GetAll();
 
             // Compare
-            Assert.IsTrue(publishedPackages.Count == 0);
+            Assert.IsTrue(publishedApps.Count == 0);
         }
 
         [TestMethod]
-        public void WhenPackagesPublished_DiscoveredPackages_ShouldBeEqual()
+        public void WhenAppsPublished_DiscoveredApps_ShouldBeEqual()
         {
             // Scan
-            var discoveredPackages = _discovery.GetAll();
+            var discoveredApps = _discovery.GetAll();
 
             // Publish
-            Publisher.Publish(discoveredPackages);
+            Publisher.Publish(discoveredApps);
 
             // Collect
-            var publishedPackages = _wmiScanner.GetAll();
+            var publishedApps = _wmiScanner.GetAll();
 
             // Compare
-            Assert.IsTrue(publishedPackages.SequenceEqual(discoveredPackages));
+            Assert.IsTrue(publishedApps.SequenceEqual(discoveredApps));
         }
     }
 }

@@ -4,17 +4,17 @@ using System.Management.Instrumentation;
 
 namespace InventoryWmiProvider
 {
-    [ManagementEntity(Name = "CI_Application", Singleton = false)]
+    [ManagementEntity(Name = "ZB_App", Singleton = false)]
     [ManagementQualifier("Description", Value = "Software inventory: A read-only Win32_Product alternative")]
-    [DebuggerDisplay("Package = {Id}")]
-    public class Package : IEquatable<Package>
+    [DebuggerDisplay("App = {Id}")]
+    public class App : IEquatable<App>
     {
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "Package architecture")]
+        [ManagementQualifier("Description", Value = "App architecture")]
         public string Architecture { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "Package commments")]
+        [ManagementQualifier("Description", Value = "App commments")]
         public string Comments { get; set; }
 
         [ManagementProbe]
@@ -26,39 +26,39 @@ namespace InventoryWmiProvider
         public string Id { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "Package installed date (DMTF datetime)")]
+        [ManagementQualifier("Description", Value = "App installed date (DMTF datetime)")]
         public DateTime InstallDate { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "If the package is a browser")]
+        [ManagementQualifier("Description", Value = "If the App is a browser")]
         public bool IsBrowser { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "A package is orphaned if there is not a related registry record for installation")]
+        [ManagementQualifier("Description", Value = "A App is orphaned if there is not a related registry record for installation")]
         public bool IsOrphaned { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "If the package is installed and managed by Windows Store")]
+        [ManagementQualifier("Description", Value = "If the App is installed and managed by Windows Store")]
         public bool IsStoreApp { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "If the package is a Windows system component")]
+        [ManagementQualifier("Description", Value = "If the App is a Windows system component")]
         public bool IsSystemComponent { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "If the package can be uninstalled")]
+        [ManagementQualifier("Description", Value = "If the App can be uninstalled")]
         public bool IsUninstallable { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "If the package is an update")]
+        [ManagementQualifier("Description", Value = "If the App is an update")]
         public bool IsUpdate { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "Package name")]
+        [ManagementQualifier("Description", Value = "App name")]
         public string Name { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "Package publisher information")]
+        [ManagementQualifier("Description", Value = "App publisher information")]
         public string Publisher { get; set; }
 
         [ManagementProbe]
@@ -66,19 +66,19 @@ namespace InventoryWmiProvider
         public string[] StartupEntries { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "Package version")]
+        [ManagementQualifier("Description", Value = "App version")]
         public string Version { get; set; }
 
         public override bool Equals(object obj)
         {
-            if (obj?.GetType() != typeof(Package))
+            if (obj?.GetType() != typeof(App))
             {
                 return false;
             }
-            return Id == ((Package)obj).Id;
+            return Id == ((App)obj).Id;
         }
 
-        public bool Equals(Package other) => Id == other?.Id;
+        public bool Equals(App other) => Id == other?.Id;
 
         public override int GetHashCode() => Id.GetHashCode();
     }

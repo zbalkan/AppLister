@@ -33,20 +33,20 @@ namespace InventoryService
         public void Refresh()
         {
             Publisher.CheckDependency();
-            var publishedPackages = _wmiScanner.GetAll();
+            var publishedApps = _wmiScanner.GetAll();
 
             _logger?.WriteEntry("Running discovery scan.", EventLogEntryType.Information, 10);
             _stopwatch.Reset();
             _stopwatch.Start();
-            var discoveredPackages = _discovery.GetAll();
+            var discoveredApps = _discovery.GetAll();
             _stopwatch.Stop();
 
-            if (publishedPackages?.Count > 0)
+            if (publishedApps?.Count > 0)
             {
-                Publisher.Unpublish(publishedPackages);
+                Publisher.Unpublish(publishedApps);
             }
-            Publisher.Publish(discoveredPackages);
-            var message = $"Discovery scan completed.\nElapsed time: {_stopwatch.Elapsed}\nDiscovered packages: {discoveredPackages.Count}";
+            Publisher.Publish(discoveredApps);
+            var message = $"Discovery scan completed.\nElapsed time: {_stopwatch.Elapsed}\nDiscovered Apps: {discoveredApps.Count}";
             _logger?.WriteEntry(message, EventLogEntryType.Information, 11);
         }
 

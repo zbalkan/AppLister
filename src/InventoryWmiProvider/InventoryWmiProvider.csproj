@@ -53,7 +53,7 @@
     <Compile Include="WMIProviderInstaller.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Package.cs" />
+    <Compile Include="App.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
