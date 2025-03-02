@@ -33,7 +33,7 @@ namespace InventoryService
 
         private static string[] GetStartupEntries(ApplicationUninstallerEntry app)
         {
-            if (!app.HasStartups)
+            if (app.StartupEntries == null || !app.StartupEntries.Any())
             {
                 return Array.Empty<string>();
             }
@@ -54,12 +54,12 @@ namespace InventoryService
                         Id = ExtractId(app),
                         Name = app.DisplayNameTrimmed,
                         Version = app.DisplayVersion,
-                        Publisher = app.PublisherTrimmed,
+                        Publisher = app.Publisher,
                         InstallDate = app.InstallDate,
                         IsSystemComponent = app.SystemComponent,
                         IsUninstallable = !app.IsProtected,
                         IsBrowser = app.IsWebBrowser,
-                        Executables = app.GetSortedExecutables().ToArray(),
+                        AboutURL = app.AboutUrl,
                         IsOrphaned = app.IsOrphaned,
                         IsUpdate = app.IsUpdate,
                         IsStoreApp = CheckStoreApp(app),

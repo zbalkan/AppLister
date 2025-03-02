@@ -10,8 +10,7 @@ namespace InventoryEngine.InfoAdders
         public bool AlwaysRun { get; } = true;
 
         public string[] CanProduceValueNames { get; } = {
-            nameof(ApplicationUninstallerEntry.UninstallString),
-            nameof(ApplicationUninstallerEntry.QuietUninstallString)
+            nameof(ApplicationUninstallerEntry.UninstallString)
         };
 
         public InfoAdderPriority Priority { get; } = InfoAdderPriority.RunLast;
@@ -34,16 +33,6 @@ namespace InventoryEngine.InfoAdders
             if (!int.TryParse(appId, out _))
             {
                 return;
-            }
-
-            if (!target.UninstallPossible || UninstallToolsGlobalConfig.QuietAutomatization)
-            {
-                target.UninstallString = $"\"{SteamFactory.SteamHelperPath}\" uninstall {appId}";
-            }
-
-            if (UninstallToolsGlobalConfig.QuietAutomatization)
-            {
-                target.QuietUninstallString = $"\"{SteamFactory.SteamHelperPath}\" uninstall /silent {appId}";
             }
         }
     }

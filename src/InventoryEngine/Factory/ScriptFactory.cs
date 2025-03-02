@@ -64,14 +64,14 @@ namespace InventoryEngine.Factory
                     }
                 }
 
-                if (!entry.UninstallPossible && !entry.QuietUninstallPossible)
+                if (!entry.UninstallPossible)
                 {
                     continue;
                 }
 
-                if (string.IsNullOrEmpty(entry.Publisher))
+                if (string.IsNullOrEmpty(entry.RawPublisher))
                 {
-                    entry.Publisher = "Script";
+                    entry.RawPublisher = "Script";
                 }
 
                 results.Add(entry);

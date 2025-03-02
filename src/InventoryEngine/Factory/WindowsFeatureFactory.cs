@@ -50,9 +50,6 @@ namespace InventoryEngine.Factory
 
         public bool IsEnabled() => UninstallToolsGlobalConfig.ScanWinFeatures;
 
-        private static string GetDismUninstallString(string featureName, bool silent) => string.Format("Dism.exe /norestart {1}/online /disable-feature /featurename=\"{0}\"",
-                        featureName, silent ? "/quiet " : string.Empty);
-
         /// <summary>
         ///     Get information about enabled and disabled windows features. Works on Windows 7 and newer.
         /// </summary>
@@ -116,10 +113,8 @@ namespace InventoryEngine.Factory
             {
                 RawDisplayName = displayName,
                 Comment = info.Description,
-                UninstallString = GetDismUninstallString(info.FeatureName, false),
-                QuietUninstallString = GetDismUninstallString(info.FeatureName, true),
                 UninstallerKind = UninstallerType.WindowsFeature,
-                Publisher = "Microsoft Corporation",
+                RawPublisher = "Microsoft Corporation",
                 IsValid = true,
                 Is64Bit = ProcessTools.Is64BitProcess ? MachineType.X64 : MachineType.X86,
                 RatingId = "WindowsFeature_" + info.FeatureName

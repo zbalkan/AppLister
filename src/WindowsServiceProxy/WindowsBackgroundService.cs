@@ -39,11 +39,11 @@ namespace WindowsServiceProxy
             _internalService = new InventoryService.InventoryService(EventLog);
         }
 
-        internal void TestStartupAndStop(string[] args)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("AsyncUsage", "AsyncFixer01:Unnecessary async/await usage", Justification = "<Pending>")]
+        internal async Task TestStartupAndStop(string[] args)
         {
             OnStart(args);
-            Console.WriteLine("Press Enter to exit...");
-            Console.ReadLine();
+            await Task.Delay(Timeout.Infinite);
         }
 
         protected override void OnStart(string[] args)

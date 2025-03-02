@@ -18,8 +18,8 @@ namespace InventoryWmiProvider
         public string Comments { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "Get the executable files of the application")]
-        public string[] Executables { get; set; }
+        [ManagementQualifier("Description", Value = "Get the about URL")]
+        public string AboutURL { get; set; }
 
         [ManagementKey]
         [ManagementQualifier("Description", Value = "Unique identifier: <Name>_<Version>")]

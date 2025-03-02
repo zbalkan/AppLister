@@ -46,9 +46,7 @@ namespace InventoryEngine.Factory
                 {
                     RatingId = name,
 
-                    //RegistryKeyName = name,
                     UninstallString = uninstallStr,
-                    QuietUninstallString = uninstallStr,
                     IsValid = true,
                     UninstallerKind = UninstallerType.Oculus,
                     InstallLocation = data["InstallLocation"],

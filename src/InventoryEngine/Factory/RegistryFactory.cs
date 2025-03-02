@@ -32,13 +32,9 @@ namespace InventoryEngine.Factory
 
         public static readonly string RegistryNameInstallSource = "InstallSource";
 
-        public static readonly string RegistryNameModifyPath = "ModifyPath";
-
         public static readonly string RegistryNameParentKeyName = "ParentKeyName";
 
         public static readonly string RegistryNamePublisher = "Publisher";
-
-        public static readonly string RegistryNameQuietUninstallString = "QuietUninstallString";
 
         public static readonly IEnumerable<string> RegistryNamesOfUrlSources = new[]
             {"URLInfoAbout", "URLUpdateInfo", "HelpLink"};
@@ -132,10 +128,8 @@ namespace InventoryEngine.Factory
             RawDisplayName = uninstallerKey.GetStringSafe(RegistryNameDisplayName),
             DisplayVersion = ApplicationEntryTools.CleanupDisplayVersion(uninstallerKey.GetStringSafe(RegistryNameDisplayVersion)),
             ParentKeyName = uninstallerKey.GetStringSafe(RegistryNameParentKeyName),
-            Publisher = uninstallerKey.GetStringSafe(RegistryNamePublisher),
+            RawPublisher = uninstallerKey.GetStringSafe(RegistryNamePublisher),
             UninstallString = GetUninstallString(uninstallerKey),
-            QuietUninstallString = GetQuietUninstallString(uninstallerKey),
-            ModifyPath = uninstallerKey.GetStringSafe(RegistryNameModifyPath),
             InstallLocation = uninstallerKey.GetStringSafe(RegistryNameInstallLocation),
             InstallSource = uninstallerKey.GetStringSafe(RegistryNameInstallSource),
             SystemComponent = Convert.ToInt32(uninstallerKey.GetValue(RegistryNameSystemComponent, 0)) != 0,
@@ -262,8 +256,6 @@ namespace InventoryEngine.Factory
 
         private static bool GetProtectedFlag(RegistryKey uninstallerKey) => Convert.ToInt32(uninstallerKey.GetValue("NoRemove", 0)) != 0;
 
-        private static string GetQuietUninstallString(RegistryKey uninstallerKey) => GetKeyFuzzy(uninstallerKey, RegistryNameQuietUninstallString);
-
         private static UninstallerType GetUninstallerType(RegistryKey uninstallerKey)
         {
             // Detect MSI installer based on registry entry (the proper way)
@@ -291,7 +283,7 @@ namespace InventoryEngine.Factory
                 : UninstallerTypeAdder.GetUninstallerType(uninstallString);
         }
 
-        private static string GetUninstallString(RegistryKey uninstallerKey) => GetKeyFuzzy(uninstallerKey, RegistryNameUninstallString) ?? GetQuietUninstallString(uninstallerKey);
+        private static string GetUninstallString(RegistryKey uninstallerKey) => GetKeyFuzzy(uninstallerKey, RegistryNameUninstallString);
 
         private static RegistryKey OpenSubKeySafe(RegistryKey baseKey, string name, bool writable = false)
         {
@@ -330,7 +322,7 @@ namespace InventoryEngine.Factory
             // Check for invalid registry key
             if (tempEntry.RawDisplayName == null)
             {
-                if (tempEntry.Publisher == null && !tempEntry.UninstallPossible && !tempEntry.QuietUninstallPossible)
+                if (tempEntry.RawPublisher == null && !tempEntry.UninstallPossible)
                 {
                     return null;
                 }
@@ -353,7 +345,7 @@ namespace InventoryEngine.Factory
             // Corner case with some microsoft application installations. They will sometimes create
             // a naked registry key (product code as reg name) with only the display name value.
             if (tempEntry.UninstallerKind != UninstallerType.Msiexec && tempEntry.BundleProviderKey != Guid.Empty
-                && !tempEntry.UninstallPossible && !tempEntry.QuietUninstallPossible && _windowsInstallerValidGuids.Contains(tempEntry.BundleProviderKey))
+                && !tempEntry.UninstallPossible && _windowsInstallerValidGuids.Contains(tempEntry.BundleProviderKey))
             {
                 tempEntry.UninstallerKind = UninstallerType.Msiexec;
             }

@@ -15,9 +15,6 @@ namespace InventoryEngine
 
         private static void ConfigureUninstallTools()
         {
-            UninstallToolsGlobalConfig.QuietAutomatizationKillStuck = true;
-            UninstallToolsGlobalConfig.QuietAutomatization = true;
-            UninstallToolsGlobalConfig.UseQuietUninstallDaemon = true;
             UninstallToolsGlobalConfig.AutoDetectCustomProgramFiles = true;
 
             // Scan application sources

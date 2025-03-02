@@ -24,7 +24,7 @@ namespace InventoryService
                         IsSystemComponent = (bool)queryObj["IsSystemComponent"],
                         IsUninstallable = (bool)queryObj["IsUninstallable"],
                         IsBrowser = (bool)queryObj["IsBrowser"],
-                        Executables = queryObj["Executables"] as string[],
+                        AboutURL = queryObj["AboutURL"] as string,
                         IsUpdate = (bool)queryObj["IsUpdate"],
                         IsOrphaned = (bool)queryObj["IsOrphaned"],
                         StartupEntries = queryObj["StartupEntries"] as string[],

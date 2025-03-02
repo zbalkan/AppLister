@@ -10,7 +10,7 @@ namespace InventoryEngine.InfoAdders
         public string[] CanProduceValueNames { get; } =  {
             nameof(ApplicationUninstallerEntry.RawDisplayName),
             nameof(ApplicationUninstallerEntry.DisplayVersion),
-            nameof(ApplicationUninstallerEntry.Publisher),
+            nameof(ApplicationUninstallerEntry.RawPublisher),
             nameof(ApplicationUninstallerEntry.InstallLocation),
             nameof(ApplicationUninstallerEntry.InstallSource),
             nameof(ApplicationUninstallerEntry.UninstallerFullFilename),
@@ -54,7 +54,7 @@ namespace InventoryEngine.InfoAdders
             FillInMissingInfoMsiHelper(() => entry.DisplayVersion, x => entry.DisplayVersion = ApplicationEntryTools.CleanupDisplayVersion(x), guid,
                 MsiWrapper.Installproperty.Versionstring, MsiWrapper.Installproperty.Version);
 
-            FillInMissingInfoMsiHelper(() => entry.Publisher, x => entry.Publisher = x, guid,
+            FillInMissingInfoMsiHelper(() => entry.RawPublisher, x => entry.RawPublisher = x, guid,
                 MsiWrapper.Installproperty.Publisher);
 
             FillInMissingInfoMsiHelper(() => entry.InstallLocation, x => entry.InstallLocation = x, guid,

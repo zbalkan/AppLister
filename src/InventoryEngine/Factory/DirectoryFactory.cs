@@ -116,7 +116,7 @@ namespace InventoryEngine.Factory
 
                     if (level > 0)
                     {
-                        entry.Publisher = directory.Parent?.Name;
+                        entry.RawPublisher = directory.Parent?.Name;
                     }
                 }
 
