@@ -39,7 +39,7 @@ namespace WindowsServiceProxy
             EnsureSingleInstance();
             var service = new WindowsBackgroundService
             {
-                ServiceName = "InventoryService"
+                ServiceName = "AppLister"
             };
             InitiateEventLog(service);
 
@@ -51,7 +51,7 @@ namespace WindowsServiceProxy
             {
                 ServiceBase.Run(new ServiceBase[]
                 {
-                service
+                    service
                 });
             }
         }

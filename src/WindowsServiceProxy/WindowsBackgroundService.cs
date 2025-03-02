@@ -4,6 +4,7 @@ using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using AppLister;
 
 namespace WindowsServiceProxy
 {
@@ -14,9 +15,9 @@ namespace WindowsServiceProxy
         // Default period constant
         private const string QueryPeriodKey = "QueryPeriodInMinutes";
 
-        private const string ServiceKeyPath = @"SOFTWARE\zb\InventorySvc";
+        private const string ServiceKeyPath = @"SOFTWARE\zb\AppListerSvc";
 
-        private readonly InventoryService.InventoryService _internalService;
+        private readonly AppListerService _internalService;
 
         private readonly int _queryPeriodInMilliseconds;
 
@@ -36,7 +37,7 @@ namespace WindowsServiceProxy
                 _queryPeriodInMilliseconds = ToMillisecond(period);
             }
 
-            _internalService = new InventoryService.InventoryService(EventLog);
+            _internalService = new AppListerService(EventLog);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("AsyncUsage", "AsyncFixer01:Unnecessary async/await usage", Justification = "<Pending>")]
