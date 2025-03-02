@@ -65,9 +65,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\InventoryEngine\InventoryEngine.csproj">
+    <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{066b5fce-96db-4178-b210-783e39c6b2a2}</Project>
-      <Name>InventoryEngine</Name>
+      <Name>Engine</Name>
     </ProjectReference>
     <ProjectReference Include="..\WmiProvider\WmiProvider.csproj">
       <Project>{3a57e8b9-e7af-4fc9-bdd6-0eb83822deee}</Project>

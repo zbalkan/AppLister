@@ -59,9 +59,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\InventoryEngine\InventoryEngine.csproj">
+    <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{066b5fce-96db-4178-b210-783e39c6b2a2}</Project>
-      <Name>InventoryEngine</Name>
+      <Name>Engine</Name>
     </ProjectReference>
     <ProjectReference Include="..\AppLister\AppLister.csproj">
       <Project>{1e29b02d-87a9-4b78-9953-eb9ce9d88fb1}</Project>

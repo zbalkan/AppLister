@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WmiProvider", "WmiProvider\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsServiceProxy", "WindowsServiceProxy\WindowsServiceProxy.csproj", "{7CEB20D7-26B1-4697-9672-22A9DC0D018B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InventoryEngine", "InventoryEngine\InventoryEngine.csproj", "{066B5FCE-96DB-4178-B210-783E39C6B2A2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Engine", "Engine\Engine.csproj", "{066B5FCE-96DB-4178-B210-783E39C6B2A2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppLister", "AppLister\AppLister.csproj", "{1E29B02D-87A9-4B78-9953-EB9CE9D88FB1}"
 EndProject
