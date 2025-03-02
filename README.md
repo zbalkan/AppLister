@@ -6,7 +6,7 @@ A Windows service and a WMI provider to allow anyone to have a working inventory
 
 ## Rationale
 
-The `Win32_Product` has always been [problematic](https://gregramsey.net/2012/02/20/win32_product-is-evil/), especially when it comes to WMI filters. For local scenarios, PowerShell can save you but not for remote use cases or WMI filtering for Group Policies.
+The `Win32_Product` has always been [problematic](https://gregramsey.net/2012/02/20/win32_product-is-evil/), especially when it comes to WMI filters. The alternative is to use file or registry paths in your queries, which may or may not work for your use case. For local scenarios, PowerShell can save you but not for remote use cases or WMI filtering for Group Policies.
 
 Also, the developer sometimes invent new ways of doing some tasks, which may not fit what Windows expects it. Therefore, it may not be reliable to use those commands, cmdlets or tools.
 
@@ -14,16 +14,16 @@ Here, I used Bulk Crap Uninstaller as an engine due to its amazing discovery cap
 
 ## Usage
 
-Install the service and WMI provider using the installer. It will start discovery as soon as possible.
+Install the service and WMI provider using the installer. It will start discovery as soon as possible. You can then run queries against it:
+```powershell
+Get-CimInstance -Class "CI_Application" |
+        Select-Object * -ExcludeProperty PSComputerName, Scope, Path, Options, ClassPath, Properties, SystemProperties, Qualifiers, Site, Container, __*
+```
 
-You can then run queries against it. The name
+One of the good things is that you can use WMI filters for your Group Policies. For instance, you can query if Firefox installed with this PowerShell command, and you can use the same query for WMI filters.
 
 ```powershell
-$Namespace = "ROOT\cimv2"
-$Class = "CI_Application"
-
-Get-WmiObject -Class $Class -Namespace $Namespace |
-        Select-Object * -ExcludeProperty PSComputerName, Scope, Path, Options, ClassPath, Properties, SystemProperties, Qualifiers, Site, Container, __*
+Get-CimInstance -Query "SELECT Name FROM CI_Application WHERE Name LIKE 'Mozilla Firefox'"
 ```
 
 ## Architecture
@@ -45,4 +45,4 @@ All of the code is based on .NET Framework 4.8.1 due to the dependencies.
 
 ## Thanks
 
-The scan engine is ripped off from [Bulk Crap Uninstaller](https://github.com/Klocman/Bulk-Crap-Uninstaller). This project minimized the back-end to a list-only implementation. This project would not happen without [Marcin Szeniak](https://github.com/Klocman)'s work.
+The scan engine is ripped off from [Bulk Crap Uninstaller](https://github.com/Klocman/Bulk-Crap-Uninstaller). This project minimized the engine to a list-only implementation by excluding many capacilities including uninstallation. This project would not happen without [Marcin Szeniak](https://github.com/Klocman)'s work.
