@@ -23,7 +23,7 @@ namespace InventoryEngine
             // Scan application sources
             UninstallToolsGlobalConfig.ScanStoreApps = true;
             UninstallToolsGlobalConfig.ScanWinFeatures = true;
-            UninstallToolsGlobalConfig.ScanWinUpdates = false;
+            UninstallToolsGlobalConfig.ScanWinUpdates = true;
             UninstallToolsGlobalConfig.ScanPreDefined = true;
             UninstallToolsGlobalConfig.ScanScoop = true;
             UninstallToolsGlobalConfig.ScanChocolatey = true;
