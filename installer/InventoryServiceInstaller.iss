@@ -3,7 +3,7 @@
 
 #define MyAppShortName "InventorySvc"
 #define MyAppDisplayName "Inventory Service"
-#define MyAppVersion "1.0.1"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "Zafer Balkan"
 #define MyAppURL "https://github.com/zbalkan/InventoryService"
 #define ParentKey "Software\zb"
@@ -60,7 +60,7 @@ Filename: {sys}\sc.exe; Parameters: "failure ""{#MyAppShortName}"" actions= rest
 Filename: {sys}\sc.exe; Parameters: "start ""{#MyAppShortName}""" ; Flags: runhidden runascurrentuser; Description: "Start service";
 
 [UninstallRun]
-; Srop and delete service
+; Stop and delete service
 Filename: {sys}\sc.exe; Parameters: "stop ""{#MyAppShortName}""" ; Flags: runhidden runascurrentuser; RunOnceId: "StopService";
 Filename: {sys}\sc.exe; Parameters: "delete ""{#MyAppShortName}""" ; Flags: runhidden runascurrentuser; RunOnceId: "DeleteService";
 ; Unregister WMI class
