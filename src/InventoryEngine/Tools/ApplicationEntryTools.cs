@@ -68,7 +68,7 @@ namespace InventoryEngine.Tools
             AddScore(ref score, -3, -1, 5, CompareDates(baseEntry.InstallDate, otherEntry.InstallDate));
 
             AddScore(ref score, -2, 0, 5, CompareStrings(baseEntry.DisplayVersion, otherEntry.DisplayVersion, true));
-            AddScore(ref score, -5, 0, 5, CompareStrings(baseEntry.Publisher, otherEntry.Publisher));
+            AddScore(ref score, -5, 0, 5, CompareStrings(baseEntry.RawPublisher, otherEntry.RawPublisher));
 
             // Check if base entry was installed from inside other entry's install directory
             if (string.IsNullOrEmpty(baseEntry.InstallLocation) && !string.IsNullOrEmpty(baseEntry.InstallSource) &&

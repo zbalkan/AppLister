@@ -87,7 +87,7 @@ namespace InventoryEngine.Factory
                 RatingId = "Steam",
                 IsValid = File.Exists(Path.Combine(steamLocation, "uninstall.exe")),
                 InstallDate = Directory.GetCreationTime(steamLocation),
-                Publisher = "Valve Corporation",
+                RawPublisher = "Valve Corporation",
             });
 
             return results.AsReadOnly();

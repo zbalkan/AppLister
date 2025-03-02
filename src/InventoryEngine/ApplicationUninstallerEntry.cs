@@ -14,13 +14,6 @@ namespace InventoryEngine
     {
         public string AboutUrl { get; set; }
 
-        /// <summary>
-        ///     Product code used by msiexec. If it wasn't found, returns Guid.Empty.
-        /// </summary>
-        public Guid BundleProviderKey { get; set; }
-
-        public string CacheIdOverride { get; set; }
-
         public string Comment { get; set; }
 
         public string DisplayName
@@ -33,21 +26,7 @@ namespace InventoryEngine
 
         public string DisplayVersion { get; set; }
 
-        public bool HasStartups => StartupEntries?.Any() == true;
-
         public DateTime InstallDate { get; set; }
-
-        public string InstallLocation
-        {
-            get { return _installLocation; }
-            set { _installLocation = CleanupPath(value); }
-        }
-
-        public string InstallSource
-        {
-            get { return _installSource; }
-            set { _installSource = CleanupPath(value); }
-        }
 
         public MachineType Is64Bit { get; set; }
 
@@ -73,38 +52,45 @@ namespace InventoryEngine
         public bool IsUpdate { get; set; }
 
         /// <summary>
-        ///     True if the application can be uninstalled. False if the uninstaller is missing or
-        ///     is otherwise invalid.
-        /// </summary>
-        public bool IsValid { get; set; }
-
-        /// <summary>
         ///     True if the application is listed as a web browser.
         /// </summary>
         public bool IsWebBrowser { get; set; }
 
-        public string ModifyPath
+        public string Publisher => string.IsNullOrEmpty(RawPublisher)
+                            ? string.Empty
+                            : RawPublisher.Replace("(R)", string.Empty)
+                                .ExtendedTrimEndAny(CompanyNameEndTrimmers, StringComparison.CurrentCultureIgnoreCase);
+
+        public IEnumerable<StartupEntryBase> StartupEntries { get; set; }
+
+        public bool SystemComponent { get; set; }
+
+        public UninstallerType UninstallerKind { get; set; }
+
+        /// <summary>
+        ///     Product code used by msiexec. If it wasn't found, returns Guid.Empty.
+        /// </summary>
+        internal Guid BundleProviderKey { get; set; }
+
+        internal string InstallLocation
         {
-            get { return _modifyPath; }
-            set { _modifyPath = CleanupPath(value); }
+            get { return _installLocation; }
+            set { _installLocation = CleanupPath(value); }
         }
 
-        public string ParentKeyName { get; set; }
+        internal string InstallSource
+        {
+            get { return _installSource; }
+            set { _installSource = CleanupPath(value); }
+        }
+        /// <summary>
+        ///     True if the application can be uninstalled. False if the uninstaller is missing or
+        ///     is otherwise invalid.
+        /// </summary>
+        internal bool IsValid { get; set; }
+        internal string ParentKeyName { get; set; }
 
-        public string Publisher { get; set; }
-
-        public string PublisherTrimmed => string.IsNullOrEmpty(Publisher)
-                    ? string.Empty
-                    : Publisher.Replace("(R)", string.Empty)
-                        .ExtendedTrimEndAny(CompanyNameEndTrimmers, StringComparison.CurrentCultureIgnoreCase);
-
-        public bool QuietUninstallPossible => !string.IsNullOrEmpty(QuietUninstallString) ||
-                                                      (UninstallerKind == UninstallerType.Msiexec &&
-                                                       BundleProviderKey != Guid.Empty);
-
-        public string QuietUninstallString { get; set; }
-
-        public string RatingId
+        internal string RatingId
         {
             get
             {
@@ -122,18 +108,22 @@ namespace InventoryEngine
             set { _ratingId = value; }
         }
 
-        public string RegistryKeyName { get; set; }
+        internal string RawDisplayName { get; set; }
+
+        internal string RawPublisher { get; set; }
+        internal string RegistryKeyName { get; set; }
 
         /// <summary>
         ///     Full registry path of this entry
         /// </summary>
-        public string RegistryPath { get; set; }
+        internal string RegistryPath { get; set; }
+        /// <summary>
+        ///     Ordered collection of filenames that could be the main executable of the
+        ///     application. The most likely files are first, the least likely are last.
+        /// </summary>
+        internal string[] SortedExecutables { get; set; }
 
-        public IEnumerable<StartupEntryBase> StartupEntries { get; set; }
-
-        public bool SystemComponent { get; set; }
-
-        public string UninstallerFullFilename
+        internal string UninstallerFullFilename
         {
             get { return _uninstallerFullFilename; }
             set
@@ -144,15 +134,11 @@ namespace InventoryEngine
                                       ?? UninstallerLocation ?? string.Empty;
             }
         }
+        internal string UninstallerLocation { get; set; }
 
-        public UninstallerType UninstallerKind { get; set; }
+        internal bool UninstallPossible => !string.IsNullOrEmpty(UninstallString);
 
-        public string UninstallerLocation { get; set; }
-
-        public bool UninstallPossible => !string.IsNullOrEmpty(UninstallString);
-
-        //public bool IsInstalled { get; internal set; }
-        public string UninstallString
+        internal string UninstallString
         {
             get { return _uninstallString; }
             set
@@ -163,15 +149,6 @@ namespace InventoryEngine
                     ?? UninstallerFullFilename ?? string.Empty;
             }
         }
-
-        internal string RawDisplayName { get; set; }
-
-        /// <summary>
-        ///     Ordered collection of filenames that could be the main executable of the
-        ///     application. The most likely files are first, the least likely are last.
-        /// </summary>
-        internal string[] SortedExecutables { get; set; }
-
         /// <summary>
         ///     List of properties that might have changed by updating the key property
         ///     IMPORTANT: Keep up to date!
@@ -215,34 +192,28 @@ namespace InventoryEngine
 
         private string _installSource;
 
-        private string _modifyPath;
-
         private string _ratingId;
 
         private string _uninstallerFullFilename;
 
         private string _uninstallString;
 
-        public IEnumerable<string> GetSortedExecutables()
+        public override string ToString()
         {
-            if (SortedExecutables == null)
-            {
-                return Enumerable.Empty<string>();
-            }
+            var sb = new StringBuilder();
+            sb.Append(DisplayName)
+                .AppendFormat(" | {0}", RawPublisher)
+                .AppendFormat(" | {0}", DisplayVersion)
+                .AppendFormat(" | {0}", UninstallString)
+                .AppendFormat(" | {0}", Comment);
 
-            var output = SortedExecutables.AsEnumerable();
-            if (!string.IsNullOrEmpty(UninstallerFullFilename))
-            {
-                output = output.OrderBy(x => x.Equals(UninstallerFullFilename, StringComparison.InvariantCultureIgnoreCase));
-            }
-
-            return output;
+            return sb.ToString();
         }
 
         /// <summary>
         ///     Check if the install location is not empty and is not a system directory
         /// </summary>
-        public bool IsInstallLocationValid()
+        internal bool IsInstallLocationValid()
         {
             if (string.IsNullOrEmpty(InstallLocation?.Trim()))
             {
@@ -251,19 +222,6 @@ namespace InventoryEngine
 
             return !UninstallToolsGlobalConfig.GetAllProgramFiles().Any(x => PathTools.PathsEqual(x, InstallLocation));
         }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.Append(DisplayName)
-                .AppendFormat(" | {0}", Publisher)
-                .AppendFormat(" | {0}", DisplayVersion)
-                .AppendFormat(" | {0}", UninstallString)
-                .AppendFormat(" | {0}", Comment);
-
-            return sb.ToString();
-        }
-
         private static string CleanupPath(string path, bool isFilename = false)
         {
             if (string.IsNullOrEmpty(path))

@@ -22,7 +22,6 @@ namespace InventoryEngine.InfoAdders
 
         public string[] RequiredValueNames { get; } = {
             nameof(ApplicationUninstallerEntry.UninstallString),
-            nameof(ApplicationUninstallerEntry.QuietUninstallString),
             nameof(ApplicationUninstallerEntry.InstallLocation)
         };
 
@@ -104,9 +103,7 @@ namespace InventoryEngine.InfoAdders
                 return;
             }
 
-            var uninstallString = !string.IsNullOrEmpty(target.UninstallString)
-                ? target.UninstallString
-                : target.QuietUninstallString;
+            var uninstallString = target.UninstallString;
 
             if (!string.IsNullOrEmpty(uninstallString))
             {

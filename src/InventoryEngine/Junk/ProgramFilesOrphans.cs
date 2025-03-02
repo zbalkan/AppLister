@@ -53,7 +53,7 @@ namespace InventoryEngine.Junk
                     .Where(x => !string.IsNullOrEmpty(x)).Distinct().ToArray();
 
             _otherPublishers =
-                applicationUninstallerEntries.Select(x => x.PublisherTrimmed).Where(x => x?.Length > 3)
+                applicationUninstallerEntries.Select(x => x.Publisher).Where(x => x?.Length > 3)
                     .Distinct().ToArray();
             _otherNames =
                 applicationUninstallerEntries.Select(x => x.DisplayNameTrimmed).Where(x => x?.Length > 3)

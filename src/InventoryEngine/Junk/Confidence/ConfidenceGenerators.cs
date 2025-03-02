@@ -38,7 +38,7 @@ namespace InventoryEngine.Junk.Confidence
                 yield return ConfidenceRecords.ItemNameEqualsCompanyName;
             }
 
-            if (level > 0 && applicationUninstallerEntry.PublisherTrimmed
+            if (level > 0 && applicationUninstallerEntry.Publisher
                     .IndexOf(PathTools.GetName(itemParentPath).Replace('_', ' '), StringComparison.InvariantCultureIgnoreCase) >= 0)
             {
                 yield return ConfidenceRecords.CompanyNameMatch;
@@ -48,7 +48,7 @@ namespace InventoryEngine.Junk.Confidence
         // Check if name is the same as publisher, could be "Adobe AIR" getting matched to a folder "Adobe"
         internal static bool ItemNameEqualsCompanyName(ApplicationUninstallerEntry applicationUninstallerEntry, string itemName)
         {
-            var publisher = applicationUninstallerEntry.PublisherTrimmed.ToLowerInvariant();
+            var publisher = applicationUninstallerEntry.Publisher.ToLowerInvariant();
             itemName = itemName.ToLowerInvariant();
             return !publisher.Equals(applicationUninstallerEntry.DisplayNameTrimmed.ToLowerInvariant()) && publisher.Contains(itemName);
         }
@@ -77,7 +77,7 @@ namespace InventoryEngine.Junk.Confidence
             }
 
             // If the product name contains company name, try trimming it and testing again
-            var publisher = applicationUninstallerEntry.PublisherTrimmed.ToLower();
+            var publisher = applicationUninstallerEntry.Publisher.ToLower();
             if (publisher.Length > 4 && productName.Contains(publisher))
             {
                 var trimmedProductName = productName.Replace(publisher, "").Trim();

@@ -44,16 +44,6 @@ namespace InventoryEngine.Shared
         /// </summary>
         internal static IEnumerable<string> QuestionableDirectoryNames { get; }
 
-        /// <summary>
-        ///     Automatize non-quiet uninstallers.
-        /// </summary>
-        internal static bool QuietAutomatization { get; set; }
-
-        /// <summary>
-        ///     Kill stuck automatized uninstallers.
-        /// </summary>
-        internal static bool QuietAutomatizationKillStuck { get; set; }
-
         internal static bool ScanChocolatey { get; set; } = true;
 
         internal static bool ScanDrives { get; set; } = true;
@@ -82,8 +72,6 @@ namespace InventoryEngine.Shared
         internal static bool UninstallerAutomatizerExists { get; }
 
         internal static string UninstallerAutomatizerPath { get; }
-
-        internal static bool UseQuietUninstallDaemon { get; set; }
 
         internal static string WindowsDirectory { get; }
 

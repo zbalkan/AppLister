@@ -13,7 +13,7 @@ namespace InventoryEngine.InfoAdders
         public string[] CanProduceValueNames { get; } = {
             nameof(ApplicationUninstallerEntry.RawDisplayName),
             nameof(ApplicationUninstallerEntry.DisplayVersion),
-            nameof(ApplicationUninstallerEntry.Publisher)
+            nameof(ApplicationUninstallerEntry.RawPublisher)
 
             //nameof(ApplicationUninstallerEntry.Comment)
         };
@@ -72,9 +72,9 @@ namespace InventoryEngine.InfoAdders
             }
 
             var companyName = verInfo.CompanyName?.Trim();
-            if (unpopulatedCheck(targetEntry.Publisher) && !string.IsNullOrEmpty(companyName))
+            if (unpopulatedCheck(targetEntry.RawPublisher) && !string.IsNullOrEmpty(companyName))
             {
-                targetEntry.Publisher = companyName;
+                targetEntry.RawPublisher = companyName;
             }
 
             if (unpopulatedCheck(targetEntry.RawDisplayName))

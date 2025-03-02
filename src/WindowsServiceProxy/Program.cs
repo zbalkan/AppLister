@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
+using System.Threading.Tasks;
 
 namespace WindowsServiceProxy
 {
@@ -33,7 +34,7 @@ namespace WindowsServiceProxy
         /// <summary>
         ///     The main entry point for the application.
         /// </summary>
-        private static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
             EnsureSingleInstance();
             var service = new WindowsBackgroundService
@@ -44,7 +45,7 @@ namespace WindowsServiceProxy
 
             if (Environment.UserInteractive)
             {
-                service.TestStartupAndStop(args);
+                await service.TestStartupAndStop(args);
             }
             else
             {

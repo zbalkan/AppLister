@@ -24,7 +24,7 @@ namespace InventoryEngine.Factory
                 {
                     UninstallerKind = UninstallerType.WindowsUpdate,
                     IsUpdate = true,
-                    Publisher = "Microsoft Corporation"
+                    RawPublisher = "Microsoft Corporation"
                 };
 
                 var updateIdentity = update.Identity;
@@ -40,7 +40,6 @@ namespace InventoryEngine.Factory
                     entry.InstallDate = date;
                 entry.InstallDate = date;
                 entry.UninstallString = $"\"{HelperPath}\" uninstall {entry.RatingId}";
-                entry.QuietUninstallString = entry.UninstallString;
 
                 results.Add(entry);
             }

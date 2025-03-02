@@ -104,12 +104,10 @@ namespace InventoryEngine.Factory
 
             return new ApplicationUninstallerEntry()
             {
-                CacheIdOverride = fullName,
                 RatingId = fullName.Substring(0, fullName.IndexOf("_", StringComparison.Ordinal)),
                 UninstallString = string.Empty,
-                QuietUninstallString = string.Empty,
                 RawDisplayName = ResolveDisplayName(props, manifest),
-                Publisher = ResolvePublisherName(props, manifest),
+                RawPublisher = ResolvePublisherName(props, manifest),
                 IsValid = true,
                 UninstallerKind = UninstallerType.StoreApp,
                 InstallLocation = installLocation,
@@ -180,6 +178,12 @@ namespace InventoryEngine.Factory
 
                 var identity = package["Identity"];
                 displayName = identity.Attributes["Name"].Value;
+
+                // Some applications built by Microsoft do not properly use application names in the manifest or package.
+                if (Guid.TryParse(displayName, out var _))
+                {
+                    displayName = new FileInfo(props["InstallLocation"].Value.ToString()).Name;
+                }
             }
 
             return displayName;
