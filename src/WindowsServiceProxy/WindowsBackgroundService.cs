@@ -4,6 +4,7 @@ using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using AppLister;
 
 namespace WindowsServiceProxy
 {
@@ -16,7 +17,7 @@ namespace WindowsServiceProxy
 
         private const string ServiceKeyPath = @"SOFTWARE\zb\AppListerSvc";
 
-        private readonly AppLister.AppLister _internalService;
+        private readonly AppListerService _internalService;
 
         private readonly int _queryPeriodInMilliseconds;
 
@@ -36,7 +37,7 @@ namespace WindowsServiceProxy
                 _queryPeriodInMilliseconds = ToMillisecond(period);
             }
 
-            _internalService = new AppLister.AppLister(EventLog);
+            _internalService = new AppListerService(EventLog);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("AsyncUsage", "AsyncFixer01:Unnecessary async/await usage", Justification = "<Pending>")]

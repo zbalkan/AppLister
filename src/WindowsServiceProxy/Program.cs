@@ -51,7 +51,7 @@ namespace WindowsServiceProxy
             {
                 ServiceBase.Run(new ServiceBase[]
                 {
-                service
+                    service
                 });
             }
         }

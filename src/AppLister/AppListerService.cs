@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace AppLister
 {
-    public sealed class AppLister : IDisposable
+    public sealed class AppListerService : IDisposable
     {
         private readonly Discovery _discovery;
 
@@ -15,7 +15,7 @@ namespace AppLister
 
         private bool _disposedValue;
 
-        public AppLister(EventLog logger)
+        public AppListerService(EventLog logger)
         {
             _logger = logger;
             _wmiScanner = new WmiScanner();
