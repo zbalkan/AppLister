@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using InventoryWmiProvider;
+using WmiProvider;
 
-namespace InventoryService
+namespace AppLister
 {
     public interface IScanner
     {

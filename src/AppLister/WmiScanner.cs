@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Management;
-using InventoryWmiProvider;
+using WmiProvider;
 
-namespace InventoryService
+namespace AppLister
 {
     public sealed class WmiScanner : IScanner
     {

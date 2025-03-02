@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using InventoryEngine;
-using InventoryWmiProvider;
+using WmiProvider;
 
-namespace InventoryService
+namespace AppLister
 {
     /// <summary>
     ///     The class that utilizes scan engine to collect installed Apps

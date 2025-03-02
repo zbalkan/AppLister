@@ -14,9 +14,9 @@ namespace WindowsServiceProxy
         // Default period constant
         private const string QueryPeriodKey = "QueryPeriodInMinutes";
 
-        private const string ServiceKeyPath = @"SOFTWARE\zb\InventorySvc";
+        private const string ServiceKeyPath = @"SOFTWARE\zb\AppListerSvc";
 
-        private readonly InventoryService.InventoryService _internalService;
+        private readonly AppLister.AppLister _internalService;
 
         private readonly int _queryPeriodInMilliseconds;
 
@@ -36,7 +36,7 @@ namespace WindowsServiceProxy
                 _queryPeriodInMilliseconds = ToMillisecond(period);
             }
 
-            _internalService = new InventoryService.InventoryService(EventLog);
+            _internalService = new AppLister.AppLister(EventLog);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("AsyncUsage", "AsyncFixer01:Unnecessary async/await usage", Justification = "<Pending>")]

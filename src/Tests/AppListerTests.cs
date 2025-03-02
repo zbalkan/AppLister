@@ -1,11 +1,11 @@
 ﻿using System.Linq;
-using InventoryService;
+using AppLister;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Tests
 {
     [TestClass]
-    public class InventoryServiceTests
+    public class AppListerTests
     {
         private Discovery _discovery;
 

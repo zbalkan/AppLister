@@ -7,8 +7,8 @@
     <ProjectGuid>{3A57E8B9-E7AF-4FC9-BDD6-0EB83822DEEE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InventoryWmiProvider</RootNamespace>
-    <AssemblyName>InventoryWmiProvider</AssemblyName>
+    <RootNamespace>WmiProvider</RootNamespace>
+    <AssemblyName>WmiProvider</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>

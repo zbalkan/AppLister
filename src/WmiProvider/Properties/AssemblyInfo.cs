@@ -3,11 +3,11 @@ using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following set of attributes.
 // Change these attribute values to modify the information associated with an assembly.
-[assembly: AssemblyTitle("InventoryService")]
+[assembly: AssemblyTitle("WmiProvider")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("InventoryService")]
+[assembly: AssemblyProduct("WmiProvider")]
 [assembly: AssemblyCopyright("Copyright ©  2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -17,7 +17,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("1e29b02d-87a9-4b78-9953-eb9ce9d88fb1")]
+[assembly: Guid("3a57e8b9-e7af-4fc9-bdd6-0eb83822deee")]
 
 // Version information for an assembly consists of the following four values:
 //

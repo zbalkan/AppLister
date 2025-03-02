@@ -52,7 +52,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InventoryServiceTests.cs" />
+    <Compile Include="AppListerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -63,13 +63,13 @@
       <Project>{066b5fce-96db-4178-b210-783e39c6b2a2}</Project>
       <Name>InventoryEngine</Name>
     </ProjectReference>
-    <ProjectReference Include="..\InventoryService\InventoryService.csproj">
+    <ProjectReference Include="..\AppLister\AppLister.csproj">
       <Project>{1e29b02d-87a9-4b78-9953-eb9ce9d88fb1}</Project>
-      <Name>InventoryService</Name>
+      <Name>AppLister</Name>
     </ProjectReference>
-    <ProjectReference Include="..\InventoryWmiProvider\InventoryWmiProvider.csproj">
+    <ProjectReference Include="..\WmiProvider\WmiProvider.csproj">
       <Project>{3a57e8b9-e7af-4fc9-bdd6-0eb83822deee}</Project>
-      <Name>InventoryWmiProvider</Name>
+      <Name>WmiProvider</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

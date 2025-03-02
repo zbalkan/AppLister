@@ -7,8 +7,8 @@
     <ProjectGuid>{1E29B02D-87A9-4B78-9953-EB9CE9D88FB1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InventoryService</RootNamespace>
-    <AssemblyName>InventoryService</AssemblyName>
+    <RootNamespace>AppLister</RootNamespace>
+    <AssemblyName>AppLister</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -47,7 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Discovery.cs" />
-    <Compile Include="InventoryService.cs" />
+    <Compile Include="AppLister.cs" />
     <Compile Include="IScanner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Publisher.cs" />
@@ -69,9 +69,9 @@
       <Project>{066b5fce-96db-4178-b210-783e39c6b2a2}</Project>
       <Name>InventoryEngine</Name>
     </ProjectReference>
-    <ProjectReference Include="..\InventoryWmiProvider\InventoryWmiProvider.csproj">
+    <ProjectReference Include="..\WmiProvider\WmiProvider.csproj">
       <Project>{3a57e8b9-e7af-4fc9-bdd6-0eb83822deee}</Project>
-      <Name>InventoryWmiProvider</Name>
+      <Name>WmiProvider</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

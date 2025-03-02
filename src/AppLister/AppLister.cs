@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace InventoryService
+namespace AppLister
 {
-    public sealed class InventoryService : IDisposable
+    public sealed class AppLister : IDisposable
     {
         private readonly Discovery _discovery;
 
@@ -15,7 +15,7 @@ namespace InventoryService
 
         private bool _disposedValue;
 
-        public InventoryService(EventLog logger)
+        public AppLister(EventLog logger)
         {
             _logger = logger;
             _wmiScanner = new WmiScanner();

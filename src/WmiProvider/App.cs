@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Management.Instrumentation;
 
-namespace InventoryWmiProvider
+namespace WmiProvider
 {
     [ManagementEntity(Name = "ZB_App", Singleton = false)]
     [ManagementQualifier("Description", Value = "Software inventory: A read-only Win32_Product alternative")]

@@ -5,9 +5,9 @@ using System.Management.Instrumentation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: WmiConfiguration(@"root\ZB", HostingModel = ManagementHostingModel.Decoupled)]
+[assembly: WmiConfiguration(@"root\cimv2", HostingModel = ManagementHostingModel.Decoupled)]
 
-namespace InventoryWmiProvider
+namespace WmiProvider
 {
     [System.ComponentModel.RunInstaller(true)]
     public class WmiProviderInstaller : DefaultManagementInstaller
@@ -35,7 +35,7 @@ namespace InventoryWmiProvider
         {
             try
             {
-                var mc = new ManagementClass(@"root\ZB:ZB_App");
+                var mc = new ManagementClass(@"root\cimv2:ZB_App");
                 mc.Delete();
             }
             catch { }

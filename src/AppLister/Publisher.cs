@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Management.Instrumentation;
-using InventoryWmiProvider;
+using WmiProvider;
 
-namespace InventoryService
+namespace AppLister
 {
     public static class Publisher
     {
