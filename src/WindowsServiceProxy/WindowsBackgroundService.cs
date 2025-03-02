@@ -42,10 +42,8 @@ namespace WindowsServiceProxy
         internal void TestStartupAndStop(string[] args)
         {
             OnStart(args);
-            while (true)
-            {
-                // empty loop to keep the main thread alive
-            }
+            Console.WriteLine("Press Enter to exit...");
+            Console.ReadLine();
         }
 
         protected override void OnStart(string[] args)
