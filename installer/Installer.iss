@@ -3,7 +3,7 @@
 
 #define MyAppShortName "AppListerSvc"
 #define MyAppDisplayName "AppLister"
-#define MyAppVersion "1.2.0"
+#define MyAppVersion "1.0.0"
 #define MyAppPublisher "Zafer Balkan"
 #define MyAppURL "https://github.com/zbalkan/AppLister"
 #define ParentKey "Software\zb"
