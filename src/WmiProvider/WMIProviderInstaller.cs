@@ -5,7 +5,16 @@ using System.Management.Instrumentation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: WmiConfiguration(@"root\cimv2", HostingModel = ManagementHostingModel.Decoupled)]
+// Owner: BUILTIN\Administrators
+// Group: BUILTIN\Administrators
+// DiscretionaryAcl: {
+//    NT AUTHORITY\LOCAL SERVICE: AccessAllowed(ListDirectory, WriteData, WriteExtendedAttributes),
+//    NT AUTHORITY\NETWORK SERVICE: AccessAllowed(ListDirectory, WriteData, WriteExtendedAttributes),
+//    BUILTIN\Administrators: AccessAllowed(ChangePermissions, CreateDirectories, ExecuteKey, GenericExecute, GenericWrite, ListDirectory, ReadExtendedAttributes, ReadPermissions, Traverse, WriteData, WriteExtendedAttributes, WriteKey)
+// }
+[assembly: WmiConfiguration(@"root\cimv2",
+    HostingModel = ManagementHostingModel.Decoupled,
+    SecurityRestriction = "O:BAG:BAD:(A;CI;CCDCLCSWRPWPRCWD;;;BA)(A;CI;CCDCRP;;;NS)(A;CI;CCDCRP;;;LS)")]
 
 namespace WmiProvider
 {
