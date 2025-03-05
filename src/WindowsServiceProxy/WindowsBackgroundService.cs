@@ -81,7 +81,8 @@ namespace WindowsServiceProxy
             }
             catch (Exception ex)
             {
-                EventLog.WriteEntry(ex.Message, EventLogEntryType.Error, 3);
+                EventLog.WriteEntry($"Unhandled error: {ex.Message}", EventLogEntryType.Error, 3);
+                Stop();
             }
         }
     }
