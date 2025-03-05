@@ -14,7 +14,7 @@ namespace WmiProvider
         public string Architecture { get; set; }
 
         [ManagementProbe]
-        [ManagementQualifier("Description", Value = "App commments")]
+        [ManagementQualifier("Description", Value = "App comments")]
         public string Comments { get; set; }
 
         [ManagementProbe]
