@@ -64,6 +64,8 @@ namespace Engine.Shared
 
         internal static bool ScanWinUpdates { get; set; } = true;
 
+        internal static bool ScanDrivers { get; set; } = true;
+
         /// <summary>
         ///     Built-in program files paths.
         /// </summary>

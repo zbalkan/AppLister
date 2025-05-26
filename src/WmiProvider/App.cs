@@ -46,6 +46,10 @@ namespace WmiProvider
         public bool IsSystemComponent { get; set; }
 
         [ManagementProbe]
+        [ManagementQualifier("Description", Value = "If the App is a device driver")]
+        public bool IsDriver{ get; set; }
+
+        [ManagementProbe]
         [ManagementQualifier("Description", Value = "If the App can be uninstalled")]
         public bool IsUninstallable { get; set; }
 

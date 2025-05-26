@@ -65,6 +65,8 @@ namespace Engine
 
         public bool SystemComponent { get; set; }
 
+        public bool IsDriver { get; set; }
+
         public UninstallerType UninstallerKind { get; set; }
 
         /// <summary>
