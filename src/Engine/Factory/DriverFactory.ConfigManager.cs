@@ -124,6 +124,7 @@ namespace Engine.Factory
                     driverStoreEntry.DeviceId = deviceInfo?.DeviceId;
                     driverStoreEntry.DeviceName = deviceInfo?.DeviceName;
                     driverStoreEntry.DevicePresent = deviceInfo?.IsPresent;
+                    driverStoreEntry.DriverArchitecture = deviceInfo?.DriverArchitecture ?? NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_UNKNOWN;
                 }
 
                 return driverStoreEntries;
@@ -218,14 +219,16 @@ namespace Engine.Factory
                             {
                                 try
                                 {
-                                    deviceDriverInfos.Add(new DeviceDriverInfo(
+                                    var di = new DeviceDriverInfo(
                                         GetDevNodeProperty<string>(devInst, DeviceHelper.DEVPKEY_Device_InstanceId),
                                         GetDevNodeProperty<string>(devInst, DeviceHelper.DEVPKEY_Device_FriendlyName)
                                             ?? GetDevNodeProperty<string>(devInst, DeviceHelper.DEVPKEY_Device_DeviceDesc),
                                         GetDevNodeProperty<string>(devInst, DeviceHelper.DEVPKEY_Device_DriverInfPath),
                                         GetDevNodeProperty<DateTime>(devInst, DeviceHelper.DEVPKEY_Device_DriverDate),
                                         GetDevNodeProperty<Version>(devInst, DeviceHelper.DEVPKEY_Device_DriverVersion),
-                                        IsDevicePresent(devInst)));
+                                        IsDevicePresent(devInst),
+                                        GetDevNodeProperty<NativeDriverStore.ProcessorArchitecture>(devInst, DeviceHelper.DEVPKEY_DriverPackage_ProcessorArchitecture));
+                                    deviceDriverInfos.Add(di);
                                 }
                                 catch (Win32Exception)
                                 {
@@ -274,6 +277,7 @@ namespace Engine.Factory
 
                 [DllImport("CfgMgr32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
                 internal static extern ConfigManagerResult CM_Get_Device_ID_List_Size(ref int length, string filter, CM_GETIDLIST_FILTER flags);
+
                 [DllImport("CfgMgr32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
                 internal static extern ConfigManagerResult CM_Get_DevNode_Property(
                     uint devInst,

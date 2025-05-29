@@ -9,7 +9,7 @@ namespace Engine.Factory
         /// <summary>
         ///     Data fields retrieved from Driver store for each driver
         /// </summary>
-        public class DriverStoreEntry
+        public class DriverStoreEntry : IEquatable<DriverStoreEntry>
         {
             /// <summary>
             ///     Associated device Id (device instance path).
@@ -225,6 +225,22 @@ namespace Engine.Factory
             public override string ToString()
             {
                 return $"PublishedName: {DriverPublishedName}, InfName: {DriverInfPath}, Class: {DriverClass}, Version: {DriverVersion}, DeviceName: {DeviceName}";
+            }
+
+            bool IEquatable<DriverStoreEntry>.Equals(DriverStoreEntry other)
+            {
+                return other != null &&
+                       string.Equals(DriverPublishedName, other.DriverPublishedName, StringComparison.InvariantCultureIgnoreCase) &&
+                       string.Equals(DriverInfPath, other.DriverInfPath, StringComparison.InvariantCultureIgnoreCase) &&
+                       string.Equals(DriverPkgProvider, other.DriverPkgProvider, StringComparison.InvariantCultureIgnoreCase) &&
+                       string.Equals(DriverClass, other.DriverClass, StringComparison.InvariantCultureIgnoreCase) &&
+                       DriverDate.Equals(other.DriverDate) &&
+                       DriverVersion.Equals(other.DriverVersion) &&
+                       string.Equals(DriverSignerName, other.DriverSignerName, StringComparison.InvariantCultureIgnoreCase) &&
+                       string.Equals(DeviceId, other.DeviceId, StringComparison.InvariantCultureIgnoreCase) &&
+                       string.Equals(DeviceName, other.DeviceName, StringComparison.InvariantCultureIgnoreCase) &&
+                       DevicePresent.Equals(other.DevicePresent) &&
+                       DriverArchitecture.Equals(other.DriverArchitecture);
             }
         };
     }

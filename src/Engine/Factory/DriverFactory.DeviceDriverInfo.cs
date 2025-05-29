@@ -16,9 +16,11 @@ namespace Engine.Factory
 
             public Version DriverVersion { get; }
 
+            public NativeDriverStore.ProcessorArchitecture DriverArchitecture { get; set; }
+
             public bool? IsPresent { get; }
 
-            public DeviceDriverInfo(string deviceId, string name, string inf, DateTime driverDate, Version driverVersion, bool? isPresent)
+            public DeviceDriverInfo(string deviceId, string name, string inf, DateTime driverDate, Version driverVersion, bool? isPresent, NativeDriverStore.ProcessorArchitecture architecture)
             {
                 DeviceId = deviceId;
                 DeviceName = name;
@@ -26,6 +28,7 @@ namespace Engine.Factory
                 DriverDate = driverDate;
                 DriverVersion = driverVersion;
                 IsPresent = isPresent;
+                DriverArchitecture = architecture;
             }
 
             public override string ToString()
