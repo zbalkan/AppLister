@@ -26,24 +26,6 @@ namespace Engine.Factory
 
                 try
                 {
-                    // Switch to ConfigManager API since the native driver store API didn't return all the devices.
-                    // Need to investigate the reason.
-                    //{
-                    //    GCHandle handle = GCHandle.Alloc(devicesInfo);
-                    //    try
-                    //    {
-                    //        NativeMethods.DriverStoreEnumObjects(
-                    //            ptr,
-                    //            DriverStoreObjectType.DeviceNode,
-                    //            DRIVERSTORE_LOCK_LEVEL.NONE,
-                    //            EnumDeviceObjects,
-                    //            GCHandle.ToIntPtr(handle));
-                    //    }
-                    //    finally
-                    //    {
-                    //        handle.Free();
-                    //    }
-                    //}
 
                     {
                         var handle = GCHandle.Alloc(driverStoreEntries);
@@ -76,6 +58,11 @@ namespace Engine.Factory
                 IntPtr lParam)
             {
                 var driverStoreEntries = (List<DriverStoreEntry>)GCHandle.FromIntPtr(lParam).Target;
+
+                if (string.IsNullOrEmpty(pDriverPackageInfo.PublishedInfName))
+                {
+                    return true; // Skip invalid entries
+                }
 
                 driverStoreEntries.Add(new DriverStoreEntry
                 {

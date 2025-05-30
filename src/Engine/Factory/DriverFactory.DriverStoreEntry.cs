@@ -67,7 +67,7 @@ namespace Engine.Factory
             {
                 get
                 {
-                    string oemInfName = DriverPublishedName;
+                    var oemInfName = DriverPublishedName;
 
                     if (!string.IsNullOrEmpty(oemInfName))
                     {
@@ -81,7 +81,7 @@ namespace Engine.Factory
                             oemInfName = oemInfName.Substring(0, oemInfName.Length - 4);
                         }
 
-                        if (int.TryParse(oemInfName, out int id))
+                        if (int.TryParse(oemInfName, out var id))
                         {
                             return id;
                         }
@@ -106,7 +106,7 @@ namespace Engine.Factory
             public static string GetBytesReadable(long i)
             {
                 // Get absolute value
-                long absolute_i = (i < 0 ? -i : i);
+                var absolute_i = (i < 0 ? -i : i);
 
                 // Determine the format of the readable value
                 string format;
@@ -172,7 +172,7 @@ namespace Engine.Factory
 
             public static string GetSizeRangeName(long size)
             {
-                if (SizeRangeToName.TryGetValue(size, out string name))
+                if (SizeRangeToName.TryGetValue(size, out var name))
                 {
                     return name;
                 }
@@ -203,18 +203,18 @@ namespace Engine.Factory
             {
                 if (!string.IsNullOrEmpty(value))
                 {
-                    string[] dateAndVersion = value.Trim().Split(new char[] { ' ' }, 2);
+                    var dateAndVersion = value.Trim().Split(new char[] { ' ' }, 2);
                     if (dateAndVersion.Length == 2)
                     {
                         DriverDate = default;
                         DriverVersion = null;
 
-                        if (DateTime.TryParse(dateAndVersion[0].Trim(), CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime driverDate))
+                        if (DateTime.TryParse(dateAndVersion[0].Trim(), CultureInfo.InvariantCulture, DateTimeStyles.None, out var driverDate))
                         {
                             DriverDate = driverDate;
                         }
 
-                        if (Version.TryParse(dateAndVersion[1].Trim(), out Version driverVersion))
+                        if (Version.TryParse(dateAndVersion[1].Trim(), out var driverVersion))
                         {
                             DriverVersion = driverVersion;
                         }

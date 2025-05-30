@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -114,12 +115,16 @@ namespace Engine.Factory
             {
                 var devicesInfo = GetDeviceDriverInfo();
 
+                var nullDeviceInfo = devicesInfo.Where(d => string.IsNullOrEmpty(d.DriverInf)).ToList();
+                var machine = devicesInfo.Where(d => d.Equals("machine.inf")).ToList();
+
                 foreach (var driverStoreEntry in driverStoreEntries)
                 {
                     var deviceInfo = devicesInfo.OrderByDescending(d => d.IsPresent)?.FirstOrDefault(e =>
                         string.Equals(e.DriverInf, driverStoreEntry.DriverPublishedName, StringComparison.OrdinalIgnoreCase)
                         && e.DriverVersion == driverStoreEntry.DriverVersion
                         && e.DriverDate == driverStoreEntry.DriverDate);
+                    if (deviceInfo == null) continue;
 
                     driverStoreEntry.DeviceId = deviceInfo?.DeviceId;
                     driverStoreEntry.DeviceName = deviceInfo?.DeviceName;
@@ -133,7 +138,7 @@ namespace Engine.Factory
             internal static T GetClassProperty<T>(Guid classGuid, DevPropKey propertyKey)
             {
                 const int bufferSize = 2048;
-                IntPtr propertyBufferPtr = Marshal.AllocHGlobal(bufferSize);
+                var propertyBufferPtr = Marshal.AllocHGlobal(bufferSize);
                 uint propertySize = bufferSize;
 
                 try
@@ -141,7 +146,7 @@ namespace Engine.Factory
                     if (NativeMethods.CM_Get_Class_Property(
                         classGuid,
                         ref propertyKey,
-                        out DevPropType propertyType,
+                        out var propertyType,
                         propertyBufferPtr,
                         ref propertySize,
                         0) == 0)
@@ -163,7 +168,7 @@ namespace Engine.Factory
             internal static T GetDevNodeProperty<T>(uint devInst, DevPropKey propertyKey)
             {
                 const int bufferSize = 2048;
-                IntPtr propertyBufferPtr = Marshal.AllocHGlobal(bufferSize);
+                var propertyBufferPtr = Marshal.AllocHGlobal(bufferSize);
                 uint propertySize = bufferSize;
 
                 try
@@ -171,7 +176,7 @@ namespace Engine.Factory
                     if (NativeMethods.CM_Get_DevNode_Property(
                         devInst,
                         ref propertyKey,
-                        out DevPropType propertyType,
+                        out var propertyType,
                         propertyBufferPtr,
                         ref propertySize,
                         0) == 0)
@@ -192,22 +197,22 @@ namespace Engine.Factory
 
             private static List<DeviceDriverInfo> GetDeviceDriverInfo()
             {
-                List<DeviceDriverInfo> deviceDriverInfos = new List<DeviceDriverInfo>();
+                var deviceDriverInfos = new List<DeviceDriverInfo>();
 
-                int deviceListLength = 0;
+                var deviceListLength = 0;
                 if (NativeMethods.CM_Get_Device_ID_List_Size(
                     ref deviceListLength,
                     null,
                     0) == ConfigManagerResult.Success)
                 {
-                    byte[] buffer = new byte[deviceListLength * sizeof(char) + 2];
+                    var buffer = new byte[(deviceListLength * sizeof(char)) + 2];
                     if (NativeMethods.CM_Get_Device_ID_List(
                         null,
                         buffer,
                         deviceListLength,
                         CM_GETIDLIST_FILTER.NONE) == ConfigManagerResult.Success)
                     {
-                        string[] deviceIds = Encoding.Unicode.GetString(buffer).Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
+                        var deviceIds = Encoding.Unicode.GetString(buffer).Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
 
                         foreach (var deviceId in deviceIds)
                         {
@@ -240,9 +245,10 @@ namespace Engine.Factory
 
                 return deviceDriverInfos;
             }
+
             private static bool? IsDevicePresent(uint devInst)
             {
-                ConfigManagerResult result = NativeMethods.CM_Get_DevNode_Status(out _, out _, devInst, 0);
+                var result = NativeMethods.CM_Get_DevNode_Status(out _, out _, devInst, 0);
 
                 if (result == ConfigManagerResult.Success)
                 {

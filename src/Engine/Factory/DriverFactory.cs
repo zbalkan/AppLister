@@ -14,35 +14,29 @@ namespace Engine.Factory
 
         private static List<ApplicationUninstallerEntry> MapTo(List<DriverStoreEntry> driverStoreEntries)
         {
-            var entries = new List<ApplicationUninstallerEntry>(driverStoreEntries.Count);
-            foreach (var entry in driverStoreEntries)
+            return driverStoreEntries.ConvertAll(e => new ApplicationUninstallerEntry()
             {
-                var uninstallerEntry = new ApplicationUninstallerEntry
+                DisplayName = string.IsNullOrEmpty(e.DeviceName) ? e.DriverPublishedName : e.DeviceName,
+                DisplayVersion = e.DriverVersion?.ToString() ?? string.Empty,
+                InstallDate = e.DriverDate,
+                IsOrphaned = false,
+                IsProtected = false,
+                IsRegistered = true,
+                IsUpdate = false,
+                IsWebBrowser = false,
+                IsDriver = true,
+                Is64Bit = e.DriverArchitecture switch
                 {
-                    DisplayName = string.IsNullOrEmpty(entry.DeviceName) ? entry.DriverPublishedName : entry.DeviceName,
-                    DisplayVersion = entry.DriverVersion?.ToString() ?? string.Empty,
-                    InstallDate = entry.DriverDate,
-                    IsOrphaned = false,
-                    IsProtected = false,
-                    IsRegistered = true,
-                    IsUpdate = false,
-                    IsWebBrowser = false,
-                    IsDriver = true,
-                    Is64Bit = entry.DriverArchitecture switch
-                    {
-                        NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_AMD64 => MachineType.X64,
-                        NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_INTEL => MachineType.X86,
-                        NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_IA64 => MachineType.Ia64,
-                        _ => MachineType.Unknown,// Unknown architecture
-                    },
-                    Comment = $"Signed by {entry.DriverSignerName}",
-                    RawPublisher = entry.DriverPkgProvider,
-                    UninstallerKind = UninstallerType.Unknown, // No specific uninstaller type for drivers
-                    InstallSource = entry.DriverInfPath
-                };
-                entries.Add(uninstallerEntry);
-            }
-            return entries;
+                    NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_AMD64 => MachineType.X64,
+                    NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_INTEL => MachineType.X86,
+                    NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_IA64 => MachineType.Ia64,
+                    _ => MachineType.Unknown, // Unknown architecture
+                },
+                Comment = $"Signed by {e.DriverSignerName}",
+                RawPublisher = e.DriverPkgProvider,
+                UninstallerKind = UninstallerType.Unknown, // No specific uninstaller type for drivers
+                InstallSource = e.DriverInfPath
+            });
         }
 
         public bool IsEnabled() => UninstallToolsGlobalConfig.ScanDrivers;

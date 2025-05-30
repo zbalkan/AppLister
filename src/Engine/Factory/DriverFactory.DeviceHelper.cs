@@ -420,9 +420,9 @@ namespace Engine.Factory
                 else if (propertyType == DevPropType.FileTime && typeof(T) == typeof(DateTime))
                 {
                     var time = (System.Runtime.InteropServices.ComTypes.FILETIME)Marshal.PtrToStructure(propertyBufferPtr, typeof(System.Runtime.InteropServices.ComTypes.FILETIME));
-                    ulong high = (ulong)time.dwHighDateTime;
-                    uint low = (uint)time.dwLowDateTime;
-                    long fileTime = (long)((high << 32) + low);
+                    var high = (ulong)time.dwHighDateTime;
+                    var low = (uint)time.dwLowDateTime;
+                    var fileTime = (long)((high << 32) + low);
                     return (T)(object)DateTime.FromFileTimeUtc(fileTime);
                 }
                 else if (propertyType == DevPropType.Uint64 && typeof(T) == typeof(ulong))
@@ -431,7 +431,7 @@ namespace Engine.Factory
                 }
                 else if (propertyType == DevPropType.Uint64 && typeof(T) == typeof(Version))
                 {
-                    ulong driverVersion = (ulong)Marshal.ReadInt64(propertyBufferPtr);
+                    var driverVersion = (ulong)Marshal.ReadInt64(propertyBufferPtr);
                     return (T)(object)new Version(
                         (int)((driverVersion >> 48) & 0xFFFF),
                         (int)((driverVersion >> 32) & 0xFFFF),
@@ -440,7 +440,7 @@ namespace Engine.Factory
                 }
                 else if (propertyType == DevPropType.String && typeof(T) == typeof(Version))
                 {
-                    return Version.TryParse(Marshal.PtrToStringUni(propertyBufferPtr), out Version version)
+                    return Version.TryParse(Marshal.PtrToStringUni(propertyBufferPtr), out var version)
                         ? (T)(object)version
                         : (T)(object)(new Version());
                 }
@@ -458,12 +458,12 @@ namespace Engine.Factory
                 }
                 else if (propertyType == DevPropType.StringList && typeof(T) == typeof(IList<string>))
                 {
-                    IntPtr curStringPos = propertyBufferPtr;
-                    List<string> strings = new List<string>();
+                    var curStringPos = propertyBufferPtr;
+                    var strings = new List<string>();
 
                     while (true)
                     {
-                        string curStr = Marshal.PtrToStringUni(curStringPos);
+                        var curStr = Marshal.PtrToStringUni(curStringPos);
                         if (string.IsNullOrEmpty(curStr))
                         {
                             break;
