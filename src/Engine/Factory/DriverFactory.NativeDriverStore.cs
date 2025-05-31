@@ -26,7 +26,6 @@ namespace Engine.Factory
 
                 try
                 {
-
                     {
                         var handle = GCHandle.Alloc(driverStoreEntries);
                         try
@@ -85,29 +84,66 @@ namespace Engine.Factory
                 DevPropKey propertyKey,
                 DriverStoreObjectType objectType = DriverStoreObjectType.DriverPackage)
             {
-                const int bufferSize = 2048;
-                var propertyBufferPtr = Marshal.AllocHGlobal(bufferSize);
-
-                if (NativeMethods.DriverStoreGetObjectProperty(
+                // First pass: request size
+                var ok = NativeMethods.DriverStoreGetObjectProperty(
                     driverStoreHandle,
                     objectType,
                     objectName,
                     ref propertyKey,
-                    out var propertyType,
-                    propertyBufferPtr,
-                    bufferSize,
+                    out _,
+                    IntPtr.Zero,
+                    0,
                     out var propertySize,
-                    DriverStoreSetObjectPropertyFlags.None))
+                    DriverStoreSetObjectPropertyFlags.None);
+
+                var lastError = Marshal.GetLastWin32Error();
+
+                // If call unexpectedly succeeded but size is zero, property exists but is empty
+                if (ok && propertySize == 0)
                 {
-                    if (propertySize > 0)
-                    {
-                        return DeviceHelper.ConvertPropToType<T>(propertyBufferPtr, propertyType);
-                    }
+                    return default;
                 }
 
-                Marshal.FreeHGlobal(propertyBufferPtr);
+                // If buffer was too small, ERROR_INSUFFICIENT_BUFFER (122) is returned
+                const int ERROR_INSUFFICIENT_BUFFER = 122;
+                if (!ok && lastError != ERROR_INSUFFICIENT_BUFFER)
+                {
+                    // No such property or another error; treat missing property as default
+                    return default;
+                }
 
-                return default;
+                // Second pass: allocate buffer of exact size and fetch
+                if (propertySize > int.MaxValue)
+                {
+                    throw new OverflowException($"Property size {propertySize} exceeds maximum buffer length.");
+                }
+                var bufferSize = (int)propertySize; // Ensure buffer size is within int range
+                var buf = Marshal.AllocHGlobal(bufferSize);
+
+                try
+                {
+                    ok = NativeMethods.DriverStoreGetObjectProperty(
+                        driverStoreHandle,
+                        objectType,
+                        objectName,
+                        ref propertyKey,
+                        out var propertyType,
+                        buf,
+                        bufferSize,
+                        out propertySize,
+                        DriverStoreSetObjectPropertyFlags.None);
+
+                    if (!ok)
+                    {
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
+
+                    return DeviceHelper.ConvertPropToType<T>(buf, propertyType);
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(buf);
+                }
             }
 
             internal static ProcessorArchitecture GetProcessorArchitecture(IntPtr driverStoreHandle)

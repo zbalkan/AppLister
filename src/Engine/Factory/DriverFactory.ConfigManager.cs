@@ -12,8 +12,200 @@ namespace Engine.Factory
     {
         public static class ConfigManager
         {
+            public static List<DriverStoreEntry> FillDeviceInfo(List<DriverStoreEntry> driverStoreEntries)
+            {
+                var devicesInfo = GetDeviceDriverInfo();
+
+                foreach (var driverStoreEntry in driverStoreEntries)
+                {
+                    var deviceInfo = devicesInfo.OrderByDescending(d => d.IsPresent)?.FirstOrDefault(e =>
+                        string.Equals(e.DriverInf, driverStoreEntry.DriverPublishedName, StringComparison.OrdinalIgnoreCase)
+                        && e.DriverVersion == driverStoreEntry.DriverVersion
+                        && e.DriverDate == driverStoreEntry.DriverDate);
+                    if (deviceInfo == null)
+                    {
+                        // If driver is not used by any device, skip it
+                        continue;
+                    }
+
+                    driverStoreEntry.DeviceId = deviceInfo?.DeviceId;
+                    driverStoreEntry.DeviceName = deviceInfo?.DeviceName;
+                    driverStoreEntry.DevicePresent = deviceInfo?.IsPresent;
+                    driverStoreEntry.DriverArchitecture = deviceInfo?.DriverArchitecture ?? NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_UNKNOWN;
+                }
+
+                return driverStoreEntries;
+            }
+
+            internal static T GetClassProperty<T>(Guid classGuid, DevPropKey propertyKey)
+            {
+                // First pass: request required buffer size
+                uint propertySize = 0;
+                var cr = NativeMethods.CM_Get_Class_Property(
+                    classGuid,
+                    ref propertyKey,
+                    out _,
+                    IntPtr.Zero,
+                    ref propertySize,
+                    0);
+
+                // If the call succeeded but propertySize == 0, the property exists but is empty
+                if (cr == ConfigManagerResult.Success && propertySize == 0)
+                {
+                    return default;
+                }
+
+                // If the property is missing or an unexpected error occurred, return default
+                if (cr == ConfigManagerResult.NoSuchValue ||
+                    (cr != ConfigManagerResult.BufferSmall && cr != ConfigManagerResult.Success))
+                {
+                    return default;
+                }
+
+                // At this point, cr == BufferSmall ⇒ propertySize holds the exact size needed
+                if (propertySize > int.MaxValue)
+                {
+                    throw new OverflowException($"Property size {propertySize} exceeds maximum buffer length.");
+                }
+                var bufferSize = (int)propertySize;
+
+                // Second pass: allocate exactly the right amount of memory and fetch
+                var buf = Marshal.AllocHGlobal(bufferSize);
+                try
+                {
+                    cr = NativeMethods.CM_Get_Class_Property(
+                        classGuid,
+                        ref propertyKey,
+                        out var propertyType,
+                        buf,
+                        ref propertySize,
+                        0);
+
+                    if (cr != ConfigManagerResult.Success)
+                    {
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
+                    }
+
+                    return DeviceHelper.ConvertPropToType<T>(buf, propertyType);
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(buf);
+                }
+            }
+
+            internal static T GetDevNodeProperty<T>(uint devInst, DevPropKey key)
+            {
+                uint size = 0;
+                var cr = NativeMethods.CM_Get_DevNode_Property(devInst, ref key,
+                                                               out _,
+                                                               IntPtr.Zero, ref size, 0);
+
+                if (cr == ConfigManagerResult.NoSuchValue)   // truly absent
+                {
+                    return default;
+                }
+
+                if (cr != ConfigManagerResult.BufferSmall)    // unexpected error
+                {
+                    throw new Win32Exception((int)cr);
+                }
+
+                if (size > int.MaxValue)
+                {
+                    throw new OverflowException($"Property size {size} exceeds maximum buffer length.");
+                }
+                var buf = Marshal.AllocHGlobal((int)size);
+                try
+                {
+                    cr = NativeMethods.CM_Get_DevNode_Property(devInst, ref key,
+                                                               out var type,
+                                                               buf, ref size, 0);
+                    if (cr != ConfigManagerResult.Success)
+                    {
+                        throw new Win32Exception((int)cr);
+                    }
+
+                    return DeviceHelper.ConvertPropToType<T>(buf, type);
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(buf);
+                }
+            }
+
+            private static List<DeviceDriverInfo> GetDeviceDriverInfo()
+            {
+                var deviceDriverInfos = new List<DeviceDriverInfo>();
+
+                var deviceListLength = 0;
+                if (NativeMethods.CM_Get_Device_ID_List_Size(
+                    ref deviceListLength,
+                    null,
+                    0) == ConfigManagerResult.Success)
+                {
+                    var buffer = new byte[(deviceListLength * sizeof(char)) + 2];
+                    if (NativeMethods.CM_Get_Device_ID_List(
+                        null,
+                        buffer,
+                        deviceListLength,
+                        CM_GETIDLIST_FILTER.NONE) == ConfigManagerResult.Success)
+                    {
+                        var deviceIds = Encoding.Unicode.GetString(buffer).Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        foreach (var deviceId in deviceIds)
+                        {
+                            uint devInst = 0;
+                            if (NativeMethods.CM_Locate_DevNode(
+                                ref devInst,
+                                deviceId,
+                                CM_LOCATE_DEVNODE_FLAG.CM_LOCATE_DEVNODE_PHANTOM) == ConfigManagerResult.Success)
+                            {
+                                try
+                                {
+                                    var di = new DeviceDriverInfo(
+                                        GetDevNodeProperty<string>(devInst, DeviceHelper.DEVPKEY_Device_InstanceId),
+                                        GetDevNodeProperty<string>(devInst, DeviceHelper.DEVPKEY_Device_FriendlyName)
+                                            ?? GetDevNodeProperty<string>(devInst, DeviceHelper.DEVPKEY_Device_DeviceDesc),
+                                        GetDevNodeProperty<string>(devInst, DeviceHelper.DEVPKEY_Device_DriverInfPath),
+                                        GetDevNodeProperty<DateTime>(devInst, DeviceHelper.DEVPKEY_Device_DriverDate),
+                                        GetDevNodeProperty<Version>(devInst, DeviceHelper.DEVPKEY_Device_DriverVersion),
+                                        IsDevicePresent(devInst),
+                                        GetDevNodeProperty<NativeDriverStore.ProcessorArchitecture>(devInst, DeviceHelper.DEVPKEY_DriverPackage_ProcessorArchitecture));
+                                    deviceDriverInfos.Add(di);
+                                }
+                                catch (Win32Exception)
+                                {
+                                    Debug.WriteLine($"Failed to retrieve properties for device ID: {deviceId} (DevInst: {devInst})");
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return deviceDriverInfos;
+            }
+
+            private static bool? IsDevicePresent(uint devInst)
+            {
+                var result = NativeMethods.CM_Get_DevNode_Status(out _, out _, devInst, 0);
+
+                if (result == ConfigManagerResult.Success)
+                {
+                    return true;
+                }
+                else if (result == ConfigManagerResult.NoSuchDevnode)
+                {
+                    return false;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            #region Enums
             public enum ConfigManagerResult : uint
-#pragma warning restore CA1028 // Enum Storage should be Int32
             {
                 Success = 0x00000000,
                 Default = 0x00000001,
@@ -111,159 +303,8 @@ namespace Engine.Factory
                 CM_LOCATE_DEVNODE_BITS = 0x00000007,
             }
 
-            public static List<DriverStoreEntry> FillDeviceInfo(List<DriverStoreEntry> driverStoreEntries)
-            {
-                var devicesInfo = GetDeviceDriverInfo();
+            #endregion Enums
 
-                var nullDeviceInfo = devicesInfo.Where(d => string.IsNullOrEmpty(d.DriverInf)).ToList();
-                var machine = devicesInfo.Where(d => d.Equals("machine.inf")).ToList();
-
-                foreach (var driverStoreEntry in driverStoreEntries)
-                {
-                    var deviceInfo = devicesInfo.OrderByDescending(d => d.IsPresent)?.FirstOrDefault(e =>
-                        string.Equals(e.DriverInf, driverStoreEntry.DriverPublishedName, StringComparison.OrdinalIgnoreCase)
-                        && e.DriverVersion == driverStoreEntry.DriverVersion
-                        && e.DriverDate == driverStoreEntry.DriverDate);
-                    if (deviceInfo == null) continue;
-
-                    driverStoreEntry.DeviceId = deviceInfo?.DeviceId;
-                    driverStoreEntry.DeviceName = deviceInfo?.DeviceName;
-                    driverStoreEntry.DevicePresent = deviceInfo?.IsPresent;
-                    driverStoreEntry.DriverArchitecture = deviceInfo?.DriverArchitecture ?? NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_UNKNOWN;
-                }
-
-                return driverStoreEntries;
-            }
-
-            internal static T GetClassProperty<T>(Guid classGuid, DevPropKey propertyKey)
-            {
-                const int bufferSize = 2048;
-                var propertyBufferPtr = Marshal.AllocHGlobal(bufferSize);
-                uint propertySize = bufferSize;
-
-                try
-                {
-                    if (NativeMethods.CM_Get_Class_Property(
-                        classGuid,
-                        ref propertyKey,
-                        out var propertyType,
-                        propertyBufferPtr,
-                        ref propertySize,
-                        0) == 0)
-                    {
-                        if (propertySize > 0)
-                        {
-                            return DeviceHelper.ConvertPropToType<T>(propertyBufferPtr, propertyType);
-                        }
-                    }
-                }
-                finally
-                {
-                    Marshal.FreeHGlobal(propertyBufferPtr);
-                }
-
-                return default;
-            }
-
-            internal static T GetDevNodeProperty<T>(uint devInst, DevPropKey propertyKey)
-            {
-                const int bufferSize = 2048;
-                var propertyBufferPtr = Marshal.AllocHGlobal(bufferSize);
-                uint propertySize = bufferSize;
-
-                try
-                {
-                    if (NativeMethods.CM_Get_DevNode_Property(
-                        devInst,
-                        ref propertyKey,
-                        out var propertyType,
-                        propertyBufferPtr,
-                        ref propertySize,
-                        0) == 0)
-                    {
-                        if (propertySize > 0)
-                        {
-                            return DeviceHelper.ConvertPropToType<T>(propertyBufferPtr, propertyType);
-                        }
-                    }
-                }
-                finally
-                {
-                    Marshal.FreeHGlobal(propertyBufferPtr);
-                }
-
-                return default;
-            }
-
-            private static List<DeviceDriverInfo> GetDeviceDriverInfo()
-            {
-                var deviceDriverInfos = new List<DeviceDriverInfo>();
-
-                var deviceListLength = 0;
-                if (NativeMethods.CM_Get_Device_ID_List_Size(
-                    ref deviceListLength,
-                    null,
-                    0) == ConfigManagerResult.Success)
-                {
-                    var buffer = new byte[(deviceListLength * sizeof(char)) + 2];
-                    if (NativeMethods.CM_Get_Device_ID_List(
-                        null,
-                        buffer,
-                        deviceListLength,
-                        CM_GETIDLIST_FILTER.NONE) == ConfigManagerResult.Success)
-                    {
-                        var deviceIds = Encoding.Unicode.GetString(buffer).Split(new[] { '\0' }, StringSplitOptions.RemoveEmptyEntries);
-
-                        foreach (var deviceId in deviceIds)
-                        {
-                            uint devInst = 0;
-                            if (NativeMethods.CM_Locate_DevNode(
-                                ref devInst,
-                                deviceId,
-                                CM_LOCATE_DEVNODE_FLAG.CM_LOCATE_DEVNODE_PHANTOM) == ConfigManagerResult.Success)
-                            {
-                                try
-                                {
-                                    var di = new DeviceDriverInfo(
-                                        GetDevNodeProperty<string>(devInst, DeviceHelper.DEVPKEY_Device_InstanceId),
-                                        GetDevNodeProperty<string>(devInst, DeviceHelper.DEVPKEY_Device_FriendlyName)
-                                            ?? GetDevNodeProperty<string>(devInst, DeviceHelper.DEVPKEY_Device_DeviceDesc),
-                                        GetDevNodeProperty<string>(devInst, DeviceHelper.DEVPKEY_Device_DriverInfPath),
-                                        GetDevNodeProperty<DateTime>(devInst, DeviceHelper.DEVPKEY_Device_DriverDate),
-                                        GetDevNodeProperty<Version>(devInst, DeviceHelper.DEVPKEY_Device_DriverVersion),
-                                        IsDevicePresent(devInst),
-                                        GetDevNodeProperty<NativeDriverStore.ProcessorArchitecture>(devInst, DeviceHelper.DEVPKEY_DriverPackage_ProcessorArchitecture));
-                                    deviceDriverInfos.Add(di);
-                                }
-                                catch (Win32Exception)
-                                {
-                                }
-                            }
-                        }
-                    }
-                }
-
-                return deviceDriverInfos;
-            }
-
-            private static bool? IsDevicePresent(uint devInst)
-            {
-                var result = NativeMethods.CM_Get_DevNode_Status(out _, out _, devInst, 0);
-
-                if (result == ConfigManagerResult.Success)
-                {
-                    return true;
-                }
-                else if (result == ConfigManagerResult.NoSuchDevnode)
-                {
-                    return false;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-#pragma warning disable CA1028 // Enum Storage should be Int32
             /// <summary>
             /// The managed interop layer to CfgMgr32.dll
             /// </summary>
