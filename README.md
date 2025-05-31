@@ -10,7 +10,7 @@ The `Win32_Product` has always been [problematic](https://gregramsey.net/2012/02
 
 Also, the developer sometimes invent new ways of doing some tasks, which may not fit what Windows expects it. Therefore, it may not be reliable to use those commands, cmdlets or tools.
 
-Here, I used Bulk Crap Uninstaller as an engine due to its amazing discovery capabilities. With the upcoming version, the ability to enumerate drivers wil lbe included. Driver naming in general is a though job, so I made use of [RAPR](https://github.com/lostindark/DriverStoreExplorer) code to populate the driver inventory. It shows the drivers that are mapped to devices, n*ot all* in the repository.
+Here, I used Bulk Crap Uninstaller as an engine due to its amazing discovery capabilities. With the upcoming version, the ability to enumerate drivers is included. Driver naming in general is a though job, so I made use of [RAPR](https://github.com/lostindark/DriverStoreExplorer) code to populate the driver inventory. It shows the drivers that are mapped to devices, n*ot all* in the repository.
 
 ## Usage
 
