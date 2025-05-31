@@ -63,6 +63,7 @@ namespace AppLister
                         IsOrphaned = app.IsOrphaned,
                         IsUpdate = app.IsUpdate,
                         IsStoreApp = CheckStoreApp(app),
+                        IsDriver = app.IsDriver,
                         StartupEntries = GetStartupEntries(app),
                         Architecture = Enum.GetName(typeof(MachineType), app.Is64Bit),
                         Comments = app.Comment

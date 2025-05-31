@@ -18,7 +18,7 @@ namespace Engine
             UninstallToolsGlobalConfig.AutoDetectCustomProgramFiles = true;
 
             // Scan application sources
-            UninstallToolsGlobalConfig.ScanStoreApps = true;
+            UninstallToolsGlobalConfig.ScanStoreApps = false; // TODO: We have a problem. Temporarily disable
             UninstallToolsGlobalConfig.ScanWinFeatures = true;
             UninstallToolsGlobalConfig.ScanWinUpdates = true;
             UninstallToolsGlobalConfig.ScanPreDefined = true;
@@ -26,6 +26,7 @@ namespace Engine
             UninstallToolsGlobalConfig.ScanChocolatey = true;
             UninstallToolsGlobalConfig.ScanOculus = true;
             UninstallToolsGlobalConfig.ScanSteam = true;
+            UninstallToolsGlobalConfig.ScanDrivers = true;
         }
     }
 }

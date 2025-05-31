@@ -12,8 +12,16 @@ namespace Engine
 {
     public class ApplicationUninstallerEntry
     {
+        /// <summary>
+        /// URL for more information about the application, such as its homepage or support site.
+        /// Used to provide users with a direct reference for help or details.
+        /// </summary>
         public string AboutUrl { get; set; }
 
+        /// <summary>
+        /// Additional notes or context about the application, such as install source or special status.
+        /// Enables display of extra information to the user or for diagnostics.
+        /// </summary>
         public string Comment { get; set; }
 
         public string DisplayName
@@ -22,12 +30,28 @@ namespace Engine
             set { RawDisplayName = value; }
         }
 
+        /// <summary>
+        /// Provides a cleaned-up version of the display name, omitting version numbers and extraneous text.
+        /// Useful for grouping or comparing applications by name only.
+        /// </summary>
         public string DisplayNameTrimmed => DisplayName.StripStringFromVersionNumber();
 
+        /// <summary>
+        /// The version of the application as presented to the user.
+        /// Used for display, comparison, and update checks.
+        /// </summary>
         public string DisplayVersion { get; set; }
 
+        /// <summary>
+        /// The date the application was installed.
+        /// Used for sorting, filtering, or auditing installed software.
+        /// </summary>
         public DateTime InstallDate { get; set; }
 
+        /// <summary>
+        /// Indicates the processor architecture (e.g., x86, x64) the application is intended for.
+        /// Helps determine compatibility and for filtering in 32/64-bit environments.
+        /// </summary>
         public MachineType Is64Bit { get; set; }
 
         /// <summary>
@@ -61,10 +85,28 @@ namespace Engine
                             : RawPublisher.Replace("(R)", string.Empty)
                                 .ExtendedTrimEndAny(CompanyNameEndTrimmers, StringComparison.CurrentCultureIgnoreCase);
 
+        /// <summary>
+        /// Collection of startup entries associated with this application.
+        /// Used to identify auto-starting components for management or cleanup.
+        /// </summary>
         public IEnumerable<StartupEntryBase> StartupEntries { get; set; }
 
+        /// <summary>
+        /// Indicates if the application is a system component.
+        /// Used to hide or protect critical system software from accidental removal.
+        /// </summary>
         public bool SystemComponent { get; set; }
 
+        /// <summary>
+        /// True if this entry represents a device driver rather than a traditional application.
+        /// Allows for specialized handling and filtering of drivers in the UI or logic.
+        /// </summary>
+        public bool IsDriver { get; set; }
+
+        /// <summary>
+        /// Specifies the type of uninstaller mechanism used (e.g., MSI, InnoSetup).
+        /// Enables correct invocation and handling of the uninstall process.
+        /// </summary>
         public UninstallerType UninstallerKind { get; set; }
 
         /// <summary>

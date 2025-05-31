@@ -16,21 +16,27 @@
     <Rule Id="RCS1018" Action="Warning" />
     <Rule Id="RCS1019" Action="Warning" />
     <Rule Id="RCS1046" Action="Warning" />
+    <Rule Id="RCS1079" Action="Warning" />
     <Rule Id="RCS1090" Action="Warning" />
+    <Rule Id="RCS1096" Action="Warning" />
     <Rule Id="RCS1106" Action="Warning" />
     <Rule Id="RCS1111" Action="Warning" />
     <Rule Id="RCS1126" Action="Warning" />
     <Rule Id="RCS1162" Action="Warning" />
+    <Rule Id="RCS1174" Action="Warning" />
     <Rule Id="RCS1176" Action="Warning" />
     <Rule Id="RCS1177" Action="Warning" />
+    <Rule Id="RCS1198" Action="Warning" />
     <Rule Id="RCS1208" Action="Warning" />
     <Rule Id="RCS1223" Action="Info" />
     <Rule Id="RCS1260" Action="Warning" />
+    <Rule Id="RCS1264" Action="Warning" />
   </Rules>
   <Rules AnalyzerId="Roslynator.Formatting.Analyzers" RuleNamespace="Roslynator.Formatting.Analyzers">
     <Rule Id="RCS0046" Action="Warning" />
     <Rule Id="RCS0053" Action="Warning" />
     <Rule Id="RCS0054" Action="Warning" />
     <Rule Id="RCS0055" Action="Warning" />
+    <Rule Id="RCS0063" Action="Warning" />
   </Rules>
 </RuleSet>
