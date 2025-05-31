@@ -18,7 +18,7 @@ namespace Engine
             UninstallToolsGlobalConfig.AutoDetectCustomProgramFiles = true;
 
             // Scan application sources
-            UninstallToolsGlobalConfig.ScanStoreApps = false; // We have a problem. Temporarily disable
+            UninstallToolsGlobalConfig.ScanStoreApps = false; // TODO: We have a problem. Temporarily disable
             UninstallToolsGlobalConfig.ScanWinFeatures = true;
             UninstallToolsGlobalConfig.ScanWinUpdates = true;
             UninstallToolsGlobalConfig.ScanPreDefined = true;
