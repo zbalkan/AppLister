@@ -63,125 +63,6 @@ namespace Engine.Factory
             /// </summary>
             public Version DriverVersion { get; set; }
 
-            public int? OemId
-            {
-                get
-                {
-                    var oemInfName = DriverPublishedName;
-
-                    if (!string.IsNullOrEmpty(oemInfName))
-                    {
-                        if (oemInfName.StartsWith("oem", StringComparison.OrdinalIgnoreCase))
-                        {
-                            oemInfName = oemInfName.Substring(3);
-                        }
-
-                        if (oemInfName.EndsWith(".inf", StringComparison.OrdinalIgnoreCase))
-                        {
-                            oemInfName = oemInfName.Substring(0, oemInfName.Length - 4);
-                        }
-
-                        if (int.TryParse(oemInfName, out var id))
-                        {
-                            return id;
-                        }
-                    }
-
-                    return null;
-                }
-            }
-
-            private static readonly Dictionary<long, string> SizeRangeToName = new Dictionary<long, string>
-        {
-            { 10 * 1024, "0 - 10 KB" },
-            { 100 * 1024, "10 - 100 KB" },
-            { 1024 * 1024, "100 KB - 1 MB" },
-            { 16 * 1024 * 1024, "1 - 16 MB" },
-            { 128 * 1024 * 1024, "16 - 128 MB" },
-            { long.MaxValue, "> 128 MB" },
-        };
-
-            // Returns the human-readable file size for an arbitrary, 64-bit file size The default
-            // format is "0.### XB", e.g. "4 KB" or "1.4 GB"
-            public static string GetBytesReadable(long i)
-            {
-                // Get absolute value
-                var absolute_i = (i < 0 ? -i : i);
-
-                // Determine the format of the readable value
-                string format;
-                double readable;
-
-                if (absolute_i >= 0x40000000) // Gigabyte
-                {
-                    format = "0.0 \\GB";
-                    readable = (i >> 20);
-                }
-                else if (absolute_i >= 0x100000) // Megabyte
-                {
-                    format = "0 \\MB";
-                    readable = (i >> 10);
-                }
-                else if (absolute_i >= 0x400) // Kilobyte
-                {
-                    format = "0 \\KB";
-                    readable = i;
-                }
-                else
-                {
-                    return "1 KB";
-                }
-
-                // Divide by 1024 to get fractional value
-                readable /= 1024;
-
-                // Return formatted number with suffix
-                return readable.ToString(format);
-            }
-
-            public static string[] GetFieldNames()
-            {
-                return new[] {
-                "OEM INF",
-                "INF",
-                "Package Provider",
-                "Driver Class",
-                "Driver Date",
-                "Driver Version",
-                "Driver Signer",
-                "Driver Size",
-                "Driver Folder",
-                "Device Id",
-                "Device Name",
-                "Device Present",
-            };
-            }
-
-            public static long GetSizeRange(long size)
-            {
-                foreach (var item in SizeRangeToName)
-                {
-                    if (size < item.Key)
-                    {
-                        return item.Key;
-                    }
-                }
-
-                return -1;
-            }
-
-            public static string GetSizeRangeName(long size)
-            {
-                if (SizeRangeToName.TryGetValue(size, out var name))
-                {
-                    return name;
-                }
-                else
-                {
-                    return string.Empty;
-                }
-            }
-
             public string[] GetFieldValues()
             {
                 return new[]
@@ -194,32 +75,8 @@ namespace Engine.Factory
                 DriverVersion?.ToString() ?? string.Empty,
                 DriverSignerName ?? string.Empty,
                 DeviceId ?? string.Empty,
-                DeviceName ?? string.Empty,
-                DevicePresent?.ToString() ?? string.Empty,
+                DeviceName ?? string.Empty
             };
-            }
-
-            public void SetDriverDateAndVersion(string value)
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    var dateAndVersion = value.Trim().Split(new char[] { ' ' }, 2);
-                    if (dateAndVersion.Length == 2)
-                    {
-                        DriverDate = default;
-                        DriverVersion = null;
-
-                        if (DateTime.TryParse(dateAndVersion[0].Trim(), CultureInfo.InvariantCulture, DateTimeStyles.None, out var driverDate))
-                        {
-                            DriverDate = driverDate;
-                        }
-
-                        if (Version.TryParse(dateAndVersion[1].Trim(), out var driverVersion))
-                        {
-                            DriverVersion = driverVersion;
-                        }
-                    }
-                }
             }
 
             public override string ToString()
@@ -239,7 +96,6 @@ namespace Engine.Factory
                        string.Equals(DriverSignerName, other.DriverSignerName, StringComparison.InvariantCultureIgnoreCase) &&
                        string.Equals(DeviceId, other.DeviceId, StringComparison.InvariantCultureIgnoreCase) &&
                        string.Equals(DeviceName, other.DeviceName, StringComparison.InvariantCultureIgnoreCase) &&
-                       DevicePresent.Equals(other.DevicePresent) &&
                        DriverArchitecture.Equals(other.DriverArchitecture);
             }
         };

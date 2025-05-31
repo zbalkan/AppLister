@@ -30,7 +30,6 @@ namespace Engine.Factory
 
                     driverStoreEntry.DeviceId = deviceInfo?.DeviceId;
                     driverStoreEntry.DeviceName = deviceInfo?.DeviceName;
-                    driverStoreEntry.DevicePresent = deviceInfo?.IsPresent;
                     driverStoreEntry.DriverArchitecture = deviceInfo?.DriverArchitecture ?? NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_UNKNOWN;
                 }
 

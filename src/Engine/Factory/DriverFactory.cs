@@ -16,7 +16,7 @@ namespace Engine.Factory
         {
             return driverStoreEntries.ConvertAll(e => new ApplicationUninstallerEntry()
             {
-                DisplayName = string.IsNullOrEmpty(e.DeviceName) ? e.DriverPublishedName : e.DeviceName,
+                DisplayName = string.IsNullOrEmpty(e.DeviceName) ? ($"{e.DriverClass} - {e.DriverPkgProvider} ({e.DriverVersion})") : e.DeviceName,
                 DisplayVersion = e.DriverVersion?.ToString() ?? string.Empty,
                 InstallDate = e.DriverDate,
                 IsOrphaned = false,
