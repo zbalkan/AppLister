@@ -18,7 +18,7 @@ namespace Engine.Factory
 
                 foreach (var driverStoreEntry in driverStoreEntries)
                 {
-                    var deviceInfo = devicesInfo.OrderByDescending(d => d.IsPresent)?
+                    var deviceInfo = devicesInfo.OrderByDescending(d => d.IsPresent)
                         .FirstOrDefault(e =>
                         string.Equals(e.DriverInf, driverStoreEntry.DriverPublishedName, StringComparison.OrdinalIgnoreCase)
                         && e.DriverVersion == driverStoreEntry.DriverVersion
