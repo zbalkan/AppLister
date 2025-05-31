@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Factory\ChocolateyFactory.cs" />
     <Compile Include="Factory\DriverFactory.ConfigManager.cs" />
+    <Compile Include="Factory\DriverFactory.ConfigManager.NativeMethods.cs" />
     <Compile Include="Factory\DriverFactory.DeviceDriverInfo.cs" />
     <Compile Include="Factory\DriverFactory.DeviceHelper.cs" />
     <Compile Include="Factory\DriverFactory.DevPropKey.cs" />

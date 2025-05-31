@@ -10,7 +10,7 @@ namespace Engine.Factory
 {
     internal partial class DriverFactory
     {
-        public static class ConfigManager
+        public static partial class ConfigManager
         {
             public static List<DriverStoreEntry> FillDeviceInfo(List<DriverStoreEntry> driverStoreEntries)
             {
@@ -18,19 +18,17 @@ namespace Engine.Factory
 
                 foreach (var driverStoreEntry in driverStoreEntries)
                 {
-                    var deviceInfo = devicesInfo.OrderByDescending(d => d.IsPresent)?.FirstOrDefault(e =>
+                    var deviceInfo = devicesInfo.OrderByDescending(d => d.IsPresent)?
+                        .FirstOrDefault(e =>
                         string.Equals(e.DriverInf, driverStoreEntry.DriverPublishedName, StringComparison.OrdinalIgnoreCase)
                         && e.DriverVersion == driverStoreEntry.DriverVersion
                         && e.DriverDate == driverStoreEntry.DriverDate);
-                    if (deviceInfo == null)
+                    if (deviceInfo != null)
                     {
-                        // If driver is not used by any device, skip it
-                        continue;
+                        driverStoreEntry.DeviceId = deviceInfo?.DeviceId;
+                        driverStoreEntry.DeviceName = deviceInfo?.DeviceName;
+                        driverStoreEntry.DriverArchitecture = deviceInfo?.DriverArchitecture ?? NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_UNKNOWN;
                     }
-
-                    driverStoreEntry.DeviceId = deviceInfo?.DeviceId;
-                    driverStoreEntry.DeviceName = deviceInfo?.DeviceName;
-                    driverStoreEntry.DriverArchitecture = deviceInfo?.DriverArchitecture ?? NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_UNKNOWN;
                 }
 
                 return driverStoreEntries;
@@ -93,46 +91,6 @@ namespace Engine.Factory
                 }
             }
 
-            internal static T GetDevNodeProperty<T>(uint devInst, DevPropKey key)
-            {
-                uint size = 0;
-                var cr = NativeMethods.CM_Get_DevNode_Property(devInst, ref key,
-                                                               out _,
-                                                               IntPtr.Zero, ref size, 0);
-
-                if (cr == ConfigManagerResult.NoSuchValue)   // truly absent
-                {
-                    return default;
-                }
-
-                if (cr != ConfigManagerResult.BufferSmall)    // unexpected error
-                {
-                    throw new Win32Exception((int)cr);
-                }
-
-                if (size > int.MaxValue)
-                {
-                    throw new OverflowException($"Property size {size} exceeds maximum buffer length.");
-                }
-                var buf = Marshal.AllocHGlobal((int)size);
-                try
-                {
-                    cr = NativeMethods.CM_Get_DevNode_Property(devInst, ref key,
-                                                               out var type,
-                                                               buf, ref size, 0);
-                    if (cr != ConfigManagerResult.Success)
-                    {
-                        throw new Win32Exception((int)cr);
-                    }
-
-                    return DeviceHelper.ConvertPropToType<T>(buf, type);
-                }
-                finally
-                {
-                    Marshal.FreeHGlobal(buf);
-                }
-            }
-
             private static List<DeviceDriverInfo> GetDeviceDriverInfo()
             {
                 var deviceDriverInfos = new List<DeviceDriverInfo>();
@@ -183,6 +141,46 @@ namespace Engine.Factory
                 }
 
                 return deviceDriverInfos;
+            }
+
+            private static T GetDevNodeProperty<T>(uint devInst, DevPropKey key)
+            {
+                uint size = 0;
+                var cr = NativeMethods.CM_Get_DevNode_Property(devInst, ref key,
+                                                               out _,
+                                                               IntPtr.Zero, ref size, 0);
+
+                if (cr == ConfigManagerResult.NoSuchValue)   // truly absent
+                {
+                    return default;
+                }
+
+                if (cr != ConfigManagerResult.BufferSmall)    // unexpected error
+                {
+                    throw new Win32Exception((int)cr);
+                }
+
+                if (size > int.MaxValue)
+                {
+                    throw new OverflowException($"Property size {size} exceeds maximum buffer length.");
+                }
+                var buf = Marshal.AllocHGlobal((int)size);
+                try
+                {
+                    cr = NativeMethods.CM_Get_DevNode_Property(devInst, ref key,
+                                                               out var type,
+                                                               buf, ref size, 0);
+                    if (cr != ConfigManagerResult.Success)
+                    {
+                        throw new Win32Exception((int)cr);
+                    }
+
+                    return DeviceHelper.ConvertPropToType<T>(buf, type);
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(buf);
+                }
             }
 
             private static bool? IsDevicePresent(uint devInst)
@@ -274,26 +272,27 @@ namespace Engine.Factory
             // Flags for CM_Get_Device_ID_List, CM_Get_Device_ID_List_Size
             //
             [Flags]
-            internal enum CM_GETIDLIST_FILTER : uint
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1157:Composite enum value contains undefined flag", Justification = "<Pending>")]
+            private enum CM_GETIDLIST_FILTER : uint
             {
+                NONE = 0x00000000,
                 ENUMERATOR = 0x00000001,
                 SERVICE = 0x00000002,
                 EJECTRELATIONS = 0x00000004,
                 REMOVALRELATIONS = 0x00000008,
                 POWERRELATIONS = 0x00000010,
                 BUSRELATIONS = 0x00000020,
-                NONE = 0x00000000,
-                DONOTGENERATE = 0x10000040,
                 TRANSPORTRELATIONS = 0x00000080,
                 PRESENT = 0x00000100,
                 CLASS = 0x00000200,
-                BITS = 0x100003FF,
+                DONOTGENERATE = 0x10000040,
+                BITS = DONOTGENERATE | ENUMERATOR | SERVICE | EJECTRELATIONS | REMOVALRELATIONS | POWERRELATIONS | BUSRELATIONS | TRANSPORTRELATIONS | PRESENT | CLASS,
             }
 
             //
             // Flags for CM_Locate_DevNode
             //
-            internal enum CM_LOCATE_DEVNODE_FLAG : uint
+            private enum CM_LOCATE_DEVNODE_FLAG : uint
             {
                 CM_LOCATE_DEVNODE_NORMAL = 0x00000000,
                 CM_LOCATE_DEVNODE_PHANTOM = 0x00000001,
@@ -303,46 +302,6 @@ namespace Engine.Factory
             }
 
             #endregion Enums
-
-            /// <summary>
-            /// The managed interop layer to CfgMgr32.dll
-            /// </summary>
-            internal static class NativeMethods
-            {
-                [DllImport("CfgMgr32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-                internal static extern ConfigManagerResult CM_Get_Class_Property(
-                    Guid classGUID,
-                    ref DevPropKey propertyKey,
-                    out DevPropType propertyType,
-                    IntPtr buffer,
-                    ref uint bufferSize,
-                    uint flags);
-
-                [DllImport("CfgMgr32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-                internal static extern ConfigManagerResult CM_Get_Device_ID_List(string filter, byte[] buffer, int bufferLength, CM_GETIDLIST_FILTER flags);
-
-                [DllImport("CfgMgr32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-                internal static extern ConfigManagerResult CM_Get_Device_ID_List_Size(ref int length, string filter, CM_GETIDLIST_FILTER flags);
-
-                [DllImport("CfgMgr32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-                internal static extern ConfigManagerResult CM_Get_DevNode_Property(
-                    uint devInst,
-                    ref DevPropKey propertyKey,
-                    out DevPropType propertyType,
-                    IntPtr buffer,
-                    ref uint bufferSize,
-                    uint flags);
-
-                [DllImport("CfgMgr32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-                internal static extern ConfigManagerResult CM_Get_DevNode_Status(
-                  out uint status,
-                  out uint problemNumber,
-                  uint devInst,
-                  uint ulFlags);
-
-                [DllImport("CfgMgr32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-                internal static extern ConfigManagerResult CM_Locate_DevNode(ref uint devInst, string deviceID, CM_LOCATE_DEVNODE_FLAG flags);
-            }
         }
     }
 }
