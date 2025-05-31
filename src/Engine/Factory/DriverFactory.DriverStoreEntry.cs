@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
 
 namespace Engine.Factory
 {
@@ -11,11 +9,6 @@ namespace Engine.Factory
         /// </summary>
         public class DriverStoreEntry : IEquatable<DriverStoreEntry>
         {
-            /// <summary>
-            ///     Associated device Id (device instance path).
-            /// </summary>
-            public string DeviceId { get; set; }
-
             /// <summary>
             ///     Associated device name.
             /// </summary>
@@ -63,22 +56,6 @@ namespace Engine.Factory
             /// </summary>
             public Version DriverVersion { get; set; }
 
-            public string[] GetFieldValues()
-            {
-                return new[]
-                {
-                DriverPublishedName ?? string.Empty,
-                DriverInfPath ?? string.Empty,
-                DriverPkgProvider ?? string.Empty,
-                DriverClass ?? string.Empty,
-                DriverDate.ToString("d"),
-                DriverVersion?.ToString() ?? string.Empty,
-                DriverSignerName ?? string.Empty,
-                DeviceId ?? string.Empty,
-                DeviceName ?? string.Empty
-            };
-            }
-
             public override string ToString()
             {
                 return $"PublishedName: {DriverPublishedName}, InfName: {DriverInfPath}, Class: {DriverClass}, Version: {DriverVersion}, DeviceName: {DeviceName}";
@@ -94,7 +71,6 @@ namespace Engine.Factory
                        DriverDate.Equals(other.DriverDate) &&
                        DriverVersion.Equals(other.DriverVersion) &&
                        string.Equals(DriverSignerName, other.DriverSignerName, StringComparison.InvariantCultureIgnoreCase) &&
-                       string.Equals(DeviceId, other.DeviceId, StringComparison.InvariantCultureIgnoreCase) &&
                        string.Equals(DeviceName, other.DeviceName, StringComparison.InvariantCultureIgnoreCase) &&
                        DriverArchitecture.Equals(other.DriverArchitecture);
             }

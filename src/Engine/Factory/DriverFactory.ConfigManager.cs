@@ -25,7 +25,6 @@ namespace Engine.Factory
                         && e.DriverDate == driverStoreEntry.DriverDate);
                     if (deviceInfo != null)
                     {
-                        driverStoreEntry.DeviceId = deviceInfo?.DeviceId;
                         driverStoreEntry.DeviceName = deviceInfo?.DeviceName;
                         driverStoreEntry.DriverArchitecture = deviceInfo?.DriverArchitecture ?? NativeDriverStore.ProcessorArchitecture.PROCESSOR_ARCHITECTURE_UNKNOWN;
                     }
